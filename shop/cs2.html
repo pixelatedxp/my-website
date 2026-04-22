@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Internal - pixelis.dev</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../assets/favicon.png">
+    <!-- Base Styles -->
+    <link rel="stylesheet" href="../styles.css">
+    <!-- Shop Structure Styles -->
+    <link rel="stylesheet" href="shop.css">
+</head>
+<body class="dark-mode">
+
+    <!-- Custom Cursor -->
+    <div class="cursor-trail">
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+    </div>
+
+    <div class="vignette"></div>
+
+    <!-- Original Navbar -->
+    <header class="navbar fade-up-initial">
+        <a href="../index.html" class="brand">pixelis.dev</a>
+        <nav class="nav-links">
+            <a href="../index.html" class="nav-item">Home</a>
+            <a href="../projects/index.html" class="nav-item">Projects</a>
+            <a href="../shop/index.html" class="nav-item active">Shop</a>
+            <a href="../games/index.html" class="nav-item">Games</a>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <svg viewBox="0 0 24 24" fill="none" class="theme-icon" id="themeIcon">
+                    <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </nav>
+    </header>
+
+    <div class="shop-wrapper">
+        <hr class="nav-divider fade-up-initial">
+
+        <section class="card section fade-up-initial" id="product">
+            <div class="card-content">
+                <!-- Breadcrumbs -->
+                <div class="breadcrumbs" style="margin-bottom: 25px; font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; color: var(--text-secondary);">
+                    <a href="../index.html" style="text-decoration: underline;">Home</a> /  
+                    <a href="index.html" style="text-decoration: underline;">Store</a> /  
+                    <span style="color: var(--text-primary);">CS2 Internal</span>
+                </div>
+
+        <!-- Product Hero Area (2 Column Split) -->
+        <div class="product-split">
+            <!-- Left: Gallery -->
+            <div class="prod-gallery">
+                <div class="gallery-main">
+                    <img src="assets/cs2/thumbnail.jpg" alt="CS2 Internal Cover" id="mainGalleryImg">
+                </div>
+                <div class="gallery-thumbs">
+                    <img src="assets/cs2/thumbnail.jpg" class="thumb-img active" onclick="swapImage(this)">
+                    <img src="assets/cs2/ingame_screenshot.png" class="thumb-img" onclick="swapImage(this)">
+                    <img src="assets/cs2/ingame_screenshot_and_skinchanger.png" class="thumb-img" onclick="swapImage(this)">
+                    <img src="assets/cs2/ingame_screenshot_with_esp_and_menu.png" class="thumb-img" onclick="swapImage(this)">
+                    <img src="assets/cs2/menu_screenshot.png" class="thumb-img" onclick="swapImage(this)">
+                    <img src="assets/cs2/another_skin_changer_screenshot.png" class="thumb-img" onclick="swapImage(this)">
+                    <img src="assets/cs2/yet_another_ingame_screenshot_ak.png" class="thumb-img" onclick="swapImage(this)">
+                    <img src="assets/cs2/yet_another_ingame_screenshot_awp.png" class="thumb-img" onclick="swapImage(this)">
+                </div>
+            </div>
+
+            <!-- Right: Details & Purchase -->
+            <div class="prod-info-right">
+                <h1 class="prod-title">CS2 Internal Cheat</h1>
+                <p style="color: var(--text-secondary); line-height: 1.5; margin-bottom: 20px;">
+                    Seamlessly integrated CS2 internal with customizable humanized triggerbots, advanced ESP, and fully featured 57-weapon Skin Changer. Constantly updated for UD.
+                </p>
+
+                <div class="price-display">FREE <span class="old-price">Open-Source</span></div>
+
+                <div class="pricing-tiers">
+                    <div class="tier-box active" style="opacity: 0.5; filter: grayscale(1);">
+                        <div class="tier-top">
+                            <span class="tier-name">LIFETIME</span>
+                            <span class="tier-status in-stock">IN STOCK</span>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="https://github.com/pixelatedxp/Pixel-CS2-Internal" target="_blank" class="github-btn">
+                    <span>Get on GitHub</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true" class="github-bg-icon">
+                        <path fill="black" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.43.372.823 1.102.823 2.222 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+
+        <!-- Requirements pills -->
+        <div class="req-row" style="display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap;">
+            <span class="prod-badge green">WINDOWS 10/11</span>
+            <span class="prod-badge green">INTEL/AMD</span>
+            <span class="prod-badge green">NO HWID LOCK</span>
+        </div>
+
+        <!-- Features Checklist Columns -->
+        <div class="feat-columns">
+            <!-- Col 1 -->
+            <div class="feat-col">
+                <h3 class="feat-col-hdr">Aimbot & Combat</h3>
+                <ul class="feat-list">
+                    <li><span class="dot"></span> Enable Toggle & Hotkey</li>
+                    <li><span class="dot"></span> FOV Radius & Smoothing</li>
+                    <li><span class="dot"></span> Hitbox Select & Randomization</li>
+                    <li><span class="dot"></span> Legit Percentage & Delay Timer</li>
+                    <li><span class="dot"></span> Recoil Control System (RCS)</li>
+                    <li><span class="dot"></span> Team / Wallcheck (m_bSpotted)</li>
+                    <li><span class="dot"></span> Z-Unit Height Clamp Avoidance</li>
+                    <li><span class="dot"></span> Triggerbot (Toggle & Hotkey)</li>
+                </ul>
+            </div>
+
+            <!-- Col 2 -->
+            <div class="feat-col">
+                <h3 class="feat-col-hdr">Visuals (ESP)</h3>
+                <ul class="feat-list">
+                    <li><span class="dot"></span> Enable ESP (Team Check)</li>
+                    <li><span class="dot"></span> Bounding Boxes (Full/Corners)</li>
+                    <li><span class="dot"></span> Health Bars & Skeletons</li>
+                    <li><span class="dot"></span> Snaplines & Spectator List</li>
+                    <li><span class="dot"></span> Bullet Tracers (Custom Trail)</li>
+                    <li><span class="dot"></span> Anti-Flash & Bomb Timer</li>
+                    <li><span class="dot"></span> Offscreen Tracking Arrows</li>
+                    <li><span class="dot"></span> Full RGBA Custom Colors</li>
+                </ul>
+            </div>
+
+            <!-- Col 3 -->
+            <div class="feat-col">
+                <h3 class="feat-col-hdr">Misc & Skin Changer</h3>
+                <ul class="feat-list">
+                    <li><span class="dot"></span> Individual Toggles (57 Weapons)</li>
+                    <li><span class="dot"></span> Paint Kit / Wear / Seed Input</li>
+                    <li><span class="dot"></span> StatTrak Counter Toggle</li>
+                    <li><span class="dot"></span> "Randomize All" Instant Loadout</li>
+                    <li><span class="dot"></span> Save / Load Configs</li>
+                    <li><span class="dot"></span> Debugging Console & Menu Toggle</li>
+                    <li><span class="dot"></span> Secure Panic Unload Hotkey</li>
+                </ul>
+            </div>
+        </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Original JS for cursor, theme, glitch -->
+    <script src="../script.js"></script>
+    <script>
+        function swapImage(element) {
+            document.getElementById('mainGalleryImg').src = element.src;
+            document.querySelectorAll('.thumb-img').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+        }
+    </script>
+</body>
+</html>

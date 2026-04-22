@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Projects - pixelis.dev</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../assets/favicon.png">
+    <link rel="stylesheet" href="../styles.css">
+    <!-- Inline styles to mimic shop grid lists perfectly in root body -->
+    <style>
+        .projects-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+    </style>
+</head>
+<body class="dark-mode">
+
+    <!-- Custom Cursor -->
+    <div class="cursor-trail">
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+    </div>
+
+    <div class="vignette"></div>
+
+    <header class="navbar fade-up-initial">
+        <a href="../index.html" class="brand">pixelis.dev</a>
+        <nav class="nav-links">
+            <a href="../index.html" class="nav-item">Home</a>
+            <a href="../shop/index.html" class="nav-item">Shop</a>
+            <a href="../games/index.html" class="nav-item">Games</a>
+            <a href="https://discord.com/users/1009828837141528696" target="_blank" class="nav-item">Discord</a>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <svg viewBox="0 0 24 24" fill="none" class="theme-icon" id="themeIcon">
+                    <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </nav>
+    </header>
+
+    <main class="container">
+        <hr class="nav-divider fade-up-initial">
+
+        <section class="card section fade-up-initial" id="projects-list">
+            <div class="card-content">
+                <div class="section-header" style="margin-bottom: 30px;">
+                    <h2>All Projects <span style="color: var(--text-secondary);">Repository</span></h2>
+                    <span class="mono-label">5 projects</span>
+                </div>
+
+                <p class="bio-text" style="margin-bottom: 30px;">These are all the projects I've made in total. Repositories will go public organically.</p>
+
+                <div class="projects-grid">
+                    <!-- CS2 Internal -->
+                    <a href="https://github.com/pixelatedxp/Pixel-CS2-Internal" target="_blank" class="glow-card tiltable">
+                        <div class="glow-content">
+                            <h3 style="margin-bottom: 10px;">CS2 Internal Cheat</h3>
+                            <p>It features a humanized Aimbot with adjustable smoothing and RNG headshot logic to bypass spectator detection, alongside a Skin Changer and ESP (Skeletons/Health).</p>
+                            <span class="mono-label card-link" style="display: inline-block; margin-top: 15px; color: var(--accent-teal);">[view github →]</span>
+                        </div>
+                    </a>
+
+                    <!-- Roblox External -->
+                    <a href="../shop/roblox_external.html" class="glow-card tiltable">
+                        <div class="glow-content">
+                            <h3 style="margin-bottom: 10px;">Roblox External</h3>
+                            <p>A high-performance combat external with Aimbot and ESP that runs at kernel level (UD). Made for FPS games, it features a hitbox manipulator similar to the CS2 internal.</p>
+                            <span class="mono-label card-link" style="display: inline-block; margin-top: 15px; color: var(--text-secondary);">[Coming Soon To Github]</span>
+                        </div>
+                    </a>
+
+
+
+                    <!-- Humanbenchmark -->
+                    <a href="https://github.com/pixelatedxp/human-benchmark-cheats" target="_blank" class="glow-card tiltable">
+                        <div class="glow-content">
+                            <h3 style="margin-bottom: 10px;">Humanbenchmark Cheats</h3>
+                            <p>A "highly sophisticated" tool for clicking boxes really fast. (It was a joke, don’t take it seriously).</p>
+                            <span class="mono-label card-link" style="display: inline-block; margin-top: 15px; color: var(--accent-teal);">[view github →]</span>
+                        </div>
+                    </a>
+
+                    <!-- Discord Scraper -->
+                    <a href="https://github.com/pixelatedxp/discord-member-scraper" target="_blank" class="glow-card tiltable">
+                        <div class="glow-content">
+                            <h3 style="margin-bottom: 10px;">Discord Member Scraper</h3>
+                            <p>This script helps you collect user IDs from a Discord server. It goes through all the text channels, looks at old messages, checks threads (even archived ones), and can read welcome messages from bots like Dyno or MEE6.</p>
+                            <span class="mono-label card-link" style="display: inline-block; margin-top: 15px; color: var(--accent-teal);">[view github →]</span>
+                        </div>
+                    </a>
+
+                    <!-- Roblox Offsets -->
+                    <a href="https://github.com/pixelatedxp/roblox-offsets-daily" target="_blank" class="glow-card tiltable">
+                        <div class="glow-content">
+                            <h3 style="margin-bottom: 10px;">Roblox Offsets Daily</h3>
+                            <p>Automatically updated Roblox class and property offsets. Dumped daily using Jonah's patternless dumper. Includes C++, Python, C#, and JSON formats.</p>
+                            <span class="mono-label card-link" style="display: inline-block; margin-top: 15px; color: var(--accent-teal);">[view github →]</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="../script.js"></script>
+</body>
+</html>

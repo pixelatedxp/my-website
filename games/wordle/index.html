@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle - pixelis.dev</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../../assets/favicon.png">
+    <link rel="stylesheet" href="../../styles.css">
+    <style>
+        * { cursor: none !important; }
+        html, body { height: 100%; overflow: hidden; }
+        body { display: flex; flex-direction: column; }
+        .navbar { display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 0 40px !important; flex-shrink: 0; width: 100%; box-sizing: border-box; }
+
+        .game-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 48px;
+            padding: 10px 20px;
+            overflow: hidden;
+        }
+
+        /* Grid */
+        .grid-wrap { display: flex; flex-direction: column; gap: 6px; }
+        .grid-row   { display: flex; gap: 6px; }
+        .tile {
+            width: 60px; height: 60px;
+            border: 2px solid rgba(255,255,255,0.12);
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #fff;
+            text-transform: uppercase;
+            background: transparent;
+            transition: background 0.3s, border-color 0.3s, transform 0.1s;
+            position: relative;
+        }
+        .tile.filled  { border-color: rgba(255,255,255,0.4); transform: scale(1.05); }
+        .tile.correct { background: #3d9970; border-color: #3d9970; }
+        .tile.present { background: #e67e22; border-color: #e67e22; }
+        .tile.absent  { background: #333;    border-color: #333; }
+        .tile.shake   { animation: shake 0.4s; }
+
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+        @keyframes flip {
+            0%   { transform: scaleY(1); }
+            50%  { transform: scaleY(0); }
+            100% { transform: scaleY(1); }
+        }
+        .tile.flip { animation: flip 0.5s; }
+
+        /* Keyboard */
+        .keyboard { display: flex; flex-direction: column; gap: 8px; }
+        .kb-row { display: flex; gap: 5px; justify-content: center; }
+        .key {
+            min-width: 38px; height: 52px;
+            background: #2a2a2a;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+        .key.wide { min-width: 58px; font-size: 0.72rem; }
+        .key:hover { background: #3a3a3a; }
+        .key.correct { background: #3d9970; }
+        .key.present { background: #e67e22; }
+        .key.absent  { background: #1a1a1a; color: #555; }
+
+        /* Right panel */
+        .side-panel {
+            display: flex; flex-direction: column; gap: 20px;
+            width: 200px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        .panel-title { font-size: 0.75rem; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.1em; }
+        .stat-val { font-size: 2rem; color: #fff; line-height: 1; }
+
+        #msgBox { font-size: 1rem; color: rgba(255,255,255,0.7); min-height: 1.4em; }
+
+        .btn-new {
+            padding: 11px 18px;
+            background: #3d9970;
+            border: none;
+            color: #fff;
+            border-radius: 8px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        .btn-new:hover { background: #2ecc71; }
+    </style>
+</head>
+<body class="dark-mode">
+    <div class="cursor-trail" id="cursorTrail">
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+    </div>
+    <div class="vignette"></div>
+
+    <header class="navbar fade-up-initial">
+        <a href="../../index.html" class="brand">pixelis.dev</a>
+        <nav class="nav-links">
+            <a href="../../index.html" class="nav-item">Home</a>
+            <a href="../../projects/index.html" class="nav-item">Projects</a>
+            <a href="../../shop/index.html" class="nav-item">Shop</a>
+            <a href="../index.html" class="nav-item active">Games</a>
+        </nav>
+    </header>
+
+    <div class="game-area">
+        <!-- Grid -->
+        <div>
+            <div class="grid-wrap" id="grid"></div>
+        </div>
+
+        <!-- Keyboard -->
+        <div>
+            <div class="keyboard" id="keyboard"></div>
+        </div>
+
+        <!-- Side panel -->
+        <div class="side-panel">
+            <div>
+                <div class="panel-title">Wordle</div>
+            </div>
+            <div>
+                <div class="panel-title">Streak</div>
+                <div class="stat-val" id="streak">0</div>
+            </div>
+            <div>
+                <div class="panel-title">Solved</div>
+                <div class="stat-val" id="solved">0</div>
+            </div>
+            <div id="msgBox">Guess the 5-letter word!</div>
+            <button class="btn-new" onclick="newGame()">New Word</button>
+        </div>
+    </div>
+
+    <script src="../../script.js"></script>
+    <script>
+    const WORDS = [
+        'crane','pilot','brush','swift','flame','grind','patch','virus','debug','stack',
+        'build','cache','array','class','frame','light','shade','stone','trace','flood',
+        'drive','block','click','pixel','nerve','phase','scale','split','track','plant',
+        'ghost','pride','shift','clear','depth','event','fiber','grain','guard','heavy',
+        'index','jumps','knife','lance','magic','night','ocean','power','query','react',
+        'scope','tiger','unity','vault','waste','xenon','yacht','zones','blank','clash',
+        'crisp','delta','eagle','fault','glare','harsh','input','joker','layer','mount',
+        'nerve','orbit','power','queen','radio','smoke','stuck','touch','upset','virus'
+    ];
+
+    const KEYBOARD_ROWS = [
+        ['q','w','e','r','t','y','u','i','o','p'],
+        ['a','s','d','f','g','h','j','k','l'],
+        ['Enter','z','x','c','v','b','n','m','⌫']
+    ];
+
+    const ROWS = 6, COLS = 5;
+    let answer = '', currentRow = 0, currentCol = 0;
+    let board = [], gameOver = false;
+    let streak = 0, solved = 0;
+    const keyState = {};
+
+    // Build grid
+    const gridEl = document.getElementById('grid');
+    for (let r = 0; r < ROWS; r++) {
+        const row = document.createElement('div');
+        row.className = 'grid-row';
+        const rowTiles = [];
+        for (let c = 0; c < COLS; c++) {
+            const t = document.createElement('div');
+            t.className = 'tile';
+            row.appendChild(t);
+            rowTiles.push(t);
+        }
+        gridEl.appendChild(row);
+        board.push(rowTiles);
+    }
+
+    // Build keyboard
+    const kbEl = document.getElementById('keyboard');
+    KEYBOARD_ROWS.forEach(row => {
+        const rowEl = document.createElement('div');
+        rowEl.className = 'kb-row';
+        row.forEach(k => {
+            const btn = document.createElement('button');
+            btn.className = 'key' + (k.length > 1 ? ' wide' : '');
+            btn.textContent = k;
+            btn.dataset.key = k;
+            btn.addEventListener('click', () => handleKey(k));
+            rowEl.appendChild(btn);
+        });
+        kbEl.appendChild(rowEl);
+    });
+
+    function newGame() {
+        answer = WORDS[Math.floor(Math.random() * WORDS.length)];
+        currentRow = 0; currentCol = 0; gameOver = false;
+        Object.keys(keyState).forEach(k => delete keyState[k]);
+        board.forEach(row => row.forEach(t => {
+            t.className = 'tile';
+            t.textContent = '';
+        }));
+        kbEl.querySelectorAll('.key').forEach(k => {
+            k.className = 'key' + (k.textContent.length > 1 ? ' wide' : '');
+        });
+        setMsg('Guess the 5-letter word!');
+    }
+
+    function setMsg(msg) { document.getElementById('msgBox').textContent = msg; }
+
+    function handleKey(k) {
+        if (gameOver) return;
+        if (k === '⌫' || k === 'Backspace') {
+            if (currentCol > 0) {
+                currentCol--;
+                const t = board[currentRow][currentCol];
+                t.textContent = '';
+                t.classList.remove('filled');
+            }
+        } else if (k === 'Enter') {
+            submitGuess();
+        } else if (/^[a-z]$/i.test(k) && currentCol < COLS) {
+            const t = board[currentRow][currentCol];
+            t.textContent = k.toLowerCase();
+            t.classList.add('filled');
+            currentCol++;
+        }
+    }
+
+    function submitGuess() {
+        if (currentCol < COLS) { shakeRow(); setMsg('Not enough letters'); return; }
+        const guess = board[currentRow].map(t => t.textContent).join('');
+
+        // Score the guess
+        const result = Array(COLS).fill('absent');
+        const ansArr = answer.split('');
+        const used = Array(COLS).fill(false);
+
+        // First pass: correct
+        for (let i = 0; i < COLS; i++) {
+            if (guess[i] === ansArr[i]) {
+                result[i] = 'correct';
+                used[i] = true;
+            }
+        }
+        // Second pass: present
+        for (let i = 0; i < COLS; i++) {
+            if (result[i] === 'correct') continue;
+            for (let j = 0; j < COLS; j++) {
+                if (!used[j] && guess[i] === ansArr[j]) {
+                    result[i] = 'present';
+                    used[j] = true;
+                    break;
+                }
+            }
+        }
+
+        // Animate flip reveal
+        board[currentRow].forEach((t, i) => {
+            setTimeout(() => {
+                t.classList.add('flip');
+                setTimeout(() => {
+                    t.classList.remove('flip');
+                    t.classList.add(result[i]);
+                }, 250);
+            }, i * 120);
+        });
+
+        // Update keyboard
+        setTimeout(() => {
+            for (let i = 0; i < COLS; i++) {
+                const letter = guess[i];
+                const cur = keyState[letter];
+                if (result[i] === 'correct' || (!cur || cur !== 'correct')) {
+                    if (result[i] === 'correct') keyState[letter] = 'correct';
+                    else if (result[i] === 'present' && cur !== 'correct') keyState[letter] = 'present';
+                    else if (!cur) keyState[letter] = 'absent';
+                }
+            }
+            kbEl.querySelectorAll('.key').forEach(btn => {
+                const s = keyState[btn.dataset.key];
+                if (s) { btn.className = 'key' + (btn.textContent.length > 1 ? ' wide' : '') + ' ' + s; }
+            });
+        }, COLS * 120 + 300);
+
+        currentRow++;
+        currentCol = 0;
+
+        if (guess === answer) {
+            setTimeout(() => {
+                streak++; solved++;
+                document.getElementById('streak').textContent = streak;
+                document.getElementById('solved').textContent = solved;
+                const msgs = ['Genius!','Excellent!','Great!','Well done.','Phew.','Lucky!'];
+                setMsg(msgs[Math.min(currentRow - 1, 5)] + ' 🎉');
+            }, COLS * 120 + 350);
+            gameOver = true;
+        } else if (currentRow >= ROWS) {
+            setTimeout(() => {
+                streak = 0;
+                document.getElementById('streak').textContent = streak;
+                setMsg('The word was: ' + answer.toUpperCase());
+            }, COLS * 120 + 350);
+            gameOver = true;
+        }
+    }
+
+    function shakeRow() {
+        board[currentRow].forEach(t => {
+            t.classList.add('shake');
+            t.addEventListener('animationend', () => t.classList.remove('shake'), { once: true });
+        });
+    }
+
+    document.addEventListener('keydown', e => {
+        if (e.ctrlKey || e.altKey || e.metaKey) return;
+        if (e.key === 'Enter') handleKey('Enter');
+        else if (e.key === 'Backspace') handleKey('⌫');
+        else if (/^[a-zA-Z]$/.test(e.key)) handleKey(e.key.toLowerCase());
+    });
+
+    newGame();
+    </script>
+</body>
+</html>

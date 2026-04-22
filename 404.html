@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 Not Found - pixelis.dev</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        .error-container {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .error-box {
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .huge-404 {
+            font-size: 8rem;
+            line-height: 1;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .error-message {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body class="dark-mode">
+
+    <!-- Cursor Elements -->
+    <div class="cursor-trail">
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+    </div>
+
+    <div class="vignette"></div>
+
+    <header class="navbar fade-up-initial">
+        <a href="index.html" class="brand">pixelis.dev</a>
+        <nav class="nav-links">
+            <a href="projects/index.html" class="nav-item">Projects</a>
+            <a href="shop/index.html" class="nav-item">Shop</a>
+            <a href="https://discord.com/users/1009828837141528696" target="_blank" class="nav-item">Discord</a>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <svg viewBox="0 0 24 24" fill="none" class="theme-icon" id="themeIcon">
+                    <!-- Replaced with JS dynamically -->
+                </svg>
+            </button>
+        </nav>
+    </header>
+
+    <main class="container error-container fade-up-initial">
+        <div class="error-box">
+            <h1 class="huge-404 mono-label glitch-text" data-text="404">404</h1>
+            
+            <div class="glow-card tiltable" style="text-align: left;">
+                <div class="glow-content" style="padding: 40px 30px; text-align: center;">
+                    <p class="error-message">You've strayed too far into the source code.<br>This page doesn't exist.</p>
+                    
+                    <a href="index.html" style="text-decoration: none; display: inline-block;">
+                        <span class="mono-label card-link" style="font-size: 0.9rem; border: 1px solid var(--border-color); padding: 10px 20px; border-radius: 4px;">[go back to menu →]</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

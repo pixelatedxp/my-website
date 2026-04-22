@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reaction Time - pixelis.dev</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../../assets/favicon.png">
+    <link rel="stylesheet" href="../../styles.css">
+    <style>
+        * { cursor: none !important; }
+        html, body { height: 100%; overflow: hidden; }
+        body { display: flex; flex-direction: column; }
+        .navbar { display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 0 40px !important; flex-shrink: 0; width: 100%; box-sizing: border-box; }
+
+        .game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 36px;
+            padding: 20px;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* The big click zone */
+        #clickZone {
+            width: min(520px, 90vw);
+            height: 280px;
+            border-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background 0.22s ease;
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.07);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.5);
+        }
+        #clickZone.waiting { background: #c0392b; color: #fff; }
+        #clickZone.go      { background: #27ae60; color: #fff; box-shadow: 0 0 60px rgba(39,174,96,0.4); }
+        #clickZone.result  { background: #1a1a1a; color: #fff; }
+        #clickZone.toosoon { background: #e67e22; color: #fff; }
+
+        .zone-big { font-size: 3.5rem; font-weight: bold; line-height: 1; }
+        .zone-sub { font-size: 0.9rem; opacity: 0.7; }
+
+        /* Scoreboard */
+        .scoreboard {
+            display: grid;
+            grid-template-columns: repeat(3, 200px);
+            gap: 20px;
+        }
+        .score-card {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            font-family: 'Share Tech Mono', monospace;
+            border: 1px solid rgba(255,255,255,0.07);
+        }
+        .score-card.winner { border-color: #27ae60; }
+        .score-card .sname { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
+        .score-card .sval  { font-size: 2rem; color: #fff; line-height: 1; }
+        .score-card .ssub  { font-size: 0.75rem; color: #666; margin-top: 4px; }
+
+        .attempts-row {
+            display: flex;
+            gap: 10px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.4);
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 520px;
+        }
+        .attempt-pill {
+            padding: 4px 12px;
+            background: #1a1a1a;
+            border-radius: 20px;
+        }
+        .attempt-pill.best { background: #27ae60; color: #fff; }
+
+        .btn-row {
+            display: flex;
+            gap: 14px;
+        }
+        .btn-act {
+            padding: 11px 28px;
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            border-radius: 8px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.88rem;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .btn-act:hover { background: #272727; border-color: #27ae60; }
+        .btn-act.primary { background: #27ae60; border-color: transparent; }
+        .btn-act.primary:hover { background: #2ecc71; }
+    </style>
+</head>
+<body class="dark-mode">
+    <div class="cursor-trail" id="cursorTrail">
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+    </div>
+    <div class="vignette"></div>
+
+    <header class="navbar fade-up-initial">
+        <a href="../../index.html" class="brand">pixelis.dev</a>
+        <nav class="nav-links">
+            <a href="../../index.html" class="nav-item">Home</a>
+            <a href="../../projects/index.html" class="nav-item">Projects</a>
+            <a href="../../shop/index.html" class="nav-item">Shop</a>
+            <a href="../index.html" class="nav-item active">Games</a>
+        </nav>
+    </header>
+
+    <div class="game-area">
+        <!-- Scoreboard (always visible) -->
+        <div class="scoreboard">
+            <div class="score-card" id="yourCard">
+                <div class="sname">You (Best)</div>
+                <div class="sval" id="yourBest">—</div>
+                <div class="ssub">ms</div>
+            </div>
+            <div class="score-card" id="pixelCard">
+                <div class="sname">Pixel</div>
+                <div class="sval">180</div>
+                <div class="ssub">ms (personal best)</div>
+            </div>
+            <div class="score-card" id="codeCard">
+                <div class="sname">Code</div>
+                <div class="sval" id="codeVal">—</div>
+                <div class="ssub">ms (inhuman)</div>
+            </div>
+        </div>
+
+        <!-- Click zone -->
+        <div id="clickZone">
+            <div class="zone-big" id="zoneText">Click to Start</div>
+            <div class="zone-sub" id="zoneSub">React when it turns green</div>
+        </div>
+
+        <!-- Attempt history -->
+        <div class="attempts-row" id="attemptsRow"></div>
+
+        <!-- Buttons -->
+        <div class="btn-row">
+            <button class="btn-act" onclick="goBack()">← Games</button>
+        </div>
+    </div>
+
+    <script src="../../script.js"></script>
+    <script>
+        const MAX_ATTEMPTS = 5;
+        let state = 'idle'; // idle | waiting | go | result | toosoon
+        let timer = null, startTime = null;
+        let attempts = [];
+
+        const zone = document.getElementById('clickZone');
+        const zoneText = document.getElementById('zoneText');
+        const zoneSub = document.getElementById('zoneSub');
+        const attemptsRow = document.getElementById('attemptsRow');
+
+        function setState(s) {
+            state = s;
+            zone.className = s;
+        }
+
+        function setZoneText(big, sub = '') {
+            zoneText.textContent = big;
+            zoneSub.textContent = sub;
+        }
+
+        function renderAttempts() {
+            const best = Math.min(...attempts);
+            attemptsRow.innerHTML = attempts.map((ms, i) =>
+                `<div class="attempt-pill${ms === best ? ' best' : ''}">#${i+1}: ${ms}ms</div>`
+            ).join('');
+        }
+
+        function updateBest() {
+            if (!attempts.length) return;
+            const best = Math.min(...attempts);
+            document.getElementById('yourBest').textContent = best;
+            // Code reacts with ~0–5ms
+            const codeMs = Math.floor(Math.random() * 6);
+            document.getElementById('codeVal').textContent = codeMs;
+
+            // Highlight winner
+            const scores = [
+                { id: 'yourCard', s: best },
+                { id: 'pixelCard', s: 180 },
+                { id: 'codeCard', s: codeMs }
+            ];
+            scores.forEach(c => document.getElementById(c.id).classList.remove('winner'));
+            scores.sort((a, b) => a.s - b.s);
+            document.getElementById(scores[0].id).classList.add('winner');
+        }
+
+        zone.addEventListener('click', () => {
+            if (state === 'idle' || state === 'result' || state === 'toosoon') {
+                // Start a new attempt
+                clearTimeout(timer);
+                setState('waiting');
+                setZoneText('Wait...', 'Do not click yet!');
+                const delay = 1500 + Math.random() * 3500;
+                timer = setTimeout(() => {
+                    setState('go');
+                    startTime = Date.now();
+                    setZoneText('CLICK!', 'Go go go!');
+                }, delay);
+            } else if (state === 'waiting') {
+                // Clicked too early
+                clearTimeout(timer);
+                setState('toosoon');
+                setZoneText('Too Soon!', 'Click to try again');
+            } else if (state === 'go') {
+                const ms = Date.now() - startTime;
+                attempts.push(ms);
+                renderAttempts();
+                updateBest();
+                clearTimeout(timer);
+
+                if (attempts.length >= MAX_ATTEMPTS) {
+                    setState('result');
+                    setZoneText('Done! Best: ' + Math.min(...attempts) + 'ms', 'Click to play again');
+                    attempts = [];
+                } else {
+                    setState('result');
+                    setZoneText(ms + 'ms', `Click for attempt ${attempts.length + 1} of ${MAX_ATTEMPTS}`);
+                }
+            }
+        });
+
+        function goBack() { window.location.href = '../index.html'; }
+
+        // Initial state
+        setState('idle');
+    </script>
+</body>
+</html>

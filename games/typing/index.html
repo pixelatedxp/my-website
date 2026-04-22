@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Speed - pixelis.dev</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../../assets/favicon.png">
+    <link rel="stylesheet" href="../../styles.css">
+    <style>
+        * { cursor: none !important; }
+        html, body { height: 100%; overflow: hidden; }
+        body { display: flex; flex-direction: column; }
+        .navbar { display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 0 40px !important; flex-shrink: 0; width: 100%; box-sizing: border-box; }
+
+        .game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 40px;
+            gap: 28px;
+            overflow: hidden;
+        }
+
+        .top-labels {
+            display: flex;
+            gap: 60px;
+            align-items: center;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .racer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .racer-name { font-size: 0.78rem; color: rgba(255,255,255,0.4); text-transform: uppercase; }
+        .racer-wpm  { font-size: 2.2rem; color: #fff; line-height: 1; }
+        .racer-wpm.you { color: #3d9970; }
+        .racer-wpm.pixel { color: #e67e22; }
+        .racer-wpm.code  { color: #c0392b; }
+
+        /* Race track */
+        .race-tracks {
+            width: 100%;
+            max-width: 860px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .track-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+        }
+
+        .track-name { width: 55px; color: rgba(255,255,255,0.4); text-align: right; flex-shrink: 0; }
+        .track-bar-wrap { flex: 1; background: #1a1a1a; border-radius: 20px; height: 22px; overflow: hidden; position: relative; }
+        .track-bar { height: 100%; border-radius: 20px; transition: width 0.3s; width: 0%; display: flex; align-items: center; padding: 0 8px; font-size: 0.72rem; color: rgba(255,255,255,0.8); }
+        .track-bar.you   { background: #3d9970; }
+        .track-bar.pixel { background: #e67e22; }
+        .track-bar.code  { background: #c0392b; }
+        .track-pct { width: 45px; color: rgba(255,255,255,0.4); font-family: 'Share Tech Mono', monospace; font-size: 0.78rem; }
+
+        /* Text display */
+        .text-display {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.2rem;
+            line-height: 1.8;
+            max-width: 860px;
+            width: 100%;
+            text-align: left;
+            letter-spacing: 0.03em;
+        }
+
+        .char { color: #555; }
+        .char.correct { color: #3d9970; }
+        .char.wrong   { color: #c0392b; background: rgba(192,57,43,0.2); }
+        .char.cursor  { border-left: 2px solid #fff; }
+
+        /* Hidden input */
+        #hiddenInput {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+            left: -9999px;
+        }
+
+        .btn-start {
+            padding: 12px 36px;
+            background: #3d9970;
+            border: none;
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .btn-start:hover { background: #2ecc71; }
+
+        .hint { font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; color: rgba(255,255,255,0.25); }
+
+        /* Results */
+        #results {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+            font-family: 'Share Tech Mono', monospace;
+            color: #fff;
+            z-index: 10;
+        }
+        #results.visible { display: flex; }
+        #results h2 { font-size: 2rem; margin: 0; }
+
+        .vs-grid { display: grid; grid-template-columns: repeat(3, 200px); gap: 20px; text-align: center; }
+        .vs-card { background: #1a1a1a; border-radius: 12px; padding: 24px; border: 1px solid rgba(255,255,255,0.08); }
+        .vs-card.winner { border-color: #3d9970; }
+        .vs-card .name { font-size: 0.8rem; color: #888; margin-bottom: 8px; }
+        .vs-card .wpm-big { font-size: 2.2rem; color: #fff; }
+        .vs-card .sub { font-size: 0.75rem; color: #666; margin-top: 4px; }
+
+        .btn-retry { padding: 12px 32px; background: #3d9970; border: none; color: #fff; border-radius: 8px; cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; font-weight: bold; }
+    </style>
+</head>
+<body class="dark-mode">
+    <div class="cursor-trail">
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+    </div>
+    <div class="vignette"></div>
+
+    <header class="navbar fade-up-initial">
+        <a href="../../index.html" class="brand">pixelis.dev</a>
+        <nav class="nav-links">
+            <a href="../../index.html" class="nav-item">Home</a>
+            <a href="../../projects/index.html" class="nav-item">Projects</a>
+            <a href="../../shop/index.html" class="nav-item">Shop</a>
+            <a href="../index.html" class="nav-item active">Games</a>
+        </nav>
+    </header>
+
+    <div id="results">
+        <h2>[results]</h2>
+        <div class="vs-grid">
+            <div class="vs-card" id="resYou">
+                <div class="name">You</div>
+                <div class="wpm-big" id="resYouWpm">—</div>
+                <div class="sub" id="resYouAcc">—</div>
+            </div>
+            <div class="vs-card" id="resPixel">
+                <div class="name">Pixel</div>
+                <div class="wpm-big">90</div>
+                <div class="sub">WPM</div>
+            </div>
+            <div class="vs-card" id="resCode">
+                <div class="name">Code</div>
+                <div class="wpm-big">700</div>
+                <div class="sub">WPM</div>
+            </div>
+        </div>
+        <button class="btn-retry" onclick="setupGame()">Play Again</button>
+    </div>
+
+    <div class="game-area">
+        <div class="top-labels">
+            <div class="racer">
+                <div class="racer-name">You</div>
+                <div class="racer-wpm you" id="yourWpm">0</div>
+                <div style="font-size:0.7rem;color:#666;font-family:'Share Tech Mono',monospace;">WPM</div>
+            </div>
+            <div class="racer">
+                <div class="racer-name">Avg Human</div>
+                <div class="racer-wpm" style="color:#8e44ad">60</div>
+                <div style="font-size:0.7rem;color:#666;font-family:'Share Tech Mono',monospace;">WPM</div>
+            </div>
+            <div class="racer">
+                <div class="racer-name">Pixel</div>
+                <div class="racer-wpm pixel">90</div>
+                <div style="font-size:0.7rem;color:#666;font-family:'Share Tech Mono',monospace;">WPM</div>
+            </div>
+            <div class="racer">
+                <div class="racer-name">Code</div>
+                <div class="racer-wpm code">700</div>
+                <div style="font-size:0.7rem;color:#666;font-family:'Share Tech Mono',monospace;">WPM</div>
+            </div>
+        </div>
+
+        <!-- Race tracks -->
+        <div class="race-tracks">
+            <div class="track-row">
+                <div class="track-name">You</div>
+                <div class="track-bar-wrap"><div class="track-bar you" id="trackYou"></div></div>
+                <div class="track-pct" id="pctYou">0%</div>
+            </div>
+            <div class="track-row">
+                <div class="track-name">Human</div>
+                <div class="track-bar-wrap"><div class="track-bar" style="background:#8e44ad" id="trackHuman"></div></div>
+                <div class="track-pct" id="pctHuman">0%</div>
+            </div>
+            <div class="track-row">
+                <div class="track-name">Pixel</div>
+                <div class="track-bar-wrap"><div class="track-bar pixel" id="trackPixel"></div></div>
+                <div class="track-pct" id="pctPixel">0%</div>
+            </div>
+            <div class="track-row">
+                <div class="track-name">Code</div>
+                <div class="track-bar-wrap"><div class="track-bar code" id="trackCode"></div></div>
+                <div class="track-pct" id="pctCode">0%</div>
+            </div>
+        </div>
+
+        <div class="text-display" id="textDisplay"></div>
+        <input type="text" id="hiddenInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <div class="hint" id="hintText">Start typing to begin the race...</div>
+    </div>
+
+    <script src="../../script.js"></script>
+    <script>
+        const TEXTS = [
+            "reverse engineering video games requires patience memory analysis and a deep understanding of how software works at the lowest level of abstraction that you can imagine when you strip away all the graphical layers",
+            "debugging code at three in the morning is just another form of problem solving with extra steps and a lot of caffeine involved because the compiler does not care about your sleep schedule or your mental health",
+            "pixel built an external cheat not because he needed to win but because understanding how games handle memory read operations and player coordinates was genuinely fascinating to him as an engineering challenge",
+            "writing clean code is like writing poetry every word matters every space has a purpose and brevity is the soul of wit as someone once said and that applies equally to functions variables and commit messages",
+            "the difference between a good developer and a great one is not the language they use or the framework they know but whether they can look at a problem from ten different angles and still find the simplest solution"
+        ];
+
+        let text = '', typed = '', startTime = null, gameRunning = false;
+        let pixelInterval = null, codeInterval = null, humanInterval = null;
+        let pixelChars = 0, codeChars = 0, humanChars = 0;
+
+        const PIXEL_WPM = 90, CODE_WPM = 700, HUMAN_WPM = 60;
+        const PIXEL_CPS = (PIXEL_WPM * 5) / 60;
+        const CODE_CPS  = (CODE_WPM  * 5) / 60;
+        const HUMAN_CPS = (HUMAN_WPM * 5) / 60;
+
+        function setupGame() {
+            document.getElementById('results').classList.remove('visible');
+            text = TEXTS[Math.floor(Math.random() * TEXTS.length)];
+            typed = '';
+            startTime = null;
+            gameRunning = false;
+            pixelChars = 0; codeChars = 0; humanChars = 0;
+            clearInterval(pixelInterval); clearInterval(codeInterval); clearInterval(humanInterval);
+
+            renderText();
+            updateTracks(0, 0, 0, 0);
+            document.getElementById('yourWpm').textContent = '0';
+            document.getElementById('hintText').textContent = 'Start typing to begin the race...';
+            document.getElementById('hiddenInput').focus();
+        }
+
+        function renderText() {
+            const el = document.getElementById('textDisplay');
+            el.innerHTML = text.split('').map((ch, i) => {
+                let cls = 'char';
+                if (i < typed.length)  cls += typed[i] === ch ? ' correct' : ' wrong';
+                else if (i === typed.length) cls += ' cursor';
+                return `<span class="${cls}">${ch}</span>`;
+            }).join('');
+        }
+
+        function updateTracks(yourPct, humanPct, pixelPct, codePct) {
+            const clamp = v => Math.min(100, Math.max(0, v));
+            document.getElementById('trackYou').style.width   = clamp(yourPct)  + '%';
+            document.getElementById('trackHuman').style.width = clamp(humanPct) + '%';
+            document.getElementById('trackPixel').style.width = clamp(pixelPct) + '%';
+            document.getElementById('trackCode').style.width  = clamp(codePct)  + '%';
+            document.getElementById('pctYou').textContent   = Math.round(clamp(yourPct))  + '%';
+            document.getElementById('pctHuman').textContent = Math.round(clamp(humanPct)) + '%';
+            document.getElementById('pctPixel').textContent = Math.round(clamp(pixelPct)) + '%';
+            document.getElementById('pctCode').textContent  = Math.round(clamp(codePct))  + '%';
+        }
+
+        function calcWpm() {
+            if (!startTime) return 0;
+            const mins = (Date.now() - startTime) / 60000;
+            const words = typed.trim().split(/\s+/).length;
+            return mins > 0 ? Math.round(words / mins) : 0;
+        }
+
+        function startGame() {
+            document.getElementById('hintText').textContent = 'Type the text above...';
+            document.getElementById('hiddenInput').focus();
+            startTime = Date.now();
+            gameRunning = true;
+
+            // Average human at 60 WPM
+            humanInterval = setInterval(() => {
+                if (!gameRunning) return;
+                humanChars = Math.min(text.length, humanChars + HUMAN_CPS * 0.1);
+                updateTracksNow();
+                if (humanChars >= text.length) clearInterval(humanInterval);
+            }, 100);
+
+            // Pixel races at 90 WPM
+            pixelInterval = setInterval(() => {
+                if (!gameRunning) return;
+                pixelChars = Math.min(text.length, pixelChars + PIXEL_CPS * 0.1);
+                updateTracksNow();
+                if (pixelChars >= text.length) clearInterval(pixelInterval);
+            }, 100);
+
+            // Code races at 700 WPM
+            codeInterval = setInterval(() => {
+                if (!gameRunning) return;
+                codeChars = Math.min(text.length, codeChars + CODE_CPS * 0.1);
+                updateTracksNow();
+                if (codeChars >= text.length) clearInterval(codeInterval);
+            }, 100);
+        }
+
+        function updateTracksNow() {
+            const yourPct  = (typed.length / text.length) * 100;
+            const humanPct = (humanChars   / text.length) * 100;
+            const pixelPct = (pixelChars   / text.length) * 100;
+            const codePct  = (codeChars    / text.length) * 100;
+            updateTracks(yourPct, humanPct, pixelPct, codePct);
+            document.getElementById('yourWpm').textContent = calcWpm();
+        }
+
+        function endGame() {
+            gameRunning = false;
+            clearInterval(pixelInterval); clearInterval(codeInterval); clearInterval(humanInterval);
+            const wpm = calcWpm();
+            const correct = typed.split('').filter((c, i) => c === text[i]).length;
+            const acc = typed.length > 0 ? Math.round((correct / typed.length) * 100) : 0;
+
+            document.getElementById('resYouWpm').textContent = wpm + ' WPM';
+            document.getElementById('resYouAcc').textContent = acc + '% accuracy';
+
+            const scores = [
+                { id: 'resYou', s: wpm },
+                { id: 'resPixel', s: PIXEL_WPM },
+                { id: 'resCode', s: CODE_WPM }
+            ];
+            const best = Math.max(...scores.map(x => x.s));
+            scores.forEach(x => document.getElementById(x.id).classList.toggle('winner', x.s === best));
+            document.getElementById('results').classList.add('visible');
+        }
+
+        document.getElementById('hiddenInput').addEventListener('input', (e) => {
+            const val = e.target.value;
+            typed = val;
+            // Auto-start on first character
+            if (!gameRunning && typed.length > 0) {
+                startGame();
+            }
+            if (!gameRunning) return;
+            renderText();
+            updateTracksNow();
+            if (typed.length >= text.length) endGame();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            document.getElementById('hiddenInput').focus();
+        });
+
+        setupGame();
+    </script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Games - pixelis.dev</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../assets/favicon.png">
+    <!-- Base Styles -->
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        
+        .game-card {
+            text-decoration: none;
+            display: block;
+        }
+
+        .game-thumbnail {
+            width: 100%;
+            height: 180px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .game-thumbnail i {
+            font-size: 3rem;
+            color: var(--accent-teal);
+            opacity: 0.5;
+        }
+
+        .game-card h3 {
+            margin: 0 0 10px 0;
+            color: #fff;
+        }
+
+        .game-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body class="dark-mode">
+
+    <!-- Custom Cursor -->
+    <div class="cursor-trail" id="cursorTrail">
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+    </div>
+
+    <div class="vignette"></div>
+
+    <header class="navbar fade-up-initial">
+        <a href="../index.html" class="brand">pixelis.dev</a>
+        <nav class="nav-links">
+            <a href="../index.html" class="nav-item">Home</a>
+            <a href="../projects/index.html" class="nav-item">Projects</a>
+            <a href="../shop/index.html" class="nav-item">Shop</a>
+            <a href="#" class="nav-item active">Games</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <hr class="nav-divider fade-up-initial">
+
+        <section class="card section fade-up-initial">
+            <div class="card-content">
+                <div class="section-header">
+                    <h2 class="mono-label glitch-text" data-text="[games_menu]">[games_menu]</h2>
+                </div>
+                
+                <p class="bio-text">Welcome to the Lab. Here are some mini-games and interactive tools I've built.</p>
+
+                <div class="games-grid">
+                    <!-- Chess -->
+                    <a href="chess/index.html" class="game-card glow-card tiltable">
+                        <div class="glow-content">
+                            <div class="game-thumbnail">
+                                <img src="../assets/thumbnails/chess.jpg" alt="Chess Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <h3>Play me in Chess</h3>
+                            <p>Challenge the Pixel Engine (Stockfish 1100 Elo). Reactive chatbot personality.</p>
+                            <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
+                        </div>
+                    </a>
+
+                    <!-- Aim Trainer -->
+                    <a href="aim-trainer/index.html" class="game-card glow-card tiltable">
+                        <div class="glow-content">
+                            <div class="game-thumbnail" style="background:#0d0d0d; position:relative; overflow:hidden;">
+                                <!-- Animated target preview -->
+                                <svg width="100%" height="100%" viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="80" cy="60" r="28" fill="none" stroke="#c0392b" stroke-width="2"/>
+                                    <circle cx="80" cy="60" r="17" fill="none" stroke="#e74c3c" stroke-width="1.5"/>
+                                    <circle cx="80" cy="60" r="6" fill="#e74c3c"/>
+                                    <line x1="50" y1="60" x2="69" y2="60" stroke="#e74c3c" stroke-width="1.5"/>
+                                    <line x1="91" y1="60" x2="110" y2="60" stroke="#e74c3c" stroke-width="1.5"/>
+                                    <line x1="80" y1="28" x2="80" y2="50" stroke="#e74c3c" stroke-width="1.5"/>
+                                    <line x1="80" y1="70" x2="80" y2="92" stroke="#e74c3c" stroke-width="1.5"/>
+                                    <circle cx="200" cy="110" r="35" fill="none" stroke="#c0392b" stroke-width="2" opacity="0.7"/>
+                                    <circle cx="200" cy="110" r="21" fill="none" stroke="#e74c3c" stroke-width="1.5" opacity="0.7"/>
+                                    <circle cx="200" cy="110" r="7" fill="#e74c3c" opacity="0.7"/>
+                                    <circle cx="240" cy="45" r="20" fill="none" stroke="#c0392b" stroke-width="2" opacity="0.5"/>
+                                    <circle cx="240" cy="45" r="7" fill="#e74c3c" opacity="0.5"/>
+                                </svg>
+                            </div>
+                            <h3>Aim Trainer</h3>
+                            <p>Click targets as fast as possible. Compare your accuracy vs Pixel and Code.</p>
+                            <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
+                        </div>
+                    </a>
+
+                    <!-- Typing -->
+                    <a href="typing/index.html" class="game-card glow-card tiltable">
+                        <div class="glow-content">
+                            <div class="game-thumbnail">
+                                <img src="../assets/thumbnails/typing.jpg" alt="Typing Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <h3>Typing Speed</h3>
+                            <p>Race in real-time vs Pixel (90 WPM) and Code (700 WPM). Who finishes first?</p>
+                            <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
+                        </div>
+                    </a>
+
+                    <!-- Sequence Memory -->
+                    <a href="sequence-memory/index.html" class="game-card glow-card tiltable">
+                        <div class="glow-content">
+                            <div class="game-thumbnail" style="background:#0d0d0d; display:flex; align-items:center; justify-content:center;">
+                                <svg width="160" height="120" viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="10" y="10" width="40" height="40" rx="8" fill="#6c5ce7" opacity="0.9"/>
+                                    <rect x="60" y="10" width="40" height="40" rx="8" fill="#1e1e1e" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                                    <rect x="110" y="10" width="40" height="40" rx="8" fill="#1e1e1e" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                                    <rect x="10" y="60" width="40" height="40" rx="8" fill="#1e1e1e" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                                    <rect x="60" y="60" width="40" height="40" rx="8" fill="#6c5ce7" opacity="0.6"/>
+                                    <rect x="110" y="60" width="40" height="40" rx="8" fill="#1e1e1e" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                                </svg>
+                            </div>
+                            <h3>Sequence Memory</h3>
+                            <p>Remember and repeat the growing pattern. Beat Pixel's best of 12. Code never forgets.</p>
+                            <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
+                        </div>
+                    </a>
+
+                    <!-- Snake -->
+                    <a href="snake/index.html" class="game-card glow-card tiltable">
+                        <div class="glow-content">
+                            <div class="game-thumbnail">
+                                <img src="../assets/thumbnails/snake.jpg" alt="Snake Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <h3>Snake</h3>
+                            <p>Split-screen Snake. Race vs Pixel at human speed, or vs Code at maximum velocity.</p>
+                            <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
+                        </div>
+                    </a>
+
+                    <!-- Reaction Time -->
+                    <a href="reaction-time/index.html" class="game-card glow-card tiltable">
+                        <div class="glow-content">
+                            <div class="game-thumbnail">
+                                <img src="../assets/thumbnails/reaction.jpg" alt="Reaction Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <h3>Reaction Time</h3>
+                            <p>Click when it turns green. Beat Pixel (180ms) and Code (0–5ms) if you dare.</p>
+                            <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
+                        </div>
+                    </a>
+
+                    <!-- Wordle -->
+                    <a href="wordle/index.html" class="game-card glow-card tiltable">
+                        <div class="glow-content">
+                            <div class="game-thumbnail">
+                                <img src="../assets/thumbnails/wordle.png" alt="Wordle Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <h3>Wordle</h3>
+                            <p>6 guesses to find the hidden 5-letter word. Flip animations, keyboard tracking, streak counter.</p>
+                            <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
+                        </div>
+                    </a>
+
+                    <!-- Coming Soon -->
+                    <div class="game-card glow-card tiltable" style="opacity: 0.4; pointer-events: none;">
+                        <div class="glow-content">
+                            <div class="game-thumbnail" style="background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 20px);">
+                                <span class="mono-label">COMING SOON</span>
+                            </div>
+                            <h3>More Games...</h3>
+                            <p>Always cooking something new in the lab.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="../script.js"></script>
+</body>
+</html>

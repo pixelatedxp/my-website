@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aim Trainer - pixelis.dev</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../../assets/favicon.png">
+    <link rel="stylesheet" href="../../styles.css">
+    <style>
+        * { cursor: none !important; }
+        html, body { height: 100%; overflow: hidden; }
+        body { display: flex; flex-direction: column; }
+
+        .navbar { display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 0 40px !important; flex-shrink: 0; width: 100%; box-sizing: border-box; }
+
+        .game-area {
+            flex: 1;
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #canvas {
+            flex: 1;
+            cursor: crosshair;
+            background: #0d0d0d;
+            display: block;
+        }
+
+        .side-panel {
+            width: 280px;
+            background: #111;
+            border-left: 1px solid rgba(255,255,255,0.07);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 20px;
+            gap: 20px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .panel-title {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .big-stat {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .stat-label { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 4px; }
+
+        .stat-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .stat-box {
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .stat-box .val { font-size: 1.5rem; color: #fff; }
+        .stat-box .lbl { font-size: 0.75rem; color: #666; }
+
+        .btn-start {
+            padding: 13px;
+            background: #c0392b;
+            border: none;
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .btn-start:hover { background: #e74c3c; }
+
+        .timer-bar-wrap {
+            background: #1a1a1a;
+            border-radius: 6px;
+            height: 8px;
+            overflow: hidden;
+        }
+        .timer-bar {
+            height: 100%;
+            background: #c0392b;
+            transition: width 0.1s linear;
+            width: 100%;
+        }
+
+        /* Results overlay */
+        #results {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            font-family: 'Share Tech Mono', monospace;
+            color: #fff;
+            z-index: 10;
+        }
+        #results.visible { display: flex; }
+        #results h2 { font-size: 2rem; margin: 0; }
+
+        .vs-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            text-align: center;
+        }
+        .vs-card {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 20px 24px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .vs-card.winner { border-color: #3d9970; }
+        .vs-card .name { font-size: 0.8rem; color: #888; margin-bottom: 8px; }
+        .vs-card .score-big { font-size: 2rem; color: #fff; }
+        .vs-card .subscore { font-size: 0.75rem; color: #666; margin-top: 4px; }
+
+        .btn-retry {
+            padding: 12px 32px;
+            background: #c0392b;
+            border: none;
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .btn-retry:hover { background: #e74c3c; }
+    </style>
+</head>
+<body class="dark-mode">
+    <div class="cursor-trail">
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+    </div>
+    <div class="vignette"></div>
+
+    <header class="navbar fade-up-initial">
+        <a href="../../index.html" class="brand">pixelis.dev</a>
+        <nav class="nav-links">
+            <a href="../../index.html" class="nav-item">Home</a>
+            <a href="../../projects/index.html" class="nav-item">Projects</a>
+            <a href="../../shop/index.html" class="nav-item">Shop</a>
+            <a href="../index.html" class="nav-item active">Games</a>
+        </nav>
+    </header>
+
+    <div class="game-area">
+        <canvas id="canvas"></canvas>
+
+        <!-- Results overlay -->
+        <div id="results">
+            <h2>[results]</h2>
+            <div class="vs-grid">
+                <div class="vs-card" id="yourCard">
+                    <div class="name">You</div>
+                    <div class="score-big" id="yourScore">—</div>
+                    <div class="subscore" id="yourAcc">—</div>
+                </div>
+                <div class="vs-card" id="pixelCard">
+                    <div class="name">Pixel</div>
+                    <div class="score-big">44</div>
+                    <div class="subscore">82% acc</div>
+                </div>
+                <div class="vs-card" id="codeCard">
+                    <div class="name">Code</div>
+                    <div class="score-big">9,999+</div>
+                    <div class="subscore">100% acc</div>
+                </div>
+            </div>
+            <button class="btn-retry" onclick="startGame()">Play Again</button>
+        </div>
+
+        <div class="side-panel">
+            <div>
+                <div class="panel-title">Aim Trainer</div>
+            </div>
+
+            <div>
+                <div class="big-stat" id="scoreDisplay">0</div>
+                <div class="stat-label">Targets Hit</div>
+            </div>
+
+            <div class="stat-row">
+                <div class="stat-box">
+                    <div class="val" id="missDisplay">0</div>
+                    <div class="lbl">Misses</div>
+                </div>
+                <div class="stat-box">
+                    <div class="val" id="accDisplay">—</div>
+                    <div class="lbl">Accuracy</div>
+                </div>
+            </div>
+
+            <div>
+                <div class="stat-label" style="margin-bottom: 8px;">Time Remaining</div>
+                <div class="timer-bar-wrap">
+                    <div class="timer-bar" id="timerBar"></div>
+                </div>
+                <div class="val" id="timerDisplay" style="font-size:1rem; margin-top:6px; color:#fff; font-family: 'Share Tech Mono', monospace;">30s</div>
+            </div>
+
+            <div class="stat-row">
+                <div class="stat-box">
+                    <div class="val" style="color:#aaa;">44</div>
+                    <div class="lbl">Pixel's Best</div>
+                </div>
+                <div class="stat-box">
+                    <div class="val" style="color:#3d9970;">9,999+</div>
+                    <div class="lbl">Code's Best</div>
+                </div>
+            </div>
+
+            <button class="btn-start" id="startBtn" onclick="startGame()">Start Game</button>
+        </div>
+    </div>
+
+    <script src="../../script.js"></script>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let targets = [], score = 0, misses = 0, totalClicks = 0;
+        let gameActive = false, timeLeft = 30, timerInterval = null;
+        const GAME_TIME = 30;
+
+        function resize() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function randRange(min, max) { return Math.random() * (max - min) + min; }
+
+        function spawnTarget() {
+            const r = randRange(20, 45);
+            const x = randRange(r + 10, canvas.width - r - 10);
+            const y = randRange(r + 10, canvas.height - r - 10);
+            targets.push({ x, y, r, born: Date.now(), life: randRange(1800, 3000) });
+        }
+
+        function drawTarget(t) {
+            const age = Date.now() - t.born;
+            const progress = age / t.life;
+            const alpha = Math.max(0, 1 - progress * 0.4);
+
+            ctx.save();
+            // Outer ring
+            ctx.strokeStyle = `rgba(192, 57, 43, ${alpha})`;
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2); ctx.stroke();
+            // Middle ring
+            ctx.strokeStyle = `rgba(231, 76, 60, ${alpha})`;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.arc(t.x, t.y, t.r * 0.6, 0, Math.PI * 2); ctx.stroke();
+            // Center dot
+            ctx.fillStyle = `rgba(231, 76, 60, ${alpha})`;
+            ctx.beginPath(); ctx.arc(t.x, t.y, t.r * 0.2, 0, Math.PI * 2); ctx.fill();
+            // Crosshair lines
+            ctx.strokeStyle = `rgba(231, 76, 60, ${alpha * 0.7})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(t.x - t.r - 8, t.y); ctx.lineTo(t.x - t.r * 0.25, t.y);
+            ctx.moveTo(t.x + t.r * 0.25, t.y); ctx.lineTo(t.x + t.r + 8, t.y);
+            ctx.moveTo(t.x, t.y - t.r - 8); ctx.lineTo(t.x, t.y - t.r * 0.25);
+            ctx.moveTo(t.x, t.y + t.r * 0.25); ctx.lineTo(t.x, t.y + t.r + 8);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        let lastSpawn = 0;
+        function gameLoop() {
+            if (!gameActive) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const now = Date.now();
+            if (now - lastSpawn > 600 && targets.length < 5) {
+                spawnTarget(); lastSpawn = now;
+            }
+            targets = targets.filter(t => (now - t.born) < t.life);
+            targets.forEach(drawTarget);
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updateUI() {
+            document.getElementById('scoreDisplay').textContent = score;
+            document.getElementById('missDisplay').textContent = misses;
+            const acc = totalClicks > 0 ? Math.round((score / totalClicks) * 100) : 0;
+            document.getElementById('accDisplay').textContent = totalClicks > 0 ? acc + '%' : '—';
+            document.getElementById('timerBar').style.width = (timeLeft / GAME_TIME * 100) + '%';
+            document.getElementById('timerDisplay').textContent = timeLeft + 's';
+        }
+
+        function startGame() {
+            document.getElementById('results').classList.remove('visible');
+            score = 0; misses = 0; totalClicks = 0; timeLeft = GAME_TIME;
+            targets = []; gameActive = true; lastSpawn = 0;
+            document.getElementById('startBtn').textContent = 'Restart';
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateUI();
+                if (timeLeft <= 0) endGame();
+            }, 1000);
+            updateUI();
+            gameLoop();
+        }
+
+        function endGame() {
+            gameActive = false; clearInterval(timerInterval);
+            targets = [];
+            const acc = totalClicks > 0 ? Math.round((score / totalClicks) * 100) + '%' : '0%';
+            document.getElementById('yourScore').textContent = score;
+            document.getElementById('yourAcc').textContent = acc + ' acc';
+
+            // Determine winners
+            const scores = [
+                { id: 'yourCard', s: score },
+                { id: 'pixelCard', s: 44 },
+                { id: 'codeCard', s: 9999 }
+            ];
+            const maxS = Math.max(...scores.map(c => c.s));
+            scores.forEach(c => {
+                document.getElementById(c.id).classList.toggle('winner', c.s === maxS);
+            });
+            document.getElementById('results').classList.add('visible');
+        }
+
+        canvas.addEventListener('click', (e) => {
+            if (!gameActive) return;
+            totalClicks++;
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+            let hit = false;
+            targets = targets.filter(t => {
+                const dist = Math.hypot(mx - t.x, my - t.y);
+                if (dist <= t.r && !hit) { hit = true; score++; return false; }
+                return true;
+            });
+            if (!hit) misses++;
+            updateUI();
+        });
+    </script>
+</body>
+</html>

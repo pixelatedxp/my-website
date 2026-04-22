@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store - pixelis.dev</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../assets/favicon.png">
+    <!-- Base Styles -->
+    <link rel="stylesheet" href="../styles.css">
+    <!-- Shop Structure Styles -->
+    <link rel="stylesheet" href="shop.css">
+</head>
+<body class="dark-mode">
+
+    <!-- Custom Cursor -->
+    <div class="cursor-trail">
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+    </div>
+
+    <div class="vignette"></div>
+
+    <!-- Original Navbar -->
+    <header class="navbar fade-up-initial">
+        <a href="../index.html" class="brand">pixelis.dev</a>
+        <nav class="nav-links">
+            <a href="../index.html" class="nav-item">Home</a>
+            <a href="https://discord.com/users/1009828837141528696" target="_blank" class="nav-item">Discord</a>
+            <a href="../games/index.html" class="nav-item">Games</a>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <svg viewBox="0 0 24 24" fill="none" class="theme-icon" id="themeIcon">
+                    <!-- Fallback, updated by JS -->
+                    <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </nav>
+    </header>
+
+    <div class="shop-wrapper">
+        <hr class="nav-divider fade-up-initial">
+
+        <section class="card section fade-up-initial" id="store">
+            <div class="card-content">
+                <div class="section-header">
+                    <h2 class="mono-label glitch-text" data-text="[store]">[store]</h2>
+                </div>
+
+                <div class="section-header" style="margin-bottom: 30px;">
+                    <h2>Premium Tools <span style="color: var(--text-secondary);">for free</span></h2>
+                    <span class="mono-label">2 products</span>
+                </div>
+
+                <div class="projects-grid">
+                    <!-- CS2 Internal -->
+                    <a href="cs2.html" class="glow-card tiltable" style="grid-column: 1 / -1;">
+                        <div class="glow-content">
+                            <h3 style="margin-bottom: 10px;">CS2 Internal</h3>
+                            <p>Seamlessly integrated CS2 internal with customizable humanized triggerbots, advanced ESP, and fully featured 57-weapon Skin Changer. Constantly updated for UD.</p>
+                            <span class="mono-label card-link" style="display: inline-block; margin-top: 15px;">[view page →]</span>
+                        </div>
+                    </a>
+
+
+                    <!-- Roblox External -->
+                    <a href="roblox_external.html" class="glow-card tiltable" style="grid-column: 1 / -1;">
+                        <div class="glow-content">
+                            <h3 style="margin-bottom: 10px;">Roblox Combat External</h3>
+                            <p>A high-performance kernel-level overlay offering adaptive aimbot smoothing, chams/fullbright rendering, custom FOVs, and movement manipulation (Fly/Noclip).</p>
+                            <span class="mono-label card-link" style="display: inline-block; margin-top: 15px;">[view page →]</span>
+                        </div>
+                    </a>
+
+
+                </div>
+
+            </div>
+        </section>
+    </div>
+
+    <!-- Original JS for cursor, theme, glitch -->
+    <script src="../script.js"></script>
+</body>
+</html>

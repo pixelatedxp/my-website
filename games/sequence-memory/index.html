@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sequence Memory - pixelis.dev</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../../assets/favicon.png">
+    <link rel="stylesheet" href="../../styles.css">
+    <style>
+        * { cursor: none !important; }
+        html, body { height: 100%; overflow: hidden; }
+        body { display: flex; flex-direction: column; }
+        .navbar { display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 0 40px !important; flex-shrink: 0; width: 100%; box-sizing: border-box; }
+        .game-area { flex: 1; display: flex; align-items: center; justify-content: center; gap: 60px; padding: 20px; overflow: hidden; }
+        .game-center { display: flex; flex-direction: column; align-items: center; gap: 28px; }
+        .grid { display: grid; grid-template-columns: repeat(3, 120px); grid-template-rows: repeat(3, 120px); gap: 14px; }
+        .tile { border-radius: 14px; background: #1e1e1e; border: 1px solid rgba(255,255,255,0.07); cursor: pointer; transition: background 0.15s, transform 0.1s; user-select: none; }
+        .tile:hover { background: #2a2a2a; }
+        .tile.lit   { background: #6c5ce7 !important; transform: scale(0.95); box-shadow: 0 0 30px rgba(108,92,231,0.6); }
+        .tile.wrong { background: #c0392b !important; }
+        .tile.clicked { background: #3d9970 !important; transform: scale(0.93); }
+        .info-panel { display: flex; flex-direction: column; gap: 26px; width: 200px; font-family: 'Share Tech Mono', monospace; }
+        .stat-label-sm { font-size: 0.75rem; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.08em; }
+        .stat-val { font-size: 2.2rem; color: #fff; line-height: 1; }
+        #statusMsg { font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; color: rgba(255,255,255,0.5); text-align: center; }
+        .btn-start { padding: 12px 32px; background: #6c5ce7; border: none; color: #fff; border-radius: 8px; cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; font-weight: bold; }
+        .btn-start:hover { background: #7d6ff0; }
+        #results { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); flex-direction: column; align-items: center; justify-content: center; gap: 28px; font-family: 'Share Tech Mono', monospace; color: #fff; z-index: 10; }
+        #results.visible { display: flex; }
+        #results h2 { font-size: 2rem; margin: 0; }
+        .vs-grid { display: grid; grid-template-columns: repeat(3, 180px); gap: 20px; text-align: center; }
+        .vs-card { background: #1a1a1a; border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.08); }
+        .vs-card.winner { border-color: #6c5ce7; }
+        .vs-card .name { font-size: 0.8rem; color: #888; margin-bottom: 8px; }
+        .vs-card .big { font-size: 2.2rem; color: #fff; }
+        .vs-card .sub { font-size: 0.75rem; color: #666; margin-top: 4px; }
+        .btn-retry { padding: 12px 32px; background: #6c5ce7; border: none; color: #fff; border-radius: 8px; cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; font-weight: bold; }
+    </style>
+</head>
+<body class="dark-mode">
+    <div class="cursor-trail">
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+    </div>
+    <div class="vignette"></div>
+    <header class="navbar fade-up-initial">
+        <a href="../../index.html" class="brand">pixelis.dev</a>
+        <nav class="nav-links">
+            <a href="../../index.html" class="nav-item">Home</a>
+            <a href="../../projects/index.html" class="nav-item">Projects</a>
+            <a href="../../shop/index.html" class="nav-item">Shop</a>
+            <a href="../index.html" class="nav-item active">Games</a>
+        </nav>
+    </header>
+
+    <div id="results">
+        <h2>[results]</h2>
+        <div class="vs-grid">
+            <div class="vs-card" id="rYou"><div class="name">You</div><div class="big" id="rYouVal">—</div><div class="sub">level reached</div></div>
+            <div class="vs-card" id="rPixel"><div class="name">Pixel</div><div class="big">12</div><div class="sub">personal best</div></div>
+            <div class="vs-card" id="rCode"><div class="name">Code</div><div class="big">∞</div><div class="sub">never forgets</div></div>
+        </div>
+        <div id="rMsg" style="font-family:'Share Tech Mono',monospace; font-size:0.9rem; color:#888;"></div>
+        <button class="btn-retry" onclick="resetGame()">Play Again</button>
+    </div>
+
+    <div class="game-area">
+        <div class="game-center">
+            <div class="grid" id="grid"></div>
+            <div id="statusMsg">Press Start to play</div>
+            <button class="btn-start" id="startBtn" onclick="startGame()">Start Game</button>
+        </div>
+        <div class="info-panel">
+            <div><div class="stat-label-sm">Your Level</div><div class="stat-val" style="color:#6c5ce7" id="yourLevel">0</div></div>
+            <div><div class="stat-label-sm">Round</div><div class="stat-val" id="roundDisplay">—</div></div>
+            <div><div class="stat-label-sm">Pixel's Best</div><div class="stat-val" style="color:#e67e22">12</div></div>
+            <div><div class="stat-label-sm">Code's Best</div><div class="stat-val" style="color:#c0392b">∞</div></div>
+        </div>
+    </div>
+
+    <script src="../../script.js"></script>
+    <script>
+        const GRID_SIZE = 9;
+        let sequence = [], playerInput = [], level = 0, playerTurn = false, blocked = false;
+        const grid = document.getElementById('grid');
+        for (let i = 0; i < GRID_SIZE; i++) {
+            const t = document.createElement('div');
+            t.className = 'tile';
+            t.dataset.idx = i;
+            t.addEventListener('click', () => onTileClick(i));
+            grid.appendChild(t);
+        }
+        function getTile(i) { return grid.children[i]; }
+        function flashTile(i, dur=400) {
+            return new Promise(res => {
+                getTile(i).classList.add('lit');
+                setTimeout(() => { getTile(i).classList.remove('lit'); res(); }, dur);
+            });
+        }
+        async function playSequence() {
+            playerTurn = false;
+            setStatus('Watch carefully...');
+            await sleep(600);
+            for (const idx of sequence) { await flashTile(idx, 450); await sleep(200); }
+            playerTurn = true; playerInput = [];
+            setStatus(`Your turn — ${sequence.length} tile${sequence.length>1?'s':''}`);
+        }
+        function addToSequence() {
+            sequence.push(Math.floor(Math.random() * GRID_SIZE));
+            level++;
+            document.getElementById('yourLevel').textContent = level - 1;
+            document.getElementById('roundDisplay').textContent = 'Level ' + level;
+        }
+        async function startGame() {
+            document.getElementById('startBtn').style.display = 'none';
+            sequence = []; level = 0; playerInput = [];
+            document.getElementById('yourLevel').textContent = 0;
+            addToSequence();
+            await playSequence();
+        }
+        async function onTileClick(idx) {
+            if (!playerTurn || blocked) return;
+            getTile(idx).classList.add('clicked');
+            setTimeout(() => getTile(idx).classList.remove('clicked'), 200);
+            playerInput.push(idx);
+            const pos = playerInput.length - 1;
+            if (playerInput[pos] !== sequence[pos]) {
+                blocked = true; playerTurn = false;
+                getTile(idx).classList.add('wrong');
+                setTimeout(() => getTile(idx).classList.remove('wrong'), 500);
+                await sleep(600);
+                showResults(level - 1);
+                return;
+            }
+            if (playerInput.length === sequence.length) {
+                playerTurn = false;
+                setStatus('Correct! +1');
+                document.getElementById('yourLevel').textContent = level;
+                await sleep(700);
+                addToSequence();
+                await playSequence();
+                blocked = false;
+            }
+        }
+        function showResults(reached) {
+            document.getElementById('rYouVal').textContent = reached;
+            document.getElementById('rMsg').textContent = reached > 12 ? "You beat Pixel! Impressive." : reached === 12 ? "Tied with Pixel." : "Practice more to beat Pixel's 12.";
+            const best = Math.max(reached, 12);
+            document.getElementById('rYou').classList.toggle('winner', reached >= best && reached > 0);
+            document.getElementById('rPixel').classList.toggle('winner', 12 >= best);
+            document.getElementById('results').classList.add('visible');
+        }
+        function resetGame() {
+            document.getElementById('results').classList.remove('visible');
+            document.getElementById('startBtn').style.display = 'inline-block';
+            sequence = []; level = 0; playerInput = []; playerTurn = false; blocked = false;
+            document.getElementById('yourLevel').textContent = 0;
+            document.getElementById('roundDisplay').textContent = '—';
+            setStatus('Press Start to play');
+        }
+        function setStatus(msg) { document.getElementById('statusMsg').textContent = msg; }
+        function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+    </script>
+</body>
+</html>
