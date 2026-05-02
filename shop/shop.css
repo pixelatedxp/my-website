@@ -267,14 +267,14 @@ a {
     text-align: center;
     border: none;
     cursor: pointer;
-    background: linear-gradient(135deg, #1fa2a1, #167a79);
+    background: linear-gradient(135deg, #3ca7cb, #2b7a95);
     color: white;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 15px rgba(33, 179, 178, 0.3);
+    box-shadow: 0 4px 15px rgba(60, 167, 203, 0.3);
 }
 
 .buy-btn:hover {
-    box-shadow: 0 4px 25px rgba(33, 179, 178, 0.5);
+    box-shadow: 0 4px 25px rgba(60, 167, 203, 0.5);
     transform: translateY(-2px);
 }
 

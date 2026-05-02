@@ -7,7 +7,7 @@
     --inner-card-bg-light: #fafafa;
     --inner-card-border-light: #f0f0f0;
     --vignette-light: radial-gradient(circle at center, transparent 40%, rgba(37, 99, 235, 0.03) 100%);
-    --bg-color-dark: #444444;
+    --bg-color-dark: #252525;
     --text-primary-dark: #e5e5e5;
     --text-secondary-dark: #a3a3a3;
     --card-bg-dark: #171717;
@@ -17,6 +17,8 @@
     --vignette-dark: radial-gradient(circle at center, transparent 40%, rgba(37, 99, 235, 0.1) 100%);
     --font-heading: 'Syne', sans-serif;
     --font-mono: 'Share Tech Mono', monospace;
+    --accent-teal: #3ca7cb;
+    --accent-teal-hover: #4dc2e6;
 }
 body.light-mode {
     --bg-color: var(--bg-color-light);
@@ -215,7 +217,7 @@ body {
     transition: background-color 0.2s;
 }
 .glow-card:hover .glow-content {
-    background-color: #444444;
+    background-color: #252525;
 }
 .glow-content h3 {
     font-size: 1rem;
