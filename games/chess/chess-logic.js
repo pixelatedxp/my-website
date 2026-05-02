@@ -74,7 +74,7 @@ const quotes = {
         "That's a brilliant move.",
         "Nicely calculated.",
         "Wow. I'll give you that.",
-        "Wait, that actually works. Impressive.", // High eval swing
+        "Wait, that actually works. Impressive.",
         "I completely missed that. Good job."
     ],
     blunder: {
