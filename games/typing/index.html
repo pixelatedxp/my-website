@@ -267,7 +267,7 @@
             document.getElementById('hintText').textContent = 'Start typing to begin the race...';
             document.getElementById('hiddenInput').disabled = false;
             document.getElementById('hiddenInput').value = '';
-            document.getElementById('hiddenInput').focus();
+            document.getElementById('hiddenInput').focus({ preventScroll: true });
         }
 
         function renderText() {

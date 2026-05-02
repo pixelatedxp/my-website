@@ -1931,6 +1931,10 @@ function renderBlacklist() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
     const addBtn = document.getElementById('add-blacklist-btn');
     if (addBtn) {
         addBtn.addEventListener('click', () => {

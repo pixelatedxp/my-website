@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+    if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
     const coords = { x: 0, y: 0 };
     let cursorTrail = document.querySelector('.cursor-trail');
     if (!cursorTrail) {
