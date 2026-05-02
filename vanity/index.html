@@ -140,6 +140,44 @@ body {  display: flex;  justify-content: center;  align-items: center;  min-heig
   position:relative;z-index:1;
   display:flex;align-items:center;justify-content:center;
 }
+
+/* Global Navbar Styling */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 768px;
+  margin: 40px auto;
+  padding: 0 20px;
+  position: relative;
+  z-index: 1000;
+}
+
+.brand {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+}
+
+.nav-item {
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+
+.nav-item:hover, .nav-item.active {
+  color: var(--text-primary);
+}
 .intro-logo svg{width:48px;height:48px;stroke:var(--text-primary);}
 .intro-badge{
   display:inline-flex;align-items:center;gap:6px;
@@ -1097,7 +1135,18 @@ body {  display: flex;  justify-content: center;  align-items: center;  min-heig
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
     </div>
 
-    <div class="vignette"></div><div class="page-header"><span class="glitch" data-text="pixelis.dev/vanity">pixelis.dev/vanity</span></div><div id="toast-container"></div>
+    <div class="vignette"></div>
+    <header class="navbar">
+        <a href="../index.html" class="brand">pixelis.dev</a>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-item active">Vanity</a>
+            <a href="../ether/index.html" class="nav-item">Ether</a>
+            <a href="https://pixelis.dev/projects" class="nav-item">Projects</a>
+            <a href="../shop/index.html" class="nav-item">Shop</a>
+            <a href="../games/index.html" class="nav-item">Games</a>
+        </nav>
+    </header>
+    <div id="toast-container"></div>
 
 <div id="intro">
   <div class="intro-grid"></div>
