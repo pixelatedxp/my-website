@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>pixelis.dev</title>
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
@@ -12,19 +11,14 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="dark-mode">
-
-    <!-- Cursor Elements -->
     <div class="cursor-trail">
-        <!-- 25 dots for a very long trail -->
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
     </div>
-
     <div class="vignette"></div>
-
     <header class="navbar fade-up-initial">
         <a href="/" class="brand">pixelis.dev</a>
         <nav class="nav-links">
@@ -35,17 +29,12 @@
             <a href="games/index.html" class="nav-item">Games</a>
             <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
                 <svg viewBox="0 0 24 24" fill="none" class="theme-icon" id="themeIcon">
-                    <!-- Replaced with JS dynamically -->
                 </svg>
             </button>
         </nav>
     </header>
-
     <main class="container">
-        
         <hr class="nav-divider fade-up-initial">
-
-        <!-- ABOUT SECTION -->
         <section class="card section fade-up-initial" id="about">
             <div class="card-content">
                 <h2 class="mono-label glitch-text" data-text="[about]">[about]</h2>
@@ -53,15 +42,12 @@
                 <p class="bio-text">I'm a teenager (practically a fossil in dev years). I spend my time doing questionable things to video games (reverse engineering), building random automation tools, and messing with Python and C++. I’m usually found deep in the Roblox API or breaking things in CS2 just to see how they work. Open to commissions or cool project ideas if you've got something interesting. Check out my stuff on GitHub or hit me up on Discord to collaborate.</p>
             </div>
         </section>
-
-        <!-- PROJECTS SECTION -->
         <section class="card section fade-up" id="projects">
             <div class="card-content">
                 <div class="section-header">
                     <h2 class="mono-label glitch-text" data-text="[projects]">[projects]</h2>
                     <a href="https://pixelis.dev/projects" class="mono-label card-link">[view all →]</a>
                 </div>
-
                 <div class="projects-grid">
                     <a href="https://github.com/pixelatedxp/Pixel-CS2-Internal" target="_blank" class="glow-card tiltable">
                         <div class="glow-content">
@@ -91,7 +77,6 @@
                             <span class="mono-label card-link" style="display: inline-block; margin-top: 15px;">[view github →]</span>
                         </div>
                     </a>
-
                     <a href="https://github.com/pixelatedxp/discord-member-scraper" target="_blank" class="glow-card tiltable" style="grid-column: 1 / -1;">
                         <div class="glow-content">
                             <h3>Discord Member Scraper</h3>
@@ -102,16 +87,12 @@
                 </div>
             </div>
         </section>
-
-        <!-- ANNOUNCEMENTS SECTION -->
         <section class="card section fade-up" id="announcements">
             <div class="card-content">
                 <div class="section-header">
                     <h2 class="mono-label glitch-text" data-text="[announcements]">[announcements]</h2>
                 </div>
-
                 <div class="projects-grid">
-                    <!-- Vanity -->
                     <a href="vanity/index.html" class="glow-card tiltable">
                         <div class="glow-content">
                             <div class="section-header" style="margin-bottom: 5px;">
@@ -122,8 +103,6 @@
                             <span class="mono-label card-link" style="display: inline-block; margin-top: 15px;">[visit vanity →]</span>
                         </div>
                     </a>
-
-                    <!-- Ether -->
                     <a href="ether/index.html" class="glow-card tiltable">
                         <div class="glow-content">
                             <div class="section-header" style="margin-bottom: 5px;">
@@ -137,15 +116,12 @@
                 </div>
             </div>
         </section>
-
-        <!-- SHOP SECTION -->
         <section class="card section fade-up" id="shop">
             <div class="card-content">
                 <div class="section-header">
                     <h2 class="mono-label glitch-text" data-text="[shop]">[shop]</h2>
                     <a href="shop/index.html" class="mono-label card-link">[view full store →]</a>
                 </div>
-
                 <div class="glow-card tiltable" onclick="window.location.href='shop/index.html'" style="cursor: pointer;">
                     <div class="glow-content">
                         <div class="section-header" style="margin-bottom: 5px;">
@@ -157,15 +133,12 @@
                 </div>
             </div>
         </section>
-
-        <!-- GAMES SECTION -->
         <section class="card section fade-up" id="games">
             <div class="card-content">
                 <div class="section-header">
                     <h2 class="mono-label glitch-text" data-text="[games]">[games]</h2>
                     <a href="games/index.html" class="mono-label card-link">[visit arcade →]</a>
                 </div>
-
                 <div class="glow-card tiltable" onclick="window.location.href='games/index.html'" style="cursor: pointer;">
                     <div class="glow-content">
                         <div class="section-header" style="margin-bottom: 5px;">
@@ -177,66 +150,53 @@
                 </div>
             </div>
         </section>
-
-        <!-- HALL OF FAME -->
         <section class="card section fade-up" id="hall-of-fame">
             <div class="card-content">
                 <div class="section-header">
                     <h2 class="mono-label glitch-text" data-text="[hall of fame]">[hall of fame]</h2>
                 </div>
-                
                 <p class="bio-text" style="margin-bottom: 30px;">These are the people who I've met on Discord who are extremely kind and have stuck along with me for a decent amount of time. They are cool and fun to be around, and all of them deserve a place here.</p>
-                
                 <div class="projects-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
-                    <!-- Friend 1 -->
                     <div class="glow-card tiltable">
                         <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
                             <img src="assets/hall_of_fame/Screenshot 2026-03-24 152908.png" style="max-width: 100%; border-radius: 8px;" alt="Friend">
                         </div>
                     </div>
-                    <!-- Friend 2 -->
                     <div class="glow-card tiltable">
                         <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
                             <img src="assets/hall_of_fame/Screenshot 2026-03-24 152952.png" style="max-width: 100%; border-radius: 8px;" alt="Friend">
                         </div>
                     </div>
-                    <!-- Friend 3 -->
                     <div class="glow-card tiltable">
                         <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
                             <img src="assets/hall_of_fame/Screenshot 2026-03-24 153038.png" style="max-width: 100%; border-radius: 8px;" alt="Friend">
                         </div>
                     </div>
-                    <!-- Friend 4 -->
                     <div class="glow-card tiltable">
                         <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
                             <img src="assets/hall_of_fame/new_friend.png" style="max-width: 100%; border-radius: 8px;" alt="New Friend">
                         </div>
                     </div>
-                    <!-- Friend 5 -->
                     <div class="glow-card tiltable">
                         <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
                             <img src="assets/hall_of_fame/Screenshot 2026-03-24 153114.png" style="max-width: 100%; border-radius: 8px;" alt="Friend">
                         </div>
                     </div>
-                    <!-- Friend 6 -->
                     <div class="glow-card tiltable">
                         <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
                             <img src="assets/hall_of_fame/Screenshot 2026-03-24 153127.png" style="max-width: 100%; border-radius: 8px;" alt="Friend">
                         </div>
                     </div>
-                    <!-- Friend 7 -->
                     <div class="glow-card tiltable">
                         <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
                             <img src="assets/hall_of_fame/Screenshot 2026-03-24 153141.png" style="max-width: 100%; border-radius: 8px;" alt="Friend">
                         </div>
                     </div>
-                    <!-- Friend 8 -->
                     <div class="glow-card tiltable">
                         <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
                             <img src="assets/hall_of_fame/Screenshot 2026-03-24 153152.png" style="max-width: 100%; border-radius: 8px;" alt="Friend">
                         </div>
                     </div>
-                    <!-- Friend 9 -->
                     <div class="glow-card tiltable">
                         <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
                             <img src="assets/hall_of_fame/Screenshot 2026-03-24 153202.png" style="max-width: 100%; border-radius: 8px;" alt="Friend">
@@ -245,14 +205,11 @@
                 </div>
             </div>
         </section>
-
-        <!-- CONTACT SECTION -->
         <section class="card section fade-up" id="contact">
             <div class="card-content">
                 <div class="section-header">
                     <h2 class="mono-label glitch-text" data-text="[contact]">[contact]</h2>
                 </div>
-                
                 <div class="projects-grid">
                     <div class="glow-card tiltable contact-flex" onclick="copyEmail(this)" style="cursor: pointer; grid-column: 1 / -1;">
                         <div class="glow-content flex-contents" style="display: flex; justify-content: space-between; align-items: center;">
@@ -279,7 +236,6 @@
             </div>
         </section>
     </main>
-
     <script src="script.js"></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 :root {
-    /* Light Mode */
+
     --bg-color-light: #fcfcfc;
     --text-primary-light: #171717;
     --text-secondary-light: #737373;
@@ -9,7 +9,6 @@
     --inner-card-border-light: #f0f0f0;
     --vignette-light: radial-gradient(circle at center, transparent 40%, rgba(37, 99, 235, 0.03) 100%);
 
-    /* Dark Mode (True to Screenshot) */
     --bg-color-dark: #0a0a0a;
     --text-primary-dark: #e5e5e5;
     --text-secondary-dark: #a3a3a3;
@@ -19,7 +18,6 @@
     --inner-card-border-dark: #2e2e2e;
     --vignette-dark: radial-gradient(circle at center, transparent 40%, rgba(37, 99, 235, 0.1) 100%);
 
-    /* Fonts */
     --font-heading: 'Syne', sans-serif;
     --font-mono: 'Share Tech Mono', monospace;
 }
@@ -46,7 +44,6 @@ body.dark-mode {
     --vignette: var(--vignette-dark);
 }
 
-/* Base reset and styling */
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
@@ -54,7 +51,7 @@ body.dark-mode {
 }
 
 body, a, button {
-    cursor: none; /* Hide default cursor */
+    cursor: none;
 }
 
 body {
@@ -79,7 +76,6 @@ body::before {
     left: 0;
 }
 
-/* Cursor Trail */
 .cursor-trail {
     pointer-events: none;
     z-index: 999999;
@@ -98,14 +94,12 @@ body::before {
     z-index: 999999;
 }
 
-/* Layout */
 .container {
     max-width: 768px;
     margin: 0 auto;
     padding: 0 20px;
 }
 
-/* Navbar */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -167,7 +161,6 @@ body::before {
     transform: rotate(30deg);
 }
 
-/* Nav Divider */
 .nav-divider {
     border: none;
     height: 1px;
@@ -178,23 +171,22 @@ body::before {
     transition: background-color 0.4s ease;
 }
 
-/* Typography components */
 .mono-label {
     font-family: var(--font-mono);
     color: var(--text-secondary);
-    font-size: 0.75rem; 
+    font-size: 0.75rem;
     text-transform: lowercase;
 }
 
 .main-heading {
-    font-size: 1.25rem; 
+    font-size: 1.25rem;
     font-weight: 700;
     margin-top: 15px;
     margin-bottom: 15px;
 }
 
 .bio-text {
-    font-size: 0.875rem; 
+    font-size: 0.875rem;
     color: var(--text-secondary);
     line-height: 1.6;
 }
@@ -206,7 +198,6 @@ body::before {
     margin-bottom: 25px;
 }
 
-/* Main Cards */
 .card {
     background-color: var(--card-bg);
     border: 1px solid var(--card-border);
@@ -216,21 +207,19 @@ body::before {
 }
 
 .card-content {
-    padding: 30px; 
+    padding: 30px;
 }
 
-/* Projects Grid */
 .projects-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
 }
 
-/* Spotlight Hover Effect replacing inner-card */
 .glow-card {
     position: relative;
     background-color: var(--inner-card-border);
-    padding: 1px; /* border thickness */
+    padding: 1px;
     border-radius: 8px;
     display: block;
     text-decoration: none;
@@ -238,14 +227,14 @@ body::before {
     transform-style: preserve-3d;
     perspective: 1000px;
     will-change: transform;
-    overflow: hidden; 
+    overflow: hidden;
 }
 
 .glow-card::before {
     content: "";
     position: absolute;
     inset: 0;
-    /* Create bright border glow under the content padding */
+
     background: radial-gradient(
         400px circle at var(--mouse-x, 0) var(--mouse-y, 0),
         rgba(255, 255, 255, 0.4),
@@ -263,7 +252,7 @@ body::before {
 
 .glow-content {
     background-color: var(--inner-card-bg);
-    border-radius: 7px; /* inner radius tight to 1px padding outer radius */
+    border-radius: 7px;
     height: 100%;
     position: relative;
     z-index: 2;
@@ -272,7 +261,7 @@ body::before {
 }
 
 .glow-card:hover .glow-content {
-    background-color: #1e1e1e; 
+    background-color: #1e1e1e;
 }
 
 .glow-content h3 {
@@ -288,7 +277,6 @@ body::before {
     line-height: 1.5;
 }
 
-/* Contact Specific */
 .contact-flex {
     display: flex;
     align-items: center;
@@ -315,7 +303,6 @@ body::before {
     }
 }
 
-/* Animations */
 .fade-up, .fade-up-initial {
     opacity: 0;
     transform: translateY(20px);

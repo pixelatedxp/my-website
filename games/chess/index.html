@@ -355,7 +355,6 @@
 </head>
 <body class="dark-mode">
 
-    <!-- Custom Cursor -->
     <div class="cursor-trail" id="cursorTrail">
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
@@ -377,17 +376,16 @@
     </header>
 
     <div class="chess-page">
-        <!-- Left: Board Wrapper (Eval + Profiles + Board) -->
+
         <div class="board-wrapper">
-            <!-- Eval Bar -->
+
             <div class="eval-container" id="evalContainer">
                 <div class="eval-score" id="evalScore">0.0</div>
                 <div class="eval-fill" id="evalFill"></div>
             </div>
 
-            <!-- Board Main Area -->
             <div class="board-main">
-                <!-- Top Profile (Pixel) -->
+
                 <div class="player-profile">
                     <img src="assets/bot-pfp.jpg" alt="Pixel" class="profile-img">
                     <div class="profile-info">
@@ -399,12 +397,10 @@
                     </div>
                 </div>
 
-                <!-- Board -->
                 <div id="myBoard"></div>
 
-                <!-- Bottom Profile (User) -->
                 <div class="player-profile">
-                    <!-- Generic user SVG -->
+
                     <div class="profile-img" style="display: flex; align-items: center; justify-content: center;">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #666;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                     </div>
@@ -418,10 +414,8 @@
             </div>
         </div>
 
-        <!-- Right: Panel -->
         <div class="game-panel">
 
-            <!-- Bot profile + speech bubble -->
             <div class="bot-header">
                 <div class="bot-img-wrapper">
                     <img src="assets/bot-pfp.jpg" alt="Pixel" class="bot-img">
@@ -432,13 +426,11 @@
                 </div>
             </div>
 
-            <!-- Move history -->
             <div class="move-history" id="moveHistory">
                 <div class="move-history-header">Move History</div>
-                <!-- populated by JS -->
+
             </div>
 
-            <!-- Status -->
             <div class="status-bar">
                 <span id="gameStatus">White to move.</span>
                 <div class="eval-toggle-wrapper">
@@ -450,7 +442,6 @@
                 </div>
             </div>
 
-            <!-- Controls -->
             <div class="controls-row" id="controlsRow" style="opacity: 0; pointer-events: none; transition: opacity 0.3s;">
                 <button class="btn-action" id="resetBtn">New</button>
                 <button class="btn-action" id="hintBtn">Hint</button>
@@ -460,18 +451,14 @@
         </div>
     </div>
 
-    <!-- Dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
 
-    <!-- Game Logic -->
     <script src="chess-logic.js?v=3"></script>
 
-    <!-- Site scripts (cursor, theme, glitch) -->
     <script src="../../script.js?v=3"></script>
 
-    <!-- Floating Chess.com Link -->
     <a href="https://www.chess.com/member/voidxprt" target="_blank" class="cc-link">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3h12a3 3 0 0 0 3-3z"></path></svg>
         Add me on chess.com!

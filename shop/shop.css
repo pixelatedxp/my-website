@@ -1,11 +1,8 @@
-/* Extension for shop components strictly inside the existing pixelis.dev theme */
-
 a {
     color: inherit;
     text-decoration: none;
 }
 
-/* Override max-width for shop specifically to fit 3 columns and split-screens better */
 .shop-wrapper {
     max-width: 900px;
     margin: 0 auto;
@@ -13,7 +10,6 @@ a {
     padding: 20px;
 }
 
-/* Products Grid Layout */
 .shop-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -31,7 +27,7 @@ a {
 .shop-thumb-wrap {
     width: 100%;
     height: 140px;
-    background-color: rgba(0, 0, 0, 0.4); /* Darker backdrop */
+    background-color: rgba(0, 0, 0, 0.4);
     border-radius: 4px;
     margin-bottom: 15px;
     display: flex;
@@ -43,7 +39,7 @@ a {
 .shop-thumb-wrap img {
     width: 100%;
     height: 100%;
-    object-fit: contain; /* "screenshots should fit the box" */
+    object-fit: contain;
     transition: transform 0.3s ease;
 }
 
@@ -92,8 +88,6 @@ a {
     color: var(--text-primary);
 }
 
-
-/* Product Detail Page Split */
 .product-split {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -108,12 +102,12 @@ a {
     gap: 30px;
     margin-top: 20px;
     margin-bottom: 40px;
-    position: relative; /* Context wrap for the absolute overlay */
+    position: relative;
     z-index: 5;
 }
 
 .prod-gallery, .prod-info-right {
-    min-width: 0; /* Prevents grid blowout from massive images */
+    min-width: 0;
 }
 
 .gallery-main {
@@ -122,12 +116,12 @@ a {
     position: relative;
     cursor: crosshair;
     border-radius: 6px;
-    z-index: 10; /* Ensures zoom portals layer over the right column */
+    z-index: 10;
 }
 
 .gallery-main img {
     width: 100% !important;
-    height: auto !important; /* Forces natural scale without clipping */
+    height: auto !important;
     max-width: 100% !important;
     max-height: 800px !important;
     object-fit: contain !important;
@@ -136,7 +130,6 @@ a {
     border: 1px solid var(--border-color);
 }
 
-/* Image Zoom Overlay */
 .img-zoom-result {
     position: absolute;
     top: 50%;
@@ -156,14 +149,13 @@ a {
 }
 
 .product-split {
-    position: relative; /* Context wrap for the absolute overlay */
+    position: relative;
 }
 
-/* THUMBNAILS */
 .gallery-thumbs {
     display: flex;
     gap: 8px;
-    flex-wrap: wrap; /* Allows wrapping to new rows */
+    flex-wrap: wrap;
     padding-bottom: 5px;
 }
 
@@ -176,7 +168,7 @@ a {
     object-fit: cover;
     border: 1px solid var(--border-color);
     border-radius: 4px;
-    cursor: none; /* Let custom cursor handle hovering */
+    cursor: none;
     opacity: 0.5;
     transition: opacity 0.2s;
 }
@@ -232,7 +224,6 @@ a {
     margin-bottom: 20px;
 }
 
-/* Feature columns */
 .feat-columns {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -266,7 +257,6 @@ a {
     border-radius: 50%;
 }
 
-/* ECommerce Buy Button */
 .buy-btn {
     width: 100%;
     padding: 15px;
@@ -297,7 +287,6 @@ a {
     transform: none;
 }
 
-/* GitHub Button Specifically for Open-Source Drops */
 .github-btn {
     width: 100%;
     padding: 15px;
@@ -307,7 +296,7 @@ a {
     font-family: inherit;
     text-align: center;
     border: none;
-    cursor: none !important; /* Hide system cursor */
+    cursor: none !important;
     background: #ffffff;
     color: #000000;
     text-decoration: none;
@@ -331,10 +320,10 @@ a {
     right: -10px;
     top: 50%;
     transform: translateY(-50%);
-    opacity: 0.15; /* Slightly more visible */
-    width: 100px; /* Force large size */
+    opacity: 0.15;
+    width: 100px;
     height: 100px;
-    color: #000 !important; /* Force black */
+    color: #000 !important;
     fill: #000 !important;
     pointer-events: none;
     z-index: 1;
@@ -342,7 +331,7 @@ a {
 
 .github-btn span {
     position: relative;
-    z-index: 2; /* Text above icon */
+    z-index: 2;
 }
 
 @media (max-width: 800px) {

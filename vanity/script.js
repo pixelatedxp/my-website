@@ -1,24 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // --- Custom Trail Cursor ---
+
     const coords = { x: 0, y: 0 };
-    
+
     let cursorTrail = document.querySelector('.cursor-trail');
     if (!cursorTrail) {
         cursorTrail = document.createElement('div');
         cursorTrail.className = 'cursor-trail';
         document.body.appendChild(cursorTrail);
     }
-    
+
     while(cursorTrail.children.length < 60) {
         const c = document.createElement('div');
         c.className = 'circle';
         cursorTrail.appendChild(c);
     }
-    
+
     const circles = document.querySelectorAll(".circle");
 
-    // Initialize circles
     circles.forEach(function (circle, index) {
         circle.x = 0;
         circle.y = 0;
@@ -36,21 +34,20 @@ document.addEventListener('DOMContentLoaded', () => {
         circles.forEach(function (circle, index) {
             circle.style.left = x + "px";
             circle.style.top = y + "px";
-            
-            // Adjust scale down per trail piece
+
             circle.style.transform = `translate3d(-50%, -50%, 1000px) scale(${(circles.length - index) / circles.length})`;
-            
+
             circle.x = x;
             circle.y = y;
 
             const nextCircle = circles[index + 1] || circles[0];
-            x += (nextCircle.x - x) * 0.02; // Drastically reduce interpolation for a massive slow tail
+            x += (nextCircle.x - x) * 0.02;
             y += (nextCircle.y - y) * 0.02;
         });
 
         requestAnimationFrame(animateCircles);
     }
-    
+
     animateCircles();
 
     const interactables = document.querySelectorAll('a, button, .tiltable');
@@ -63,9 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- 3D Tilt Effect on inner cards only ---
     const tiltables = document.querySelectorAll('.tiltable');
-    
+
     tiltables.forEach(tiltable => {
         tiltable.addEventListener('mousemove', (e) => {
             const rect = tiltable.getBoundingClientRect();
@@ -88,20 +84,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- Spotlight Hover Effect ---
     const glowCards = document.querySelectorAll('.glow-card');
     glowCards.forEach(card => {
         card.addEventListener('mousemove', (e) => {
             const rect = card.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
-            
+
             card.style.setProperty('--mouse-x', `${x}px`);
             card.style.setProperty('--mouse-y', `${y}px`);
         });
     });
 
-    // --- Scroll Fade In ---
     const fadeElements = document.querySelectorAll('.fade-up');
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -114,7 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fadeElements.forEach(el => observer.observe(el));
 
-    // --- Initial Load Animations ---
     setTimeout(() => {
         document.querySelectorAll('.fade-up-initial').forEach((el, index) => {
             setTimeout(() => {
@@ -123,7 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }, 100);
 
-    // --- Glitch Text Effect ---
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
     const glitchElements = document.querySelectorAll('.glitch-text');
 
@@ -145,27 +137,26 @@ document.addEventListener('DOMContentLoaded', () => {
                         return letters[Math.floor(Math.random() * letters.length)]
                     })
                     .join("");
-                
-                if(iteration >= originalText.length){ 
+
+                if(iteration >= originalText.length){
                     clearInterval(interval);
                 }
-                
+
                 iteration += 1 / 3;
             }, 30);
         });
     }, 300);
 
-    // --- Theme Toggle ---
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     const checkTheme = localStorage.getItem('theme');
-    
+
     const sunPath = '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />';
     const moonPath = '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />';
-    
+
     if (checkTheme === 'light') {
         document.body.classList.replace('dark-mode', 'light-mode');
-        themeIcon.innerHTML = moonPath; 
+        themeIcon.innerHTML = moonPath;
     } else {
         themeIcon.innerHTML = sunPath;
     }
@@ -184,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
-/* Copy Email Logic */
 function copyEmail(element) {
     navigator.clipboard.writeText('pixel@pixelis.dev').then(() => {
         const statusEl = element.querySelector('.copy-status');
@@ -199,7 +189,6 @@ function copyEmail(element) {
     });
 }
 
-/* Image Zoom Logic for Store Galleries */
 function bindImageZoom() {
     const mainImgContainers = document.querySelectorAll('.gallery-main');
 
@@ -207,7 +196,6 @@ function bindImageZoom() {
         const img = container.querySelector('img');
         if (!img) return;
 
-        // Create the zoom result portal dynamically
         let zoomResult = container.querySelector('.img-zoom-result');
         if (!zoomResult) {
             zoomResult = document.createElement('div');
@@ -215,33 +203,28 @@ function bindImageZoom() {
             container.appendChild(zoomResult);
         }
 
-        // Track mouse movement over the image bounds
         container.addEventListener('mousemove', (e) => {
-            // Re-bind src dynamically in case of thumbnail swap
+
             zoomResult.style.backgroundImage = `url('${img.src}')`;
-            // Calculate strong zoom scale dynamically based on drawn image
+
             zoomResult.style.backgroundSize = `${img.width * 2.5}px ${img.height * 2.5}px`;
 
             const rect = container.getBoundingClientRect();
             let x = e.clientX - rect.left;
             let y = e.clientY - rect.top;
 
-            // Compute panning percentages
             let xPercent = (x / rect.width) * 100;
             let yPercent = (y / rect.height) * 100;
 
-            // Apply calculated offset and reveal portal
             zoomResult.style.backgroundPosition = `${xPercent}% ${yPercent}%`;
             zoomResult.style.opacity = '1';
         });
 
-        // Hide overlay smoothly when mouse exits
         container.addEventListener('mouseleave', () => {
             zoomResult.style.opacity = '0';
         });
     });
 }
 
-// Bind both on load and immediately fallback 
 document.addEventListener('DOMContentLoaded', bindImageZoom);
 bindImageZoom();

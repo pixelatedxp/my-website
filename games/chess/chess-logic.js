@@ -1,37 +1,27 @@
-/*
-   Pixelis Chess Lab — chess-logic.js
-   Advanced Event-driven commentary system with tone, priority, and cooldowns.
-*/
-
 let board   = null;
 let game    = new Chess();
 let stockfish = null;
 let playerTurn = true;
 
-// Eval tracking
-let lastEval    = 0;   // from White's perspective (positive = White/Player winning)
+let lastEval    = 0;
 let currentEval = 0;
-let moveCount   = 0;   // track half-moves (ply)
+let moveCount   = 0;
 let lastPlayerMove = null;
 
-// Hints state
 let hintsUsed = 0;
 let askingForHint = false;
 let hintUsedThisTurn = false;
 
-// Cooldown state
 let lastCommentTime = 0;
 let lastCommentMove = 0;
-const TIME_COOLDOWN = 4000; // ms
-const MOVE_COOLDOWN = 3;    // half-moves (so 1.5 full turns min between casual comments)
+const TIME_COOLDOWN = 4000;
+const MOVE_COOLDOWN = 3;
 
 let onceFlags = { endgame: false, earlyQueen: false, opening: false };
 
 const botChat    = document.getElementById('botChat');
 const moveHistEl = document.getElementById('moveHistory');
 const statusEl   = document.getElementById('gameStatus');
-
-// ── Quote Banks (Expanded & Tone-Aware) ───────────────────────────────────────
 
 const quotes = {
     start: [
@@ -43,26 +33,26 @@ const quotes = {
         "A new game. Try to last a bit longer this time."
     ],
     win: [
-        "Checkmate. As expected.", 
-        "Game over. That was swift.", 
+        "Checkmate. As expected.",
+        "Game over. That was swift.",
         "You fought well. Just not well enough.",
         "That's mate. Thanks for the game.",
         "Did you really think that would work? Checkmate.",
         "I saw that mate 5 moves ago."
     ],
     lose: [
-        "Wait… how? Beginner's luck.", 
-        "I let you win. Clearly.", 
+        "Wait… how? Beginner's luck.",
+        "I let you win. Clearly.",
         "Impressive. Genuinely. Don't expect it again.",
         "You got me. I miscalculated.",
         "Well played. That was actually good.",
         "I didn't see that coming. Checkmate."
     ],
     draw: [
-        "Playing for a draw? Cowardly.", 
-        "We've been here before. Repetition.", 
+        "Playing for a draw? Cowardly.",
+        "We've been here before. Repetition.",
         "Repetition. Bold strategy.",
-        "A draw. Boring.", 
+        "A draw. Boring.",
         "We're equal. For now.",
         "Neither of us can break through. Draw."
     ],
@@ -80,9 +70,9 @@ const quotes = {
         neutral: ["Check.", "Checking already?", "You're pushing.", "Feeling brave.", "Watch your king.", "Check. Let's see your response."]
     },
     brilliant: [
-        "Okay, I didn't expect that.", 
-        "That's a brilliant move.", 
-        "Nicely calculated.", 
+        "Okay, I didn't expect that.",
+        "That's a brilliant move.",
+        "Nicely calculated.",
         "Wow. I'll give you that.",
         "Wait, that actually works. Impressive.", // High eval swing
         "I completely missed that. Good job."
@@ -135,20 +125,18 @@ const quotes = {
     ]
 };
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function pick(arr) { 
+function pick(arr) {
     if (!arr || arr.length === 0) return "...";
-    return arr[Math.floor(Math.random() * arr.length)]; 
+    return arr[Math.floor(Math.random() * arr.length)];
 }
 
 function getToneArray(obj) {
     if (Array.isArray(obj)) return obj;
-    // bot is losing if lastEval > 150 (player is White)
+
     if (lastEval > 150 && obj.losing) return obj.losing;
-    // bot is winning if lastEval < -150
+
     if (lastEval < -150 && obj.winning) return obj.winning;
-    return obj.neutral || obj.losing || obj.winning; 
+    return obj.neutral || obj.losing || obj.winning;
 }
 
 function say(text, force = false) {
@@ -159,7 +147,7 @@ function say(text, force = false) {
     }
     lastCommentTime = now;
     lastCommentMove = moveCount;
-    
+
     botChat.style.opacity = '0.4';
     setTimeout(() => { botChat.innerText = text; botChat.style.opacity = '1'; }, 80);
 }
@@ -168,7 +156,7 @@ function updateHistory() {
     const hist = game.history();
     const resBtn = document.getElementById('resignBtn');
     const controls = document.getElementById('controlsRow');
-    
+
     if (hist.length > 0) {
         controls.style.opacity = '1';
         controls.style.pointerEvents = 'auto';
@@ -197,8 +185,7 @@ function updateCapturedPieces() {
     for (let char of fen) {
         if (current[char] !== undefined) current[char]++;
     }
-    
-    // Captured by White (Player) = Missing Black pieces (lowercase)
+
     let whiteCaptured = [];
     ['q','r','b','n','p'].forEach(p => {
         let diff = initial[p] - current[p];
@@ -206,8 +193,7 @@ function updateCapturedPieces() {
             whiteCaptured.push(`<img src="https://chessboardjs.com/img/chesspieces/wikipedia/b${p.toUpperCase()}.png" class="captured-piece">`);
         }
     });
-    
-    // Captured by Black (Bot) = Missing White pieces (uppercase)
+
     let blackCaptured = [];
     ['Q','R','B','N','P'].forEach(p => {
         let diff = initial[p] - current[p];
@@ -215,7 +201,7 @@ function updateCapturedPieces() {
             blackCaptured.push(`<img src="https://chessboardjs.com/img/chesspieces/wikipedia/w${p}.png" class="captured-piece">`);
         }
     });
-    
+
     document.getElementById('playerCaptured').innerHTML = whiteCaptured.join('');
     document.getElementById('botCaptured').innerHTML = blackCaptured.join('');
 }
@@ -229,21 +215,18 @@ function updateEvalBar(evalCp) {
         return;
     }
     container.style.display = 'flex';
-    
-    // evalCp is positive when White is winning. Max visible swing = 500 (5.0)
+
     let fillPct = 50 + (evalCp / 10);
     fillPct = Math.max(0, Math.min(100, fillPct));
-    
+
     document.getElementById('evalFill').style.height = fillPct + '%';
-    
+
     let displayScore = (Math.abs(evalCp) / 100).toFixed(1);
     if (evalCp > 0) displayScore = '+' + displayScore;
     else if (evalCp < 0) displayScore = '-' + displayScore;
-    
+
     document.getElementById('evalScore').innerText = displayScore;
 }
-
-// ── Opening Detection ─────────────────────────────────────────────────────────
 
 const NAMED_OPENINGS = [
     { moves: ['e4','e5','Nf3','Nc6','Bc4'],          name: 'Italian Game' },
@@ -269,25 +252,20 @@ function detectOpening() {
 
 function threatensQueen(boardStateFen) {
     if (!onceFlags.queenThreat) onceFlags.queenThreat = 0;
-    if (onceFlags.queenThreat > 2) return false; // don't spam it all game
-    
-    // Create a shadow board where it is player's turn (White) to see if they can capture 'q'
+    if (onceFlags.queenThreat > 2) return false;
+
     let tokens = boardStateFen.split(' ');
-    tokens[1] = 'w'; // switch to white moving
-    tokens[3] = '-'; // clear en passant to avoid edge case parsing
+    tokens[1] = 'w';
+    tokens[3] = '-';
     let shadow = new Chess(tokens.join(' '));
     if (!shadow) return false;
     let moves = shadow.moves({verbose: true});
     return moves.some(m => m.captured === 'q');
 }
 
-// ── Eval & Priority Commentary ────────────────────────────────────────────────
-
-// Analyzes the player's move after gaining eval from Stockfish
 function processPlayerMoveWithEval(evalCp, move) {
     const delta = evalCp - lastEval;
-    
-    // 1. High-priority Eval Swing (Blunder / Brilliant)
+
     if (delta >= 200) {
         say(pick(getToneArray(quotes.brilliant)), true);
         lastEval = evalCp;
@@ -298,14 +276,12 @@ function processPlayerMoveWithEval(evalCp, move) {
         return;
     }
 
-    // 2. High-priority material captures (Queen)
     if (move.captured === 'q') {
         say(pick(getToneArray(quotes.captureQueen)), true);
         lastEval = evalCp;
         return;
     }
 
-    // 2.5 Threats
     if (threatensQueen(game.fen())) {
         say(pick(quotes.queenThreat), true);
         onceFlags.queenThreat++;
@@ -313,22 +289,20 @@ function processPlayerMoveWithEval(evalCp, move) {
         return;
     }
 
-    // 3. Advantage Shifts
     const prevSide = lastEval >= 50 ? 'player' : (lastEval <= -50 ? 'bot' : 'even');
     const nowSide  = evalCp  >= 50 ? 'player' : (evalCp  <= -50 ? 'bot' : 'even');
     if (prevSide !== nowSide && Math.abs(delta) >= 150) {
-        say(pick(["That changes things.", "Momentum just flipped.", "The tide turns."])); // skip cooldown if we want, but let's let say() handle it without force
+        say(pick(["That changes things.", "Momentum just flipped.", "The tide turns."]));
         lastEval = evalCp;
         return;
     }
 
-    // 4. Medium-priority Eval Swing (Mistake / Good move)
     if (delta >= 100) {
         say(pick(getToneArray(quotes.good)));
     } else if (delta <= -100) {
         say(pick(getToneArray(quotes.mistake)));
     }
-    // 5. General Actions (Captures, Castling, Opening)
+
     else if (move.captured) {
         if (['r','b','n'].includes(move.captured)) {
             say(pick(getToneArray(quotes.capturePiece)));
@@ -337,7 +311,7 @@ function processPlayerMoveWithEval(evalCp, move) {
         }
     } else if (move.flags && move.flags.includes('k')) {
         say(pick(quotes.castling));
-    } else if (moveCount === 1) { // First move flavor
+    } else if (moveCount === 1) {
         const m = move.san;
         if (m === 'e4')  say(pick(["Classic. Let's see where this goes.", "e4. Predictable, but solid."]));
         else if (m === 'd4')  say(pick(["d4. A queen's pawn player.", "Solid opening. I respect it."]));
@@ -348,7 +322,7 @@ function processPlayerMoveWithEval(evalCp, move) {
         const opening = detectOpening();
         if (opening) {
             say(pick([`The ${opening}. Classic.`, `${opening}. I know this one.`, `${opening} — we're playing properly.`]));
-            onceFlags.opening = true; // Once per game
+            onceFlags.opening = true;
         }
     } else if (!onceFlags.earlyQueen && move.piece === 'q' && moveCount <= 9) {
         say(pick(quotes.earlyQueen));
@@ -375,18 +349,16 @@ function processBotMove(move) {
         return;
     }
 
-    // Bot captures
     if (move.captured) {
         if (move.captured === 'q')      say(pick(getToneArray(quotes.captureQueen)), true);
         else if (['r','b','n'].includes(move.captured)) say(pick(getToneArray(quotes.capturePiece)));
         else                            say(pick(getToneArray(quotes.capturePawn)));
-    } 
-    // Bot promotion
+    }
+
     else if (move.flags && move.flags.includes('p')) {
         say(pick(quotes.promotion));
     }
 
-    // Endgame detection (once per game)
     if (!onceFlags.endgame && moveCount > 30) {
         const pieces = game.fen().split(' ')[0].replace(/[^rnbqkpRNBQKP]/g, '');
         if (pieces.length <= 10) {
@@ -394,11 +366,9 @@ function processBotMove(move) {
             onceFlags.endgame = true;
         }
     }
-    hintUsedThisTurn = false; // reset hint flag for player's new turn
+    hintUsedThisTurn = false;
     setStatus('White to move.');
 }
-
-// ── Stockfish ─────────────────────────────────────────────────────────────────
 
 let waitingForEval = false;
 
@@ -409,26 +379,21 @@ function initEngine() {
             const msg = e.data;
             if (typeof msg !== 'string') return;
 
-            // Parse eval from info lines
-            // Engine evaluates from its own perspective (Black)
             if (msg.startsWith('info') && msg.includes('score cp')) {
                 const match = msg.match(/score cp (-?\d+)/);
                 if (match) {
-                    currentEval = parseInt(match[1]); // e.g. -200 means white is +2.00
-                    if (!playerTurn) currentEval = -currentEval; // convert to player (White) perspective
+                    currentEval = parseInt(match[1]);
+                    if (!playerTurn) currentEval = -currentEval;
                     updateEvalBar(currentEval);
                 }
             } else if (msg.startsWith('info') && msg.includes('score mate')) {
-                // Mate detected, treat as huge eval
+
                 const match = msg.match(/score mate (-?\d+)/);
                 if (match) {
                     let m = parseInt(match[1]);
-                    // If m > 0, the side evaluating (Black) is WINNING in M moves. 
-                    // So Black Eval = +10000.
-                    // If m < 0, the side evaluating (Black) is LOSING in M moves. 
-                    // So Black Eval = -10000.
+
                     currentEval = m > 0 ? 10000 : -10000;
-                    if (!playerTurn) currentEval = -currentEval; // convert to player (White) perspective
+                    if (!playerTurn) currentEval = -currentEval;
                     updateEvalBar(currentEval);
                 }
             }
@@ -467,7 +432,7 @@ function initEngine() {
             }
         };
         stockfish.postMessage('uci');
-        stockfish.postMessage('setoption name Skill Level value 7'); // Significantly weaker, ~1200-1400 logic
+        stockfish.postMessage('setoption name Skill Level value 7');
         stockfish.postMessage('isready');
         setStatus('White to move.');
     } catch(err) {
@@ -481,22 +446,20 @@ function askEngineEvalThenMove() {
     setStatus('Thinking...');
     waitingForEval = true;
     stockfish.postMessage('position fen ' + game.fen());
-    stockfish.postMessage('go depth 8'); // Quick eval depth
+    stockfish.postMessage('go depth 8');
 }
 
 function askEngineMove() {
     if (!stockfish) return;
     stockfish.postMessage('position fen ' + game.fen());
-    stockfish.postMessage('go depth 12'); // Action depth
+    stockfish.postMessage('go depth 12');
 }
-
-// ── Board Callbacks ───────────────────────────────────────────────────────────
 
 function onDragStart(source, piece) {
     if (!playerTurn)      return false;
     if (game.game_over()) return false;
     if (piece.startsWith('b')) return false;
-    // Clear hint highlights on piece touch
+
     $('.square-55d63').removeClass('highlight-hint');
     return true;
 }
@@ -511,7 +474,6 @@ function onDrop(source, target) {
     updateHistory();
     updateCapturedPieces();
 
-    // End-game overrides
     if (game.in_checkmate()) {
         say(pick(quotes.lose), true);
         setStatus('Checkmate! You win.');
@@ -536,8 +498,6 @@ function onDrop(source, target) {
 
 function onSnapEnd() { board.position(game.fen()); }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
-
 board = Chessboard('myBoard', {
     draggable:   true,
     position:    'start',
@@ -548,8 +508,6 @@ board = Chessboard('myBoard', {
 });
 
 initEngine();
-
-// ── Buttons ───────────────────────────────────────────────────────────────────
 
 document.getElementById('evalToggle').addEventListener('change', () => {
     updateEvalBar(currentEval);
@@ -568,17 +526,16 @@ document.getElementById('resetBtn').addEventListener('click', () => {
     askingForHint = false;
     hintUsedThisTurn = false;
     onceFlags = { endgame: false, earlyQueen: false, opening: false, queenThreat: 0 };
-    
-    // Clear hints and reset controls
+
     $('.square-55d63').removeClass('highlight-hint');
     const controls = document.getElementById('controlsRow');
     controls.style.opacity = '0';
     controls.style.pointerEvents = 'none';
-    
+
     const resBtn = document.getElementById('resignBtn');
     resBtn.disabled = true;
     resBtn.title = 'Available after 4 moves';
-    
+
     updateHistory();
     updateCapturedPieces();
     updateEvalBar(0);
@@ -593,25 +550,24 @@ document.getElementById('resignBtn').addEventListener('click', () => {
         setStatus('You resigned. Pixel wins.');
         say(pick(["Smart. Accepting the inevitable.", "Fair enough.", "I'll take it.", "Checkmate was around the corner anyway."]), true);
         playerTurn = false;
-        
-        // Reset board automatically after 1.5s
+
         setTimeout(() => {
             document.getElementById('resetBtn').click();
-        }, 1500); 
+        }, 1500);
     }
 });
 
 document.getElementById('hintBtn').addEventListener('click', () => {
     if (!playerTurn || game.game_over()) return;
     if (askingForHint || !stockfish || hintUsedThisTurn) return;
-    
+
     hintsUsed++;
     hintUsedThisTurn = true;
     let msg = pick(quotes.hint);
     if (hintsUsed >= 3) {
         msg = pick([
-            "Another hint? Unbelievable.", 
-            "At this point, just let Stockfish play.", 
+            "Another hint? Unbelievable.",
+            "At this point, just let Stockfish play.",
             "Are you even playing anymore?",
             "This is getting embarrassing.",
             "You are literally just clicking what it tells you.",
@@ -633,13 +589,12 @@ document.getElementById('hintBtn').addEventListener('click', () => {
         ]);
     }
     say(msg, true);
-    
+
     askingForHint = true;
     stockfish.postMessage('position fen ' + game.fen());
-    stockfish.postMessage('go depth 10'); // Fast hints!
+    stockfish.postMessage('go depth 10');
 });
 
-// Opening line on load
 setTimeout(() => {
     say(pick(quotes.start), true);
 }, 500);

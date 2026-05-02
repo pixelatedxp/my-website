@@ -1,10 +1,7 @@
-/* PRODUCT DETAIL PAGE STYLES */
-
 .thin-banner {
-    height: 120px; /* Shorter for product pages */
+    height: 120px;
 }
 
-/* 2 Column Layout */
 .product-split {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -12,7 +9,6 @@
     margin-bottom: 40px;
 }
 
-/* Gallery */
 .product-gallery {
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -77,7 +73,6 @@
     border-color: var(--accent-teal);
 }
 
-/* Product Info Right Column */
 .product-info {
     padding-top: 10px;
 }
@@ -124,7 +119,6 @@
     opacity: 0.5;
 }
 
-/* Pricing Selector */
 .pricing-tiers {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -179,7 +173,6 @@
 .cart-btn i { margin-right: 8px; font-size: 1.2rem; vertical-align: middle; }
 .cart-btn:hover { background-color: var(--accent-teal-hover); transform: translateY(-2px); }
 
-/* Requirements Row */
 .req-row {
     display: flex;
     justify-content: center;
@@ -198,7 +191,6 @@
     display: flex; align-items: center; gap: 8px;
 }
 
-/* Checklists */
 .features-columns {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -231,7 +223,7 @@
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    color: #d1d5db; /* Lighter grey for better legibility */
+    color: #d1d5db;
 }
 
 .check-list li i {
