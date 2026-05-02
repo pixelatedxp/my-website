@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Ether — Coming Soon</title>
+    <meta name="description" content="Ether. Exist Everywhere, Detected Nowhere. Coming in 3-4 months.">
+    
+    <!-- Discord / Social Embed (preserved) -->
+    <meta property="og:title" content="Ether — Coming Soon">
+    <meta property="og:description" content="Exist Everywhere, Detected Nowhere. The most anticipated Roblox external — kernel level security, unmatched performance.">
+    <meta property="og:image" content="https://pixelis.dev/ether/images/embed.png">
+    <meta property="og:url" content="https://pixelis.dev/ether">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="pixelis.dev">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Ether — Coming Soon">
+    <meta name="twitter:description" content="Exist Everywhere, Detected Nowhere. Coming in 3-4 months.">
+    <meta name="twitter:image" content="https://pixelis.dev/ether/images/embed.png">
+    
+    <!-- Favicon (same as original style) -->
+    <link rel="icon" type="image/png" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='white'/%3E%3Cpath d='M50 20 L65 45 L55 45 L60 65 L40 65 L45 45 L35 45 Z' fill='black'/%3E%3C/svg%3E">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar {
+            display: none;
+        }
+
+        :root {
+            --bg-dark: #000000;
+            --text-primary: #ffffff;
+            --text-secondary: #a3a3a3;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.2;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Custom cursor */
+        * {
+            cursor: none !important;
+        }
+
+        .cursor-trail {
+            pointer-events: none;
+            z-index: 999999;
+        }
+
+        .circle {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 6px;
+            background-color: var(--text-primary);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 999999;
+        }
+
+        /* Background gradients + orbs */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 20% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.05);
+            top: -10%;
+            left: -10%;
+            animation: float 24s ease-in-out infinite;
+        }
+
+        .orb-2 {
+            width: 450px;
+            height: 450px;
+            background: rgba(255, 255, 255, 0.03);
+            bottom: -5%;
+            right: -5%;
+            animation: float 28s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(0, -60px); }
+        }
+
+        /* Main content - ultra minimal */
+        .main {
+            text-align: center;
+            padding: 2rem;
+            z-index: 10;
+            position: relative;
+        }
+
+        .logo {
+            margin-bottom: 2rem;
+            display: inline-block;
+        }
+
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto;
+        }
+
+        .logo-icon svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 4px rgba(255,255,255,0.2));
+        }
+
+        .brand {
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 1rem;
+        }
+
+        .slogan {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: 0.02em;
+            margin-bottom: 3rem;
+        }
+
+        .coming-soon {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .eta {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: inline-block;
+            padding-top: 1.5rem;
+        }
+
+        /* Fade animation */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+<div class="cursor-trail">
+    <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+    <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+    <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+</div>
+
+<div class="bg-gradient"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<div class="main">
+    <div class="logo fade-up">
+        <div class="logo-icon">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="46" stroke="white" stroke-width="2" fill="none"/>
+                <path d="M50 28 L62 48 L54 48 L57 66 L43 66 L46 48 L38 48 L50 28Z" fill="white"/>
+            </svg>
+        </div>
+    </div>
+    <div class="brand fade-up">Ether</div>
+    <div class="slogan fade-up">Exist Everywhere, Detected Nowhere</div>
+    <div class="coming-soon fade-up">Coming Soon</div>
+    <div class="eta fade-up">Estimated release: 3–4 months</div>
+</div>
+
+<script>
+    // Force reset scroll position
+    if (history.scrollRestoration) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+
+    // Cursor trail
+    const coords = { x: 0, y: 0 };
+    const circles = document.querySelectorAll(".circle");
+    circles.forEach(circle => {
+        circle.x = 0;
+        circle.y = 0;
+    });
+
+    window.addEventListener("mousemove", (e) => {
+        coords.x = e.clientX;
+        coords.y = e.clientY;
+    });
+
+    function animateCircles() {
+        let x = coords.x;
+        let y = coords.y;
+
+        circles.forEach((circle, index) => {
+            circle.style.left = x + "px";
+            circle.style.top = y + "px";
+            const scale = (circles.length - index) / circles.length;
+            circle.style.transform = `translate(-50%, -50%) scale(${scale})`;
+            
+            circle.x = x;
+            circle.y = y;
+            
+            const nextCircle = circles[index + 1] || circles[0];
+            x += (nextCircle.x - x) * 0.3;
+            y += (nextCircle.y - y) * 0.3;
+        });
+        requestAnimationFrame(animateCircles);
+    }
+    animateCircles();
+
+    // Fade-up on scroll / load
+    const fadeElements = document.querySelectorAll('.fade-up');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+    fadeElements.forEach(el => observer.observe(el));
+
+    // Parallax orbs
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const orbs = document.querySelectorAll('.orb');
+        orbs.forEach((orb, idx) => {
+            const speed = 0.2 + (idx * 0.1);
+            orb.style.transform = `translateY(${scrolled * speed * 0.5}px)`;
+        });
+    });
+</script>
+</body>
+</html>
