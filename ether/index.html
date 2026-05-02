@@ -250,6 +250,59 @@
             font-size: 1rem;
         }
 
+        .pricing-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--glass-border);
+            text-align: left;
+        }
+
+        .pricing-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--accent-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            padding: 1.5rem 1rem;
+            border-radius: 20px;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .pricing-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .price-val {
+            font-size: 1.5rem;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 4px;
+            font-family: 'Syne', sans-serif;
+        }
+
+        .price-dur {
+            font-size: 0.7rem;
+            color: var(--accent-secondary);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
         /* --- Discord Button --- */
         .discord-btn {
             display: inline-flex;
@@ -299,6 +352,7 @@
             .brand-name { font-size: 3.5rem; }
             .slogan { font-size: 0.8rem; letter-spacing: 0.1em; }
             .info-grid { grid-template-columns: 1fr; }
+            .pricing-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -333,6 +387,24 @@
                 <div class="info-item">
                     <span class="info-label">Estimated Release</span>
                     <span class="info-value">3–4 Months</span>
+                </div>
+            </div>
+
+            <div class="pricing-section">
+                <span class="pricing-title">Anticipated Pricing</span>
+                <div class="pricing-grid">
+                    <div class="pricing-card">
+                        <span class="price-val">$4.99</span>
+                        <span class="price-dur">Day</span>
+                    </div>
+                    <div class="pricing-card">
+                        <span class="price-val">$15.00</span>
+                        <span class="price-dur">Month</span>
+                    </div>
+                    <div class="pricing-card">
+                        <span class="price-val">$40.00</span>
+                        <span class="price-dur">Lifetime</span>
+                    </div>
                 </div>
             </div>
 
