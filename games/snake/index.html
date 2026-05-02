@@ -17,7 +17,7 @@
         .game-area { flex: 1; display: flex; align-items: center; justify-content: center; gap: 40px; padding: 20px; overflow: hidden; }
 
         .canvas-wrap { position: relative; }
-        canvas { display: block; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: #363636; }
+        canvas { display: block; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: #444444; }
         .canvas-label { font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; color: rgba(255,255,255,0.3); text-align: center; margin-top: 6px; text-transform: uppercase; }
 
         .side-panel { width: 220px; display: flex; flex-direction: column; gap: 22px; font-family: 'Share Tech Mono', monospace; }
@@ -145,7 +145,7 @@
         const { ctx, snake, food } = g;
         ctx.clearRect(0, 0, COLS*CELL, ROWS*CELL);
         // Grid
-        ctx.fillStyle = '#363636';
+        ctx.fillStyle = '#444444';
         ctx.fillRect(0, 0, COLS*CELL, ROWS*CELL);
 
         // Food
@@ -310,7 +310,7 @@
             const c = document.getElementById(id);
             c.getContext('2d').clearRect(0, 0, c.width, c.height);
             const ctx = c.getContext('2d');
-            ctx.fillStyle = '#363636';
+            ctx.fillStyle = '#444444';
             ctx.fillRect(0, 0, c.width, c.height);
         });
         document.getElementById('gameMsg').textContent = 'Use arrow keys or WASD';
@@ -332,7 +332,7 @@
     ['playerCanvas','aiCanvas'].forEach(id => {
         const c = document.getElementById(id);
         const ctx = c.getContext('2d');
-        ctx.fillStyle = '#363636';
+        ctx.fillStyle = '#444444';
         ctx.fillRect(0, 0, c.width, c.height);
     });
     </script>

@@ -7,7 +7,7 @@
     --inner-card-bg-light: #fafafa;
     --inner-card-border-light: #f0f0f0;
     --vignette-light: radial-gradient(circle at center, transparent 40%, rgba(37, 99, 235, 0.03) 100%);
-    --bg-color-dark: #363636;
+    --bg-color-dark: #444444;
     --text-primary-dark: #e5e5e5;
     --text-secondary-dark: #a3a3a3;
     --card-bg-dark: #171717;
@@ -215,7 +215,7 @@ body {
     transition: background-color 0.2s;
 }
 .glow-card:hover .glow-content {
-    background-color: #363636;
+    background-color: #444444;
 }
 .glow-content h3 {
     font-size: 1rem;
