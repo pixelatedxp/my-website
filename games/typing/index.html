@@ -151,7 +151,8 @@
     <header class="navbar fade-up-initial">
         <a href="../../index.html" class="brand">pixelis.dev</a>
         <nav class="nav-links">
-            <a href="../../index.html" class="nav-item">Home</a>
+            <a href="../../vanity/index.html" class="nav-item">Vanity</a>
+            <a href="../../ether/index.html" class="nav-item">Ether</a>
             <a href="../../projects/index.html" class="nav-item">Projects</a>
             <a href="../../shop/index.html" class="nav-item">Shop</a>
             <a href="../index.html" class="nav-item active">Games</a>
@@ -264,6 +265,7 @@
             updateTracks(0, 0, 0, 0);
             document.getElementById('yourWpm').textContent = '0';
             document.getElementById('hintText').textContent = 'Start typing to begin the race...';
+            document.getElementById('hiddenInput').disabled = false;
             document.getElementById('hiddenInput').value = '';
             document.getElementById('hiddenInput').focus();
         }
@@ -339,6 +341,8 @@
 
         function endGame() {
             gameRunning = false;
+            document.getElementById('hiddenInput').blur();
+            document.getElementById('hiddenInput').disabled = true;
             clearInterval(pixelInterval); clearInterval(codeInterval); clearInterval(humanInterval);
             const wpm = calcWpm();
             const correct = typed.split('').filter((c, i) => c === text[i]).length;
