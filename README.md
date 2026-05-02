@@ -5,10 +5,10 @@
 
 ---
 
-### 🌐 Overview
+### Overview
 This is the public-facing source for [pixelis.dev](https://pixelis.dev). It serves as the deployment target for the website's static assets and front-end components.
 
-### 🛡️ Security & Integrity
+### Technical Details
 *   **Purpose**: Static Hosting
 *   **Sensitivity**: Non-critical / Public
 *   **Status**: Active Deployment
