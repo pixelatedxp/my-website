@@ -1,9 +1,5 @@
 ErrorDocument 404 /404.html
 
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^(.+[^/])$ /$1/ [R=301,L]
-
 # ALWAYS SERVE FRESH FILES (DISABLE CACHE)
 <IfModule mod_headers.c>
     Header set Cache-Control "no-cache, no-store, must-revalidate"
