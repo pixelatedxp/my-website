@@ -19,15 +19,18 @@
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
     </div>
     <div class="vignette"></div>
+    <canvas id="snowfall"></canvas>
     <header class="navbar fade-up-initial">
         <a href="index.html" class="brand">pixelis.dev</a>
         <nav class="nav-links">
-            <a href="vanity/index.html" class="nav-item">Vanity</a>
-            <a href="ether/index.html" class="nav-item">Ether</a>
             <a href="projects/index.html" class="nav-item">Projects</a>
-            <a href="shop/index.html" class="nav-item">Shop</a>
             <a href="games/index.html" class="nav-item">Games</a>
             <a href="changelog.html" class="nav-item">Changelog</a>
+            <button class="snow-toggle" id="snowToggle" aria-label="Toggle snowfall" title="Toggle snowfall">
+                <svg viewBox="0 0 24 24" fill="none" class="snow-icon" id="snowIcon">
+                    <path d="M12 2v4m0 12v4M4 12H2m20 0h-2M5.64 5.64l2.83 2.83m7.07 7.07l2.83 2.83M5.64 18.36l2.83-2.83m7.07-7.07l2.83-2.83M12 8a4 4 0 100 8 4 4 0 000-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
             <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
                 <svg viewBox="0 0 24 24" fill="none" class="theme-icon" id="themeIcon">
                 </svg>
@@ -50,13 +53,13 @@
                     <a href="https://pixelis.dev/projects" class="mono-label card-link">[view all →]</a>
                 </div>
                 <div class="projects-grid">
-                    <a href="https://github.com/pixelatedxp/pixel-cs2-internal" target="_blank" class="glow-card tiltable">
+                    <div class="glow-card tiltable">
                         <div class="glow-content">
                             <h3>CS2 Internal Cheat</h3>
                             <p>CS2 cheat with aimbot (humanized smoothing, RNG headshots), skin changer, and ESP (skeleton, health).</p>
                             <span class="mono-label" style="display: inline-block; margin-top: 15px; color: var(--text-secondary);">[taken down by github - local hosting coming soon]</span>
                         </div>
-                    </a>
+                    </div>
                     <div class="glow-card tiltable">
                         <div class="glow-content">
                             <h3>Roblox External</h3>
@@ -64,13 +67,13 @@
                             <span class="mono-label" style="display: inline-block; margin-top: 15px; color: var(--text-secondary);">[Coming Soon To Github]</span>
                         </div>
                     </div>
-                    <a href="https://github.com/pixelatedxp/human-benchmark-cheats" target="_blank" class="glow-card tiltable">
+                    <div class="glow-card tiltable">
                         <div class="glow-content">
                             <h3>Humanbenchmark Cheats</h3>
-                            <p>A "highly sophisticated" tool for clicking boxes really fast. (It was a joke, don’t take it seriously).</p>
+                            <p>A "highly sophisticated" tool for clicking boxes really fast. (It was a joke, don't take it seriously).</p>
                             <span class="mono-label" style="display: inline-block; margin-top: 15px; color: var(--text-secondary);">[taken down by github - local hosting coming soon]</span>
                         </div>
-                    </a>
+                    </div>
                     <div class="glow-card tiltable">
                         <div class="glow-content">
                             <h3>Roblox Offsets Daily</h3>
@@ -85,51 +88,6 @@
                             <span class="mono-label card-link" style="display: inline-block; margin-top: 15px;">[view github →]</span>
                         </div>
                     </a>
-                </div>
-            </div>
-        </section>
-        <section class="card section fade-up" id="announcements">
-            <div class="card-content">
-                <div class="section-header">
-                    <h2 class="mono-label glitch-text" data-text="[announcements]">[announcements]</h2>
-                </div>
-                <div class="projects-grid">
-                    <a href="vanity/index.html" class="glow-card tiltable">
-                        <div class="glow-content">
-                            <div class="section-header" style="margin-bottom: 5px;">
-                                <h3 style="margin-bottom: 0;">Vanity</h3>
-                                <span class="mono-label" style="color: var(--accent-teal);">OUT NOW</span>
-                            </div>
-                            <p>Jailbreak sniper for Roblox. The fastest, most reliable automation tool for securing limited items instantly.</p>
-                            <span class="mono-label card-link" style="display: inline-block; margin-top: 15px;">[visit vanity →]</span>
-                        </div>
-                    </a>
-                    <a href="ether/index.html" class="glow-card tiltable">
-                        <div class="glow-content">
-                            <div class="section-header" style="margin-bottom: 5px;">
-                                <h3 style="margin-bottom: 0;">Ether</h3>
-                            </div>
-                            <p>Roblox external cheat with kernel-level security, ESP, aimbot, and complete undetectability. Experience the best.</p>
-                            <span class="mono-label card-link" style="display: inline-block; margin-top: 15px;">[visit ether →]</span>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </section>
-        <section class="card section fade-up" id="shop">
-            <div class="card-content">
-                <div class="section-header">
-                    <h2 class="mono-label glitch-text" data-text="[shop]">[shop]</h2>
-                    <a href="shop/index.html" class="mono-label card-link">[view full store →]</a>
-                </div>
-                <div class="glow-card tiltable" onclick="window.location.href='shop/index.html'" style="cursor: pointer;">
-                    <div class="glow-content">
-                        <div class="section-header" style="margin-bottom: 5px;">
-                            <h3 style="margin-bottom: 0;">Coming Soon</h3>
-                            <span class="mono-label">0 products</span>
-                        </div>
-                        <p>The shop is currently under reconstruction. All tools are now available directly through Vanity and Ether pages. Check the announcements section above for direct access.</p>
-                    </div>
                 </div>
             </div>
         </section>
@@ -156,7 +114,7 @@
                     <h2 class="mono-label glitch-text" data-text="[hall of fame]">[hall of fame]</h2>
                 </div>
                 <p class="bio-text" style="margin-bottom: 30px;">These are the people who I've met on Discord who are extremely kind and have stuck along with me for a decent amount of time. They are cool and fun to be around, and all of them deserve a place here.</p>
-                <div class="projects-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
+                <div class="projects-grid hall-of-fame-grid">
                     <div class="glow-card tiltable">
                         <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
                             <img src="assets/hall_of_fame/Screenshot 2026-03-24 152908.png" style="max-width: 100%; border-radius: 8px;" alt="Friend">
@@ -174,7 +132,7 @@
                     </div>
                     <div class="glow-card tiltable">
                         <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
-                            <img src="assets/hall_of_fame/Screenshot 2026-03-24 153114.png" style="max-width: 100%; border-radius: 8px;" alt="Friend">
+                            <img src="assets/hall_of_fame/new_image.png" style="max-width: 100%; border-radius: 8px;" alt="Friend">
                         </div>
                     </div>
                     <div class="glow-card tiltable">

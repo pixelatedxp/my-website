@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+﻿document.addEventListener('DOMContentLoaded', () => {
     if ('scrollRestoration' in history) {
         history.scrollRestoration = 'manual';
     }
@@ -126,21 +126,142 @@ document.addEventListener('DOMContentLoaded', () => {
     const moonPath = '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />';
     if (checkTheme === 'light') {
         document.body.classList.replace('dark-mode', 'light-mode');
-        themeIcon.innerHTML = moonPath;
+        if (themeIcon) themeIcon.innerHTML = moonPath;
     } else {
-        themeIcon.innerHTML = sunPath;
+        if (themeIcon) themeIcon.innerHTML = sunPath;
     }
-    themeToggle.addEventListener('click', () => {
-        if (document.body.classList.contains('dark-mode')) {
-            document.body.classList.replace('dark-mode', 'light-mode');
-            themeIcon.innerHTML = moonPath;
-            localStorage.setItem('theme', 'light');
-        } else {
-            document.body.classList.replace('light-mode', 'dark-mode');
-            themeIcon.innerHTML = sunPath;
-            localStorage.setItem('theme', 'dark');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            if (document.body.classList.contains('dark-mode')) {
+                document.body.classList.replace('dark-mode', 'light-mode');
+                if (themeIcon) themeIcon.innerHTML = moonPath;
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.body.classList.replace('light-mode', 'dark-mode');
+                if (themeIcon) themeIcon.innerHTML = sunPath;
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+    }
+    const canvas = document.getElementById('snowfall');
+    if (canvas) {
+        let snowEnabled = localStorage.getItem('snowEnabled') !== 'false';
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let animFrame;
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
-    });
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        class Snowflake {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speedY = Math.random() * 0.8 + 0.2;
+                this.speedX = Math.random() * 0.3 - 0.15;
+                this.opacity = Math.random() * 0.5 + 0.2;
+                this.wobble = Math.random() * 2;
+                this.wobbleSpeed = Math.random() * 0.02 + 0.005;
+            }
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX + Math.sin(this.wobble) * 0.3;
+                this.wobble += this.wobbleSpeed;
+                if (this.y > canvas.height) {
+                    this.reset();
+                    this.y = -this.size;
+                }
+                if (this.x > canvas.width + 5) this.x = -5;
+                if (this.x < -5) this.x = canvas.width + 5;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+        function initSnow() {
+            particles = [];
+            const count = Math.min(Math.floor(window.innerWidth / 8), 150);
+            for (let i = 0; i < count; i++) {
+                particles.push(new Snowflake());
+            }
+        }
+        function animateSnow() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            if (snowEnabled) {
+                animFrame = requestAnimationFrame(animateSnow);
+            }
+        }
+        function startSnow() {
+            if (snowEnabled) return;
+            snowEnabled = true;
+            canvas.style.display = 'block';
+            initSnow();
+            animateSnow();
+            updateSnowIcon();
+        }
+        function stopSnow() {
+            snowEnabled = false;
+            canvas.style.display = 'none';
+            if (animFrame) {
+                cancelAnimationFrame(animFrame);
+                animFrame = null;
+            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            updateSnowIcon();
+        }
+        function updateSnowIcon() {
+            const icon = document.getElementById('snowIcon');
+            if (icon) {
+                if (snowEnabled) {
+                    icon.innerHTML = '<path d="M12 2v4m0 12v4M4 12H2m20 0h-2M5.64 5.64l2.83 2.83m7.07 7.07l2.83 2.83M5.64 18.36l2.83-2.83m7.07-7.07l2.83-2.83M12 8a4 4 0 100 8 4 4 0 000-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+                } else {
+                    icon.innerHTML = '<path d="M12 2v4m0 12v4M4 12H2m20 0h-2M5.64 5.64l2.83 2.83M5.64 18.36l2.83-2.83" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="2" y1="2" x2="22" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+                }
+            }
+        }
+        if (snowEnabled) {
+            initSnow();
+            animateSnow();
+            updateSnowIcon();
+        } else {
+            canvas.style.display = 'none';
+            updateSnowIcon();
+        }
+        const snowToggle = document.getElementById('snowToggle');
+        if (snowToggle) {
+            snowToggle.addEventListener('click', () => {
+                if (snowEnabled) {
+                    stopSnow();
+                    localStorage.setItem('snowEnabled', 'false');
+                } else {
+                    startSnow();
+                    localStorage.setItem('snowEnabled', 'true');
+                }
+            });
+        }
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'snowEnabled') {
+                if (e.newValue === 'false') {
+                    stopSnow();
+                } else {
+                    startSnow();
+                }
+            }
+        });
+    }
 });
 function copyEmail(element) {
     navigator.clipboard.writeText('pixel@pixelis.dev').then(() => {
@@ -184,3 +305,4 @@ function bindImageZoom() {
 }
 document.addEventListener('DOMContentLoaded', bindImageZoom);
 bindImageZoom();
+

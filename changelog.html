@@ -99,15 +99,18 @@
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
     </div>
     <div class="vignette"></div>
+    <canvas id="snowfall"></canvas>
     <header class="navbar fade-up-initial">
         <a href="index.html" class="brand">pixelis.dev</a>
         <nav class="nav-links">
-            <a href="vanity/index.html" class="nav-item">Vanity</a>
-            <a href="ether/index.html" class="nav-item">Ether</a>
             <a href="projects/index.html" class="nav-item">Projects</a>
-            <a href="shop/index.html" class="nav-item">Shop</a>
             <a href="games/index.html" class="nav-item">Games</a>
             <a href="changelog.html" class="nav-item active">Changelog</a>
+            <button class="snow-toggle" id="snowToggle" aria-label="Toggle snowfall" title="Toggle snowfall">
+                <svg viewBox="0 0 24 24" fill="none" class="snow-icon" id="snowIcon">
+                    <path d="M12 2v4m0 12v4M4 12H2m20 0h-2M5.64 5.64l2.83 2.83m7.07 7.07l2.83 2.83M5.64 18.36l2.83-2.83m7.07-7.07l2.83-2.83M12 8a4 4 0 100 8 4 4 0 000-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
             <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
                 <svg viewBox="0 0 24 24" fill="none" class="theme-icon" id="themeIcon">
                 </svg>
@@ -150,3 +153,4 @@
     <script src="script.js"></script>
 </body>
 </html>
+

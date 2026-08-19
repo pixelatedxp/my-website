@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Games - pixelis.dev</title>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="../assets/favicon.png">
-
     <link rel="stylesheet" href="../styles.css">
     <style>
         .games-grid {
@@ -18,12 +16,10 @@
             gap: 25px;
             margin-top: 40px;
         }
-
         .game-card {
             text-decoration: none;
             display: block;
         }
-
         .game-thumbnail {
             width: 100%;
             height: 180px;
@@ -36,28 +32,41 @@
             justify-content: center;
             border: 1px solid rgba(255,255,255,0.1);
         }
-
         .game-thumbnail i {
             font-size: 3rem;
             color: var(--accent-teal);
             opacity: 0.5;
         }
-
         .game-card h3 {
             margin: 0 0 10px 0;
             color: #fff;
         }
-
         .game-card p {
             font-size: 0.9rem;
             color: var(--text-secondary);
             margin: 0;
             line-height: 1.4;
         }
+        .maintenance-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-family: var(--font-mono);
+            background: rgba(255, 200, 0, 0.1);
+            color: #ffc800;
+            border: 1px solid rgba(255, 200, 0, 0.2);
+            margin-top: 12px;
+            letter-spacing: 0.5px;
+        }
+        .game-card.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            cursor: default;
+        }
     </style>
 </head>
 <body class="dark-mode">
-
     <div class="cursor-trail" id="cursorTrail">
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
@@ -65,50 +74,47 @@
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
     </div>
-
     <div class="vignette"></div>
-
+    <canvas id="snowfall"></canvas>
     <header class="navbar fade-up-initial">
         <a href="../index.html" class="brand">pixelis.dev</a>
         <nav class="nav-links">
-            <a href="../vanity/index.html" class="nav-item">Vanity</a>
-            <a href="../ether/index.html" class="nav-item">Ether</a>
-            <a href="../index.html" class="nav-item">Home</a>
             <a href="../projects/index.html" class="nav-item">Projects</a>
-            <a href="../shop/index.html" class="nav-item">Shop</a>
             <a href="#" class="nav-item active">Games</a>
             <a href="../changelog.html" class="nav-item">Changelog</a>
+            <button class="snow-toggle" id="snowToggle" aria-label="Toggle snowfall" title="Toggle snowfall">
+                <svg viewBox="0 0 24 24" fill="none" class="snow-icon" id="snowIcon">
+                    <path d="M12 2v4m0 12v4M4 12H2m20 0h-2M5.64 5.64l2.83 2.83m7.07 7.07l2.83 2.83M5.64 18.36l2.83-2.83m7.07-7.07l2.83-2.83M12 8a4 4 0 100 8 4 4 0 000-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <svg viewBox="0 0 24 24" fill="none" class="theme-icon" id="themeIcon">
+                </svg>
+            </button>
         </nav>
     </header>
-
     <main class="container">
         <hr class="nav-divider fade-up-initial">
-
         <section class="card section fade-up-initial">
             <div class="card-content">
                 <div class="section-header">
                     <h2 class="mono-label glitch-text" data-text="[games_menu]">[games_menu]</h2>
                 </div>
-
                 <p class="bio-text">Welcome to the Lab. Here are some mini-games and interactive tools I've built.</p>
-
                 <div class="games-grid">
-
-                    <a href="chess/index.html" class="game-card glow-card tiltable">
+                    <div class="game-card glow-card tiltable disabled">
                         <div class="glow-content">
                             <div class="game-thumbnail">
                                 <img src="../assets/thumbnails/chess.jpg" alt="Chess Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
                             </div>
                             <h3>Play me in Chess</h3>
                             <p>Challenge the Pixel Engine (Stockfish 1100 Elo). Reactive chatbot personality.</p>
-                            <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
+                            <span class="maintenance-badge">[ UNDER MAINTENANCE ]</span>
                         </div>
-                    </a>
-
-                    <a href="aim-trainer/index.html" class="game-card glow-card tiltable">
+                    </div>
+                    <div class="game-card glow-card tiltable disabled">
                         <div class="glow-content">
                             <div class="game-thumbnail" style="background:#252525; position:relative; overflow:hidden;">
-
                                 <svg width="100%" height="100%" viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="80" cy="60" r="28" fill="none" stroke="#c0392b" stroke-width="2"/>
                                     <circle cx="80" cy="60" r="17" fill="none" stroke="#e74c3c" stroke-width="1.5"/>
@@ -126,10 +132,9 @@
                             </div>
                             <h3>Aim Trainer</h3>
                             <p>Click targets as fast as possible. Compare your accuracy vs Pixel and Code.</p>
-                            <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
+                            <span class="maintenance-badge">[ UNDER MAINTENANCE ]</span>
                         </div>
-                    </a>
-
+                    </div>
                     <a href="typing/index.html" class="game-card glow-card tiltable">
                         <div class="glow-content">
                             <div class="game-thumbnail">
@@ -140,7 +145,6 @@
                             <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
                         </div>
                     </a>
-
                     <a href="sequence-memory/index.html" class="game-card glow-card tiltable">
                         <div class="glow-content">
                             <div class="game-thumbnail" style="background:#252525; display:flex; align-items:center; justify-content:center;">
@@ -158,7 +162,6 @@
                             <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
                         </div>
                     </a>
-
                     <a href="snake/index.html" class="game-card glow-card tiltable">
                         <div class="glow-content">
                             <div class="game-thumbnail">
@@ -169,7 +172,6 @@
                             <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
                         </div>
                     </a>
-
                     <a href="reaction-time/index.html" class="game-card glow-card tiltable">
                         <div class="glow-content">
                             <div class="game-thumbnail">
@@ -180,7 +182,6 @@
                             <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
                         </div>
                     </a>
-
                     <a href="wordle/index.html" class="game-card glow-card tiltable">
                         <div class="glow-content">
                             <div class="game-thumbnail">
@@ -191,7 +192,6 @@
                             <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
                         </div>
                     </a>
-
                     <div class="game-card glow-card tiltable" style="opacity: 0.4; pointer-events: none;">
                         <div class="glow-content">
                             <div class="game-thumbnail" style="background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 20px);">
@@ -205,7 +205,7 @@
             </div>
         </section>
     </main>
-
     <script src="../script.js"></script>
 </body>
 </html>
+

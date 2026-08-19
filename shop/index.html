@@ -20,15 +20,18 @@
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
     </div>
     <div class="vignette"></div>
+    <canvas id="snowfall"></canvas>
     <header class="navbar fade-up-initial">
         <a href="../index.html" class="brand">pixelis.dev</a>
         <nav class="nav-links">
-            <a href="../vanity/index.html" class="nav-item">Vanity</a>
-            <a href="../ether/index.html" class="nav-item">Ether</a>
-            <a href="../index.html" class="nav-item">Home</a>
-            <a href="https://discord.com/users/1009828837141528696" target="_blank" class="nav-item">Discord</a>
+            <a href="../projects/index.html" class="nav-item">Projects</a>
             <a href="../games/index.html" class="nav-item">Games</a>
             <a href="../changelog.html" class="nav-item">Changelog</a>
+            <button class="snow-toggle" id="snowToggle" aria-label="Toggle snowfall" title="Toggle snowfall">
+                <svg viewBox="0 0 24 24" fill="none" class="snow-icon" id="snowIcon">
+                    <path d="M12 2v4m0 12v4M4 12H2m20 0h-2M5.64 5.64l2.83 2.83m7.07 7.07l2.83 2.83M5.64 18.36l2.83-2.83m7.07-7.07l2.83-2.83M12 8a4 4 0 100 8 4 4 0 000-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
             <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
                 <svg viewBox="0 0 24 24" fill="none" class="theme-icon" id="themeIcon">
                     <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -56,8 +59,8 @@
                 <div class="glow-card tiltable">
                     <div class="glow-content" style="text-align: center; padding: 60px 30px;">
                         <h3 style="margin-bottom: 15px; color: var(--text-secondary);">Store Under Reconstruction</h3>
-                        <p style="color: var(--text-secondary);">All products are now available directly through Vanity and Ether pages. Please visit the main site for direct access.</p>
-                        <a href="../index.html#announcements" class="mono-label card-link" style="display: inline-block; margin-top: 25px;">[go to announcements →]</a>
+                        <p style="color: var(--text-secondary);">The store is currently under reconstruction. Check back soon for products. Visit the main site for the latest announcements.</p>
+                        <a href="../index.html" class="mono-label card-link" style="display: inline-block; margin-top: 25px;">[go to home →]</a>
                     </div>
                 </div>
             </div>
@@ -66,3 +69,4 @@
     <script src="../script.js"></script>
 </body>
 </html>
+
