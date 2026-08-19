@@ -23,7 +23,6 @@
     <header class="navbar fade-up-initial">
         <a href="index.html" class="brand">pixelis.dev</a>
         <nav class="nav-links">
-            <a href="projects/index.html" class="nav-item">Projects</a>
             <a href="games/index.html" class="nav-item">Games</a>
             <a href="changelog.html" class="nav-item">Changelog</a>
             <button class="snow-toggle" id="snowToggle" aria-label="Toggle snowfall" title="Toggle snowfall">
@@ -50,7 +49,7 @@
             <div class="card-content">
                 <div class="section-header">
                     <h2 class="mono-label glitch-text" data-text="[projects]">[projects]</h2>
-                    <a href="https://pixelis.dev/projects" class="mono-label card-link">[view all →]</a>
+                    <a href="projects/index.html" class="mono-label card-link">[view all →]</a>
                 </div>
                 <div class="projects-grid">
                     <div class="glow-card tiltable">
@@ -185,10 +184,13 @@
                             <span class="contact-handle">@pixel</span>
                         </div>
                     </a>
-                    <a href="https://github.com/pixelatedxp/my-website" target="_blank" class="glow-card tiltable contact-flex">
-                        <div class="glow-content flex-contents">
-                            <span class="mono-label list-label">source</span>
-                            <span class="contact-handle">pixelis.dev source is on GitHub</span>
+                    <a href="https://github.com/pixelatedxp/my-website" target="_blank" class="glow-card tiltable contact-flex" style="grid-column: 1 / -1;">
+                        <div class="glow-content flex-contents" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center;">
+                                <span class="mono-label list-label">source</span>
+                                <span class="contact-handle">pixelis.dev source is on GitHub</span>
+                            </div>
+                            <span class="mono-label card-link" style="color: var(--accent-teal); margin: 0;">[view repo →]</span>
                         </div>
                     </a>
                 </div>
