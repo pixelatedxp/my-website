@@ -151,6 +151,16 @@
     </style>
 </head>
 <body class="dark-mode">
+    <div id="maintenanceOverlay" style="display:flex; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:1000; flex-direction:column; align-items:center; justify-content:center; font-family:'Share Tech Mono',monospace; color:#fff;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:64px; height:64px; margin-bottom:24px; color:#e67e22;">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <h2 style="font-size:1.8rem; margin-bottom:12px;">[under maintenance]</h2>
+        <p style="color:rgba(255,255,255,0.5); font-size:0.9rem; max-width:400px; text-align:center; line-height:1.6;">The aim trainer is currently being updated. Check back soon for improvements and new features.</p>
+        <a href="../index.html" style="margin-top:30px; color:#3d9970; text-decoration:none; font-size:0.85rem;">[back to games →]</a>
+    </div>
     <div class="cursor-trail">
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
@@ -167,6 +177,7 @@
             <a href="../../projects/index.html" class="nav-item">Projects</a>
             <a href="../../shop/index.html" class="nav-item">Shop</a>
             <a href="../index.html" class="nav-item active">Games</a>
+            <a href="../../changelog.html" class="nav-item">Changelog</a>
         </nav>
     </header>
 
