@@ -259,14 +259,8 @@
         document.getElementById('yourScore').textContent = 0;
         document.getElementById('aiScore').textContent = 0;
 
-        // Clear canvases
-        ['playerCanvas','aiCanvas'].forEach(id => {
-            const c = document.getElementById(id);
-            c.getContext('2d').clearRect(0, 0, c.width, c.height);
-            const ctx = c.getContext('2d');
-            ctx.fillStyle = '#252525';
-            ctx.fillRect(0, 0, c.width, c.height);
-        });
+        // Redraw preview boards
+        renderPreview();
         document.getElementById('gameMsg').textContent = 'Use arrow keys or WASD';
     }
 
@@ -282,13 +276,14 @@
         }
     });
 
-    // Init blank canvases
-    ['playerCanvas','aiCanvas'].forEach(id => {
-        const c = document.getElementById(id);
-        const ctx = c.getContext('2d');
-        ctx.fillStyle = '#252525';
-        ctx.fillRect(0, 0, c.width, c.height);
-    });
+    // Pre-start preview so the boards show actual snakes & food instead of empty gray
+    function renderPreview() {
+        playerGame = createGame('playerCanvas');
+        aiGame = createGame('aiCanvas');
+        drawGame(playerGame, false);
+        drawGame(aiGame, true);
+    }
+    renderPreview();
     </script>
     <script src="../../music-player.js"></script>
 </body>
