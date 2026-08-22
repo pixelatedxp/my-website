@@ -75,8 +75,8 @@
     <div id="results">
         <h2>[results]</h2>
             <div class="vs-grid">
-                <div class="vs-card" id="rYou"><div class="name">You</div><div class="big" id="rYouScore">—</div><div class="sub">score</div></div>
-                <div class="vs-card" id="rAI"><div class="name">Pixel</div><div class="big" id="rAIScore">—</div><div class="sub">score</div></div>
+                <div class="vs-card" id="rYou"><div class="name">You</div><div class="big" id="rYouScore">-</div><div class="sub">score</div></div>
+                <div class="vs-card" id="rAI"><div class="name">Pixel</div><div class="big" id="rAIScore">-</div><div class="sub">score</div></div>
             </div>
             <button class="btn-retry" onclick="resetAll()">Play Again</button>
         </div>
@@ -139,7 +139,7 @@
         ctx.fillStyle = '#252525';
         ctx.fillRect(0, 0, COLS*CELL, ROWS*CELL);
 
-        // Food — animated pulsing red point
+        // Food: animated pulsing red point
         const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 160);
         const foodR = (CELL / 2 - 2) * (0.72 + 0.38 * pulse);
         ctx.save();
@@ -206,6 +206,7 @@
     function startBoth() {
         if (running) return;
         running = true;
+        stopPreview();
         document.getElementById('startBtn').textContent = 'Restart';
         document.getElementById('startBtn').onclick = resetAll;
 
@@ -276,14 +277,25 @@
         }
     });
 
-    // Pre-start preview so the boards show actual snakes & food instead of empty gray
+    // Animated pre-start preview: both boards show live snakes & pulsing food
+    // instead of sitting as empty gray boxes. The loop stops itself once a game runs.
+    let previewRaf = null;
+    function stopPreview() {
+        if (previewRaf) { cancelAnimationFrame(previewRaf); previewRaf = null; }
+    }
     function renderPreview() {
+        stopPreview();
         playerGame = createGame('playerCanvas');
         aiGame = createGame('aiCanvas');
-        drawGame(playerGame, false);
-        drawGame(aiGame, true);
+        const loop = () => {
+            if (running) { previewRaf = null; return; }
+            drawGame(playerGame, false);
+            drawGame(aiGame, true);
+            previewRaf = requestAnimationFrame(loop);
+        };
+        loop();
     }
-    renderPreview();
+    try { renderPreview(); } catch (err) { /* boards stay static rather than breaking the page */ }
     </script>
     <script src="../../music-player.js"></script>
 </body>
