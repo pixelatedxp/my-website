@@ -122,77 +122,46 @@
             <div class="card-content">
                 <div class="section-header">
                     <h2 class="mono-label glitch-text" data-text="[changelog]">[changelog]</h2>
-                    <span class="mono-label">13 entries</span>
+                    <span class="mono-label">8 entries</span>
                 </div>
 
                 <div style="margin-top: 30px;">
 
                     <div class="changelog-entry fade-up">
                         <div class="changelog-dot"></div>
-                        <div class="changelog-date">2026-08-22 14:45 UTC</div>
-                        <div class="changelog-title">Bugfix Round: Typing, Snake, Music Player & New Hall of Fame Shots</div>
+                        <div class="changelog-date">2026-08-22 UTC</div>
+                        <div class="changelog-title">Music Player, Arcade Overhaul & Site Polish Round</div>
                         <ul class="changelog-list">
-                            <li>Typing test: Code removed from the race, top bar, results cards and the WPM distribution chart — it's now you vs Human vs Pixel only</li>
-                            <li>Fixed WPM distribution chart rendering broken on scaled displays (squished bars, clipped labels) with proper device-pixel-ratio sizing and a cleaner axis</li>
-                            <li>Snake: both boards now render a live preview of the snakes and food before you press start instead of sitting as empty gray boxes</li>
-                            <li>Fixed music player pause sometimes not stopping playback, and the autoplay fallback no longer stays armed after your first interaction anywhere on the page</li>
-                            <li>Hall of fame refreshed with four new screenshots</li>
-                        </ul>
-                    </div>
-
-                    <div class="changelog-entry fade-up">
-                        <div class="changelog-dot"></div>
-                        <div class="changelog-date">2026-08-22 13:56 UTC</div>
-                        <div class="changelog-title">Arcade Overhaul, Snow Everywhere & Hall of Gay</div>
-                        <ul class="changelog-list">
-                            <li>Fixed snowfall on every arcade game — the toggle existed but pages were missing the canvas element entirely</li>
-                            <li>Typing test: expanded sentence pool from 5 to 25 and rebuilt results as scroll-down glassmorphic cards with an animated WPM distribution chart showing where you rank</li>
-                            <li>Snake: removed the vs Code mode completely, now only vs Pixel with animated pulsing food dots</li>
-                            <li>Reaction time: dropped the Code rival card and Pixel's time now varies randomly between 120-190ms each round</li>
-                            <li>Sequence memory & aim trainer end screens restyled with animated glassmorphic cards</li>
-                            <li>Added hall of gay section under hall of fame with its first entry</li>
-                        </ul>
-                    </div>
-
-                    <div class="changelog-entry fade-up">
-                        <div class="changelog-dot"></div>
-                        <div class="changelog-date">2026-08-22 13:12 UTC</div>
-                        <div class="changelog-title">Site-Wide Music Player & Bio Update</div>
-                        <ul class="changelog-list">
-                            <li>Added a music player to the bottom-right corner of every page on the site with thumbnail, track info and play/pause button</li>
-                            <li>Autoplays on load on the main page (with first user interaction fallback for browser autoplay policies); manual play only on all other pages</li>
+                            <li>Added a music player to the bottom-right corner of every page with thumbnail, track info and play/pause button</li>
+                            <li>Autoplays on the main page (with first user interaction fallback for browser autoplay policies); manual play only on all other pages</li>
                             <li>Added first track: Never Been With A Baddie (loops continuously)</li>
+                            <li>Made pause authoritative over pending playback so the song always stops, and the autoplay fallback no longer stays armed after your first interaction anywhere on the page</li>
                             <li>Rewrote about bio text on the main page</li>
+                            <li>Fixed snowfall on every arcade game: the toggle existed but pages were missing the canvas element entirely</li>
+                            <li>Typing test: expanded sentence pool from 5 to 25 and rebuilt results as scroll-down glassmorphic cards with an animated WPM distribution chart showing where you rank</li>
+                            <li>Typing test: Code removed from the race, top bar, results cards and the chart. It's now you vs Avg Human vs Pixel only</li>
+                            <li>Typing test: Pixel's race pace now varies between 80 and 100 WPM every run instead of a flat 90</li>
+                            <li>Fixed the WPM distribution chart rendering stretched and blurry on scaled displays by measuring layout only after the results screen becomes visible and matching bitmap size to CSS size exactly</li>
+                            <li>Snake: removed the vs Code mode completely, now only vs Pixel with animated pulsing food dots</li>
+                            <li>Snake: both boards render an animated snakes-and-food preview before you press start instead of sitting empty</li>
+                            <li>Reaction time: dropped the Code rival card and Pixel's time now varies randomly between 120-190ms each round</li>
+                            <li>Reaction time: added a glassmorphic results screen with score cards and its own reaction time distribution graph</li>
+                            <li>Sequence memory & aim trainer end screens restyled with animated glassmorphic cards</li>
+                            <li>Hall of fame refreshed with four new screenshots and renamed to "these are my closest friends &lt;3333"</li>
+                            <li>Added hall of gay section under hall of fame with its first entry</li>
+                            <li>Stripped every em dash from site copy and condensed this changelog to one entry per day</li>
                         </ul>
                     </div>
 
                     <div class="changelog-entry fade-up">
                         <div class="changelog-dot"></div>
-                        <div class="changelog-date">2026-08-20 00:35 UTC</div>
-                        <div class="changelog-title">Navigation & Contact Layout Update</div>
+                        <div class="changelog-date">2026-08-20 UTC</div>
+                        <div class="changelog-title">Navigation Cleanup, Hall of Fame Fix & Maintenance Badges</div>
                         <ul class="changelog-list">
-                            <li>Removed Projects link from top navigation headers across all site pages</li>
-                            <li>Maintained [view all →] button on home page to access full projects repository</li>
-                            <li>Updated GitHub source code contact card at bottom of main page to full width matching email card</li>
-                        </ul>
-                    </div>
-
-                    <div class="changelog-entry fade-up">
-                        <div class="changelog-dot"></div>
-                        <div class="changelog-date">2026-08-20 00:28 UTC</div>
-                        <div class="changelog-title">Hall of Fame Fix</div>
-                        <ul class="changelog-list">
-                            <li>Corrected broken image asset path for Screenshot 2026-03-24 153114.png in Hall of Fame</li>
-                            <li>Ensured all friend cards render without missing image errors</li>
-                        </ul>
-                    </div>
-
-                    <div class="changelog-entry fade-up">
-                        <div class="changelog-dot"></div>
-                        <div class="changelog-date">2026-08-20 00:24 UTC</div>
-                        <div class="changelog-title">Navigation & Header Standardization</div>
-                        <ul class="changelog-list">
+                            <li>Removed Projects link from top navigation headers across all site pages, keeping the [view all →] button on the home page for the full repository</li>
                             <li>Removed Vanity, Ether, and Shop links from navigation headers across all pages</li>
+                            <li>Updated GitHub source code contact card at bottom of main page to full width matching email card</li>
+                            <li>Corrected broken image asset path in Hall of Fame so all friend cards render without missing image errors</li>
                             <li>Disabled interactive redirects on taken-down GitHub project cards (CS2 Internal, Humanbenchmark Cheats)</li>
                             <li>Placed Aim Trainer under maintenance with active maintenance badge matching Chess</li>
                             <li>Enabled snowfall canvas and toggle button universally across all tabs</li>
@@ -201,7 +170,7 @@
 
                     <div class="changelog-entry fade-up">
                         <div class="changelog-dot"></div>
-                        <div class="changelog-date">2026-08-19 23:54 UTC</div>
+                        <div class="changelog-date">2026-08-19 UTC</div>
                         <div class="changelog-title">Changelog & Status Updates</div>
                         <ul class="changelog-list">
                             <li>Added changelog page to track all site updates and git history</li>
@@ -213,7 +182,7 @@
 
                     <div class="changelog-entry fade-up">
                         <div class="changelog-dot"></div>
-                        <div class="changelog-date">2026-07-01 05:06 UTC</div>
+                        <div class="changelog-date">2026-07-01 UTC</div>
                         <div class="changelog-title">GitHub Pages & Routing Optimization</div>
                         <ul class="changelog-list">
                             <li>Added .nojekyll to disable default Jekyll processing on GitHub Pages</li>
@@ -226,7 +195,7 @@
 
                     <div class="changelog-entry fade-up">
                         <div class="changelog-dot"></div>
-                        <div class="changelog-date">2026-06-17 16:00 UTC</div>
+                        <div class="changelog-date">2026-06-17 UTC</div>
                         <div class="changelog-title">Asset Cleanup & Maintenance</div>
                         <ul class="changelog-list">
                             <li>Cleaned up unused Hall of Fame assets and updated index structure</li>
@@ -236,7 +205,7 @@
 
                     <div class="changelog-entry fade-up">
                         <div class="changelog-dot"></div>
-                        <div class="changelog-date">2026-05-03 01:41 UTC</div>
+                        <div class="changelog-date">2026-05-03 UTC</div>
                         <div class="changelog-title">Theme System & Color Palette</div>
                         <ul class="changelog-list">
                             <li>Finalized main dark background color (#252525) and teal accent (#3ca7cb)</li>
@@ -246,9 +215,12 @@
 
                     <div class="changelog-entry fade-up">
                         <div class="changelog-dot"></div>
-                        <div class="changelog-date">2026-05-02 23:49 UTC</div>
-                        <div class="changelog-title">UX Polish & Layout Refinements</div>
+                        <div class="changelog-date">2026-05-02 UTC</div>
+                        <div class="changelog-title">Domain Setup, Product Pages & UX Polish</div>
                         <ul class="changelog-list">
+                            <li>Configured custom domain CNAME for pixelis.dev</li>
+                            <li>Added pricing tiers (Day / Month / Lifetime) and animations for Ether page</li>
+                            <li>Expanded project README documentation and directory structure</li>
                             <li>Disabled browser scroll restoration and forced all pages to load at top (0, 0)</li>
                             <li>Unified site-wide background colors to match primary dark mode palette</li>
                             <li>Fixed Vanity card layout, compact Ether preview, and typing game reset bug</li>
@@ -258,18 +230,7 @@
 
                     <div class="changelog-entry fade-up">
                         <div class="changelog-dot"></div>
-                        <div class="changelog-date">2026-05-02 20:17 UTC</div>
-                        <div class="changelog-title">Domain Setup & Product Pages</div>
-                        <ul class="changelog-list">
-                            <li>Configured custom domain CNAME for pixelis.dev</li>
-                            <li>Added pricing tiers (Day / Month / Lifetime) and animations for Ether page</li>
-                            <li>Expanded project README documentation and directory structure</li>
-                        </ul>
-                    </div>
-
-                    <div class="changelog-entry fade-up">
-                        <div class="changelog-dot"></div>
-                        <div class="changelog-date">2026-04-22 22:42 UTC</div>
+                        <div class="changelog-date">2026-04-22 UTC</div>
                         <div class="changelog-title">Repository Initialization</div>
                         <ul class="changelog-list">
                             <li>Initial repository commit and deployment setup for pixelis.dev</li>
