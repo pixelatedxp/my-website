@@ -77,7 +77,7 @@
     <div id="results">
         <h2>[results]</h2>
         <div class="vs-grid">
-            <div class="vs-card" id="rYou"><div class="name">You</div><div class="big" id="rYouVal">—</div><div class="sub">level reached</div></div>
+            <div class="vs-card" id="rYou"><div class="name">You</div><div class="big" id="rYouVal">-</div><div class="sub">level reached</div></div>
             <div class="vs-card" id="rPixel"><div class="name">Pixel</div><div class="big">12</div><div class="sub">personal best</div></div>
             <div class="vs-card" id="rCode"><div class="name">Code</div><div class="big">∞</div><div class="sub">never forgets</div></div>
         </div>
@@ -93,7 +93,7 @@
         </div>
         <div class="info-panel">
             <div><div class="stat-label-sm">Your Level</div><div class="stat-val" style="color:#6c5ce7" id="yourLevel">0</div></div>
-            <div><div class="stat-label-sm">Round</div><div class="stat-val" id="roundDisplay">—</div></div>
+            <div><div class="stat-label-sm">Round</div><div class="stat-val" id="roundDisplay">-</div></div>
             <div><div class="stat-label-sm">Pixel's Best</div><div class="stat-val" style="color:#e67e22">12</div></div>
             <div><div class="stat-label-sm">Code's Best</div><div class="stat-val" style="color:#c0392b">∞</div></div>
         </div>
@@ -124,7 +124,7 @@
             await sleep(600);
             for (const idx of sequence) { await flashTile(idx, 450); await sleep(200); }
             playerTurn = true; playerInput = [];
-            setStatus(`Your turn — ${sequence.length} tile${sequence.length>1?'s':''}`);
+            setStatus(`Your turn: ${sequence.length} tile${sequence.length>1?'s':''}`);
         }
         function addToSequence() {
             sequence.push(Math.floor(Math.random() * GRID_SIZE));
@@ -176,7 +176,7 @@
             document.getElementById('startBtn').style.display = 'inline-block';
             sequence = []; level = 0; playerInput = []; playerTurn = false; blocked = false;
             document.getElementById('yourLevel').textContent = 0;
-            document.getElementById('roundDisplay').textContent = '—';
+            document.getElementById('roundDisplay').textContent = '-';
             setStatus('Press Start to play');
         }
         function setStatus(msg) { document.getElementById('statusMsg').textContent = msg; }

@@ -321,7 +321,7 @@ function processPlayerMoveWithEval(evalCp, move) {
     } else if (!onceFlags.opening && moveCount >= 5 && moveCount <= 9) {
         const opening = detectOpening();
         if (opening) {
-            say(pick([`The ${opening}. Classic.`, `${opening}. I know this one.`, `${opening} — we're playing properly.`]));
+            say(pick([`The ${opening}. Classic.`, `${opening}. I know this one.`, `${opening}. We're playing properly.`]));
             onceFlags.opening = true;
         }
     } else if (!onceFlags.earlyQueen && move.piece === 'q' && moveCount <= 9) {
