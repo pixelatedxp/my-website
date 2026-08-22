@@ -1,5 +1,5 @@
-# pixelis.dev
+# Source for my Website!
 
-Source for [pixelis.dev](https://pixelis.dev) -- my personal site with projects, games, and tools.
+Source for pixelis.dev, my personal site with projects, games, and tools.
 
-Built with vanilla HTML, CSS, and JS. No frameworks, no build step, just static files.
+Built with vanilla HTML, CSS, and JS. It's a static site, nothing special, but it means a lot to me <3
