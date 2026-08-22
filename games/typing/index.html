@@ -11,8 +11,9 @@
     <link rel="stylesheet" href="../../styles.css">
     <style>
         * { cursor: none !important; }
-        html, body { height: 100%; overflow: hidden; }
-        body { display: flex; flex-direction: column; }
+        html { height: 100%; }
+        body { display: flex; flex-direction: column; height: 100vh; overflow-y: hidden; }
+        html.results-open, html.results-open body { height: auto; min-height: 100%; overflow-x: hidden; overflow-y: auto; }
         .navbar { display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 0 40px !important; flex-shrink: 0; width: 100%; box-sizing: border-box; }
 
         .game-area {
@@ -24,6 +25,7 @@
             padding: 30px 40px;
             gap: 28px;
             overflow: hidden;
+            min-height: calc(100vh - 130px);
         }
 
         .top-labels {
@@ -111,31 +113,67 @@
 
         .hint { font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; color: rgba(255,255,255,0.25); }
 
-        /* Results */
-        #results {
+        /* Results — scroll-down glass section */
+        .results-section {
             display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.92);
+            padding: 10px 40px 70px;
+        }
+        .results-section.visible { display: block; }
+        .results-inner {
+            max-width: 860px;
+            margin: 0 auto;
+            display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 28px;
+            gap: 24px;
             font-family: 'Share Tech Mono', monospace;
             color: #fff;
-            z-index: 10;
         }
-        #results.visible { display: flex; }
-        #results h2 { font-size: 2rem; margin: 0; }
+        .results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .glass-result-card {
+            background: rgba(255,255,255,0.045);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 26px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(26px);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-result-card.show { opacity: 1; transform: translateY(0); }
+        .results-inner h2 {
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .results-inner h2.show { opacity: 1; transform: translateY(0); }
+        .glass-result-card.winner { border-color: #3d9970; box-shadow: 0 0 34px rgba(61,153,112,0.18); }
+        .glass-result-card .name { font-size: 0.8rem; color: #888; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.08em; }
+        .glass-result-card .wpm-big { font-size: 2.4rem; line-height: 1; color: #fff; }
+        .glass-result-card .sub { font-size: 0.75rem; color: #666; margin-top: 6px; }
+        .graph-card { text-align: left; }
+        .graph-label { display: block; margin-bottom: 14px; }
+        #wpmGraph { width: 100%; height: 220px; display: block; }
+        .graph-legend { display: block; margin-top: 12px; color: #777; }
 
-        .vs-grid { display: grid; grid-template-columns: repeat(3, 200px); gap: 20px; text-align: center; }
-        .vs-card { background: #1a1a1a; border-radius: 12px; padding: 24px; border: 1px solid rgba(255,255,255,0.08); }
-        .vs-card.winner { border-color: #3d9970; }
-        .vs-card .name { font-size: 0.8rem; color: #888; margin-bottom: 8px; }
-        .vs-card .wpm-big { font-size: 2.2rem; color: #fff; }
-        .vs-card .sub { font-size: 0.75rem; color: #666; margin-top: 4px; }
-
-        .btn-retry { padding: 12px 32px; background: #3d9970; border: none; color: #fff; border-radius: 8px; cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; font-weight: bold; }
+        .btn-retry {
+            align-self: center;
+            padding: 12px 32px;
+            background: #3d9970;
+            border: none;
+            color: #fff;
+            border-radius: 8px;
+            cursor: none;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: all 0.2s;
+            opacity: 0;
+            transform: translateY(18px);
+        }
+        .btn-retry.show { opacity: 1; transform: translateY(0); transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.55s, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.55s, background 0.2s; }
+        .btn-retry:hover { background: #2ecc71; }
     </style>
 </head>
 <body class="dark-mode">
@@ -147,6 +185,7 @@
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
     </div>
     <div class="vignette"></div>
+    <canvas id="snowfall"></canvas>
 
     <header class="navbar fade-up-initial">
         <a href="../../index.html" class="brand">pixelis.dev</a>
@@ -164,28 +203,6 @@
             </button>
         </nav>
     </header>
-
-    <div id="results">
-        <h2>[results]</h2>
-        <div class="vs-grid">
-            <div class="vs-card" id="resYou">
-                <div class="name">You</div>
-                <div class="wpm-big" id="resYouWpm">—</div>
-                <div class="sub" id="resYouAcc">—</div>
-            </div>
-            <div class="vs-card" id="resPixel">
-                <div class="name">Pixel</div>
-                <div class="wpm-big">90</div>
-                <div class="sub">WPM</div>
-            </div>
-            <div class="vs-card" id="resCode">
-                <div class="name">Code</div>
-                <div class="wpm-big">700</div>
-                <div class="sub">WPM</div>
-            </div>
-        </div>
-        <button class="btn-retry" onclick="setupGame()">Play Again</button>
-    </div>
 
     <div class="game-area">
         <div class="top-labels">
@@ -239,6 +256,35 @@
         <div class="hint" id="hintText">Start typing to begin the race...</div>
     </div>
 
+    <section id="results" class="results-section">
+        <div class="results-inner">
+            <h2 class="mono-label glitch-text" data-text="[results]">[results]</h2>
+            <div class="results-grid">
+                <div class="glass-result-card" id="resYouCard">
+                    <div class="name">You</div>
+                    <div class="wpm-big" id="resYouWpm">—</div>
+                    <div class="sub" id="resYouAcc">—</div>
+                </div>
+                <div class="glass-result-card" id="resPixelCard">
+                    <div class="name">Pixel</div>
+                    <div class="wpm-big">90</div>
+                    <div class="sub">WPM</div>
+                </div>
+                <div class="glass-result-card" id="resCodeCard">
+                    <div class="name">Code</div>
+                    <div class="wpm-big">700</div>
+                    <div class="sub">WPM</div>
+                </div>
+            </div>
+            <div class="glass-result-card graph-card" id="graphCard">
+                <span class="mono-label graph-label">[how you compare — wpm distribution]</span>
+                <canvas id="wpmGraph"></canvas>
+                <span class="mono-label graph-legend" id="graphLegend"></span>
+            </div>
+            <button class="btn-retry" onclick="setupGame()">Play Again</button>
+        </div>
+    </section>
+
     <script src="../../script.js"></script>
     <script>
         const TEXTS = [
@@ -246,7 +292,27 @@
             "debugging code at three in the morning is just another form of problem solving with extra steps and a lot of caffeine involved because the compiler does not care about your sleep schedule or your mental health",
             "pixel built an external cheat not because he needed to win but because understanding how games handle memory read operations and player coordinates was genuinely fascinating to him as an engineering challenge",
             "writing clean code is like writing poetry every word matters every space has a purpose and brevity is the soul of wit as someone once said and that applies equally to functions variables and commit messages",
-            "the difference between a good developer and a great one is not the language they use or the framework they know but whether they can look at a problem from ten different angles and still find the simplest solution"
+            "the difference between a good developer and a great one is not the language they use or the framework they know but whether they can look at a problem from ten different angles and still find the simplest solution",
+            "every keyboard shortcut you learn saves two seconds but stacking fifty of them across a workday compounds into an extra hour that you can spend staring at the wall wondering why the build is broken again",
+            "the fastest typists in the world do not think about individual keys their fingers move on muscle memory while their brain stays three words ahead reading the sentence before the hands ever get there",
+            "mechanical keyboards exist because some people believe that the sound of a plastic click echoing through an apartment at midnight is a small price to pay for slightly crisper tactile feedback",
+            "learning to touch type is one of those rare skills that feels impossible for two frustrating weeks and then suddenly clicks into place forever like riding a bike or forgetting how to ride a bike",
+            "the history of the keyboard layout is a story of compromise tradeoffs and stubborn tradition where the most efficient arrangement lost to familiarity and now we all type on a design built for old typewriters",
+            "artificial intelligence will not replace programmers anytime soon but it might replace the part of the job where you explain to your friends that no you cannot fix their printer remotely",
+            "speedrunning a video game is just applied obsessive research where players memorize frame perfect inputs and pixel exact positions to shave milliseconds off a run nobody asked them to complete",
+            "the best way to learn programming is to build something slightly too hard for you struggle embarrassingly and emerge three weeks later with a working project and permanent opinions about semicolons",
+            "open source software runs the modern world quietly and for free which means half the internet is held together by developers who fixed critical bugs between lunch and their afternoon coffee",
+            "a good gaming setup does not make you better at games but it does make losing feel significantly more stylish especially when the rgb lighting syncs perfectly with your disappointment",
+            "latency is the silent killer of competitive gaming because a twenty millisecond delay between your click and the shot landing is enough to turn a headshot into a very expensive lesson",
+            "reading documentation is the developer equivalent of eating vegetables everyone agrees it builds character yet somehow we all keep trying to survive on stack overflow snacks alone",
+            "the cloud is just other people's computers which means every photo you upload is technically sleeping over at a data center somewhere being kept cool by industrial air conditioning",
+            "version control saved the software industry from a dark age of files named final version two real final this time actually final and please work underscore backup dot zip",
+            "competitive typing races are deceptively stressful because watching your opponent's progress bar creep ahead of yours triggers a primal panic that no amount of practice fully removes",
+            "the average person types around forty words per minute but gamers who grew up in voice chat lobbies arguing about strategies tend to develop frightening speeds out of pure necessity",
+            "code reviews are where egos go to be gently humbled because nothing tests your character like a stranger politely asking why you named a variable x in a function four hundred lines long",
+            "automation is the art of spending six hours writing a script to save ten minutes of work per week which mathematically never pays off but spiritually feels like absolute genius",
+            "every programmer has a personal graveyard of abandoned projects sitting in a folder somewhere each one started with huge ambition and quietly closed with a commit message saying wip",
+            "the moment a compiler error disappears after you change absolutely nothing and rerun it is either magic a miracle or a warning sign that you should be far more worried than relieved"
         ];
 
         let text = '', typed = '', startTime = null, gameRunning = false;
@@ -259,7 +325,11 @@
         const HUMAN_CPS = (HUMAN_WPM * 5) / 60;
 
         function setupGame() {
-            document.getElementById('results').classList.remove('visible');
+            document.documentElement.classList.remove('results-open');
+            const resSection = document.getElementById('results');
+            resSection.classList.remove('visible');
+            resSection.querySelectorAll('.glass-result-card').forEach(c => c.classList.remove('show', 'winner'));
+            window.scrollTo(0, 0);
             text = TEXTS[Math.floor(Math.random() * TEXTS.length)];
             typed = '';
             startTime = null;
@@ -358,13 +428,147 @@
             document.getElementById('resYouAcc').textContent = acc + '% accuracy';
 
             const scores = [
-                { id: 'resYou', s: wpm },
-                { id: 'resPixel', s: PIXEL_WPM },
-                { id: 'resCode', s: CODE_WPM }
+                { id: 'resYouCard', s: wpm },
+                { id: 'resPixelCard', s: PIXEL_WPM },
+                { id: 'resCodeCard', s: CODE_WPM }
             ];
             const best = Math.max(...scores.map(x => x.s));
             scores.forEach(x => document.getElementById(x.id).classList.toggle('winner', x.s === best));
-            document.getElementById('results').classList.add('visible');
+
+            drawWpmGraph(wpm);
+
+            document.documentElement.classList.add('results-open');
+            const resSection = document.getElementById('results');
+            resSection.classList.remove('visible');
+            void resSection.offsetWidth;
+            resSection.classList.add('visible');
+            setTimeout(() => {
+                document.querySelectorAll('.glass-result-card, .results-inner h2').forEach((card, i) => {
+                    setTimeout(() => card.classList.add('show'), i * 140);
+                });
+                document.querySelector('#results .btn-retry').classList.add('show');
+            }, 250);
+            setTimeout(() => {
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 350);
+        }
+
+        // WPM comparison chart — synthetic crowd distribution with you & Pixel marked
+        function drawWpmGraph(userWpm) {
+            function gauss(mean, sd) {
+                let u = 0, v = 0;
+                while (u === 0) u = Math.random();
+                while (v === 0) v = Math.random();
+                return mean + sd * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+            }
+            const people = [];
+            for (let i = 0; i < 420; i++) {
+                let w = gauss(42, 17);
+                if (w < 8) w = 8 + Math.random() * 6;
+                if (w > 140) w = 110 + Math.random() * 30;
+                people.push(w);
+            }
+            const BIN = 5, MAXW = 150;
+            const bins = new Array(MAXW / BIN).fill(0);
+            people.forEach(w => bins[Math.min(bins.length - 1, Math.floor(w / BIN))]++);
+
+            const cv = document.getElementById('wpmGraph');
+            const dpr = window.devicePixelRatio || 1;
+            const cssW = cv.parentElement.clientWidth - 4;
+            const cssH = 220;
+            cv.style.height = cssH + 'px';
+            cv.width = cssW * dpr;
+            cv.height = cssH * dpr;
+            const g = cv.getContext('2d');
+            g.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            const padL = 30, padR = 10, padT = 16, padB = 24;
+            const plotW = cssW - padL - padR, plotH = cssH - padT - padB;
+            const maxCount = Math.max(...bins);
+            const userBin = Math.min(bins.length - 1, Math.floor(userWpm / BIN));
+            const pixelBin = Math.floor(90 / BIN);
+
+            const start = performance.now();
+            function frame(now) {
+                const t = Math.min(1, (now - start) / 850);
+                const ease = 1 - Math.pow(1 - t, 3);
+                g.clearRect(0, 0, cssW, cssH);
+
+                // gridlines
+                g.strokeStyle = 'rgba(255,255,255,0.07)';
+                g.fillStyle = 'rgba(255,255,255,0.35)';
+                g.font = '9px Share Tech Mono';
+                g.textAlign = 'right';
+                for (let gy = 0; gy <= 4; gy++) {
+                    const y = padT + plotH - (plotH * gy / 4);
+                    g.beginPath();
+                    g.moveTo(padL, y);
+                    g.lineTo(padL + plotW, y);
+                    g.stroke();
+                    if (gy > 0) g.fillText(Math.round(maxCount * gy / 4), padL - 6, y + 3);
+                }
+
+                const bw = plotW / bins.length;
+                bins.forEach((count, bi) => {
+                    const h = (count / maxCount) * plotH * ease;
+                    const x = padL + bi * bw + 2;
+                    const y = padT + plotH - h;
+                    if (bi === userBin) {
+                        g.save();
+                        g.shadowColor = '#3d9970';
+                        g.shadowBlur = 14;
+                        g.fillStyle = '#3d9970';
+                        g.fillRect(x, y, bw - 4, h);
+                        g.restore();
+                    } else {
+                        g.fillStyle = bi === pixelBin ? 'rgba(230,126,34,0.55)' : 'rgba(60,167,203,0.32)';
+                        g.fillRect(x, y, bw - 4, h);
+                    }
+                });
+
+                // "you" marker
+                const ux = padL + userBin * bw + (bw - 4) / 2;
+                g.strokeStyle = '#3d9970';
+                g.lineWidth = 1.5;
+                g.setLineDash([3, 3]);
+                g.beginPath();
+                g.moveTo(ux, padT - 4);
+                g.lineTo(ux, padT + plotH);
+                g.stroke();
+                g.setLineDash([]);
+                g.fillStyle = '#3d9970';
+                g.font = 'bold 11px Share Tech Mono';
+                g.textAlign = 'center';
+                g.fillText('YOU ' + userWpm, Math.max(40, Math.min(cssW - 34, ux)), padT - 6);
+
+                // pixel marker
+                const px = padL + pixelBin * bw + (bw - 4) / 2;
+                g.strokeStyle = 'rgba(230,126,34,0.85)';
+                g.lineWidth = 1;
+                g.setLineDash([2, 4]);
+                g.beginPath();
+                g.moveTo(px, padT);
+                g.lineTo(px, padT + plotH);
+                g.stroke();
+                g.setLineDash([]);
+                g.fillStyle = 'rgba(230,126,34,0.9)';
+                g.font = '9px Share Tech Mono';
+                g.fillText('pixel', px, padT + 10);
+
+                // x axis labels
+                g.fillStyle = 'rgba(255,255,255,0.35)';
+                g.font = '9px Share Tech Mono';
+                g.textAlign = 'center';
+                for (let w = 0; w <= MAXW; w += 25) {
+                    g.fillText(String(w), padL + (w / MAXW) * plotW, cssH - 8);
+                }
+
+                if (t < 1) requestAnimationFrame(frame);
+            }
+            requestAnimationFrame(frame);
+
+            document.getElementById('graphLegend').textContent =
+                'sample of 420 typists · green bar = where you landed · orange = pixel at 90 wpm';
         }
 
         document.getElementById('hiddenInput').addEventListener('input', (e) => {
