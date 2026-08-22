@@ -28,16 +28,23 @@
         #statusMsg { font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; color: rgba(255,255,255,0.5); text-align: center; }
         .btn-start { padding: 12px 32px; background: #6c5ce7; border: none; color: #fff; border-radius: 8px; cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; font-weight: bold; }
         .btn-start:hover { background: #7d6ff0; }
-        #results { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); flex-direction: column; align-items: center; justify-content: center; gap: 28px; font-family: 'Share Tech Mono', monospace; color: #fff; z-index: 10; }
+        #results { display: none; position: fixed; inset: 0; background: rgba(8,8,12,0.72); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); flex-direction: column; align-items: center; justify-content: center; gap: 28px; font-family: 'Share Tech Mono', monospace; color: #fff; z-index: 10; }
         #results.visible { display: flex; }
-        #results h2 { font-size: 2rem; margin: 0; }
+        #results h2 { font-size: 2rem; margin: 0; opacity: 0; transform: translateY(18px); }
         .vs-grid { display: grid; grid-template-columns: repeat(3, 180px); gap: 20px; text-align: center; }
-        .vs-card { background: #1a1a1a; border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.08); }
-        .vs-card.winner { border-color: #6c5ce7; }
+        .vs-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); padding: 20px; opacity: 0; transform: translateY(22px) scale(0.97); }
+        .vs-card.winner { border-color: #6c5ce7; box-shadow: 0 0 34px rgba(108,92,231,0.25); }
+        #results.visible h2, #results.visible .vs-card, #results.visible .btn-retry, #results.visible #rMsg { animation: cardIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        #results.visible .vs-card:nth-child(2) { animation-delay: 0.13s; }
+        #results.visible .vs-card:nth-child(3) { animation-delay: 0.26s; }
+        #results.visible #rMsg { animation-delay: 0.38s; }
+        #results.visible .btn-retry { animation-delay: 0.48s; }
+        @keyframes cardIn { to { opacity: 1; transform: translateY(0) scale(1); } }
+        #results #rMsg { opacity: 0; transform: translateY(18px); }
         .vs-card .name { font-size: 0.8rem; color: #888; margin-bottom: 8px; }
         .vs-card .big { font-size: 2.2rem; color: #fff; }
         .vs-card .sub { font-size: 0.75rem; color: #666; margin-top: 4px; }
-        .btn-retry { padding: 12px 32px; background: #6c5ce7; border: none; color: #fff; border-radius: 8px; cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; font-weight: bold; }
+        .btn-retry { padding: 12px 32px; background: #6c5ce7; border: none; color: #fff; border-radius: 8px; cursor: none; font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; font-weight: bold; opacity: 0; transform: translateY(18px); }
     </style>
 </head>
 <body class="dark-mode">
@@ -49,6 +56,7 @@
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
     </div>
     <div class="vignette"></div>
+    <canvas id="snowfall"></canvas>
     <header class="navbar fade-up-initial">
         <a href="../../index.html" class="brand">pixelis.dev</a>
         <nav class="nav-links">
