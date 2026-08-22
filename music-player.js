@@ -57,6 +57,7 @@
         var pauseIcon = document.getElementById('musicPauseIcon');
         var toggleBtn = document.getElementById('musicToggle');
         var userPaused = false;
+        var playToken = 0;
 
         function setPlayingUI(isPlaying) {
             player.classList.toggle('playing', isPlaying);
@@ -67,7 +68,19 @@
         audio.addEventListener('pause', function () { setPlayingUI(false); });
 
         function tryStart() {
-            audio.play().catch(function () {});
+            var token = ++playToken;
+            var p = audio.play();
+            if (p && p.then) {
+                p.then(function () {
+                    if (token !== playToken) audio.pause();
+                }).catch(function () {});
+            }
+        }
+
+        function stopPlayback() {
+            userPaused = true;
+            playToken++;
+            audio.pause();
         }
 
         toggleBtn.addEventListener('click', function () {
@@ -75,8 +88,7 @@
                 userPaused = false;
                 tryStart();
             } else {
-                userPaused = true;
-                audio.pause();
+                stopPlayback();
             }
         });
 
@@ -87,12 +99,11 @@
         });
 
         if (autoplay) {
-            var startOnInteraction = function (e) {
-                if (player.contains(e.target)) return;
-                interactionEvents.forEach(function (ev) { document.removeEventListener(ev, startOnInteraction); });
-                if (!userPaused && audio.paused) tryStart();
-            };
             var interactionEvents = ['pointerdown', 'keydown', 'touchstart'];
+            var startOnInteraction = function (e) {
+                interactionEvents.forEach(function (ev) { document.removeEventListener(ev, startOnInteraction); });
+                if (!player.contains(e.target) && !userPaused && audio.paused) tryStart();
+            };
             tryStart();
             interactionEvents.forEach(function (ev) { document.addEventListener(ev, startOnInteraction, { passive: true }); });
         }
