@@ -42,7 +42,10 @@
             <div class="card-content">
                 <h2 class="mono-label glitch-text" data-text="[about]">[about]</h2>
                 <h1 class="main-heading">Hi, I'm Pixel.</h1>
-                <p class="bio-text">I code stuff that no one needs except me, along with some questionable projects and game cheats because I SUCK at most games. I have 5k hours on CS2, but I play like a Silver. I play other stuff too, but yeah. Anyways, I'm open to coding stuff for you and giving you the source code if you want, but you've gotta pay for it.</p>
+                <p class="bio-text">Hi, I'm Pixel. I'm chopped, I'm a teenager, and I code some stuff that absolutely nobody needs, but it's fun to make, so yeah, fuck you. I don't care if you don't like my stuff.</p>
+                <p class="bio-text" style="margin-top: 15px;">Anyways, I get no baddies, but it's fine because I can always go home and game. Lowkey got some friends, but no baddies, and girls think I'm chopped.</p>
+                <p class="bio-text" style="margin-top: 15px;">Anddd I do NOT study ONE BIT, so STOP MAKING FUN OF MY A,B,B. IT'S GOOD BECAUSE I DIDN'T STUDY FOR THE EXAM I SWEARRRR.</p>
+                <p class="bio-text" style="margin-top: 15px;">I code shit. I game. I don't study. Life is good.</p>
             </div>
         </section>
         <section class="card section fade-up" id="projects">
@@ -197,6 +200,23 @@
             </div>
         </section>
     </main>
+    <div class="music-player fade-up-initial" id="musicPlayer">
+        <img src="assets/music/thumb.jpg" alt="Never Been With A Baddie" class="music-thumb" draggable="false">
+        <div class="music-info">
+            <span class="mono-label music-label">[now playing]</span>
+            <span class="music-track">Never Been With A Baddie</span>
+            <div class="music-eq"><span></span><span></span><span></span><span></span></div>
+        </div>
+        <button class="music-toggle" id="musicToggle" aria-label="Play or pause music">
+            <svg viewBox="0 0 24 24" fill="currentColor" class="music-icon" id="musicPlayIcon">
+                <path d="M8 5v14l11-7z"/>
+            </svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" class="music-icon" id="musicPauseIcon" style="display: none;">
+                <path d="M6 5h4v14H6zM14 5h4v14h-4z"/>
+            </svg>
+        </button>
+    </div>
+    <audio id="siteAudio" src="assets/music/never-been-with-a-baddie.mp3" preload="auto" loop></audio>
     <script src="script.js"></script>
 </body>
 </html>

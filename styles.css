@@ -369,4 +369,93 @@ body::before {
 .glitch-text {
     display: inline-block;
 }
+.music-player {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: var(--glass-shadow);
+    z-index: 9000;
+    transition: background-color 0.4s ease, border-color 0.4s ease;
+}
+.music-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    object-fit: cover;
+    user-select: none;
+}
+.music-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-width: 150px;
+}
+.music-track {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.music-eq {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 10px;
+}
+.music-eq span {
+    width: 3px;
+    height: 3px;
+    border-radius: 1px;
+    background-color: var(--accent-teal);
+    opacity: 0.4;
+    transition: opacity 0.3s;
+}
+.music-player.playing .music-eq span {
+    opacity: 1;
+    animation: eqBounce 0.9s ease-in-out infinite;
+}
+.music-player.playing .music-eq span:nth-child(2) { animation-delay: 0.15s; }
+.music-player.playing .music-eq span:nth-child(3) { animation-delay: 0.3s; }
+.music-player.playing .music-eq span:nth-child(4) { animation-delay: 0.45s; }
+@keyframes eqBounce {
+    0%, 100% { height: 3px; }
+    50% { height: 10px; }
+}
+.music-toggle {
+    background: none;
+    border: none;
+    cursor: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    color: var(--text-secondary);
+    transition: color 0.2s, transform 0.2s;
+}
+.music-toggle:hover {
+    color: var(--accent-teal);
+    transform: scale(1.1);
+}
+.music-icon {
+    width: 22px;
+    height: 22px;
+}
+@media (max-width: 600px) {
+    .music-player {
+        bottom: 14px;
+        right: 14px;
+        max-width: calc(100vw - 28px);
+    }
+}
 

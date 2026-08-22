@@ -262,6 +262,41 @@
             }
         });
     }
+    const audio = document.getElementById('siteAudio');
+    const musicToggle = document.getElementById('musicToggle');
+    const musicPlayer = document.getElementById('musicPlayer');
+    if (audio && musicToggle && musicPlayer) {
+        const playIcon = document.getElementById('musicPlayIcon');
+        const pauseIcon = document.getElementById('musicPauseIcon');
+        let userPaused = false;
+        function setPlayingUI(isPlaying) {
+            musicPlayer.classList.toggle('playing', isPlaying);
+            if (playIcon) playIcon.style.display = isPlaying ? 'none' : '';
+            if (pauseIcon) pauseIcon.style.display = isPlaying ? '' : 'none';
+        }
+        audio.addEventListener('play', () => setPlayingUI(true));
+        audio.addEventListener('pause', () => setPlayingUI(false));
+        function tryStart() {
+            audio.play().catch(() => {});
+        }
+        musicToggle.addEventListener('click', () => {
+            if (audio.paused) {
+                userPaused = false;
+                tryStart();
+            } else {
+                userPaused = true;
+                audio.pause();
+            }
+        });
+        const startOnInteraction = (e) => {
+            if (musicPlayer.contains(e.target)) return;
+            interactionEvents.forEach(ev => document.removeEventListener(ev, startOnInteraction));
+            if (!userPaused && audio.paused) tryStart();
+        };
+        const interactionEvents = ['pointerdown', 'keydown', 'touchstart'];
+        tryStart();
+        interactionEvents.forEach(ev => document.addEventListener(ev, startOnInteraction, { passive: true }));
+    }
 });
 function copyEmail(element) {
     navigator.clipboard.writeText('pixel@pixelis.dev').then(() => {
