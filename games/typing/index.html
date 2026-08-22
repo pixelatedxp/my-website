@@ -46,7 +46,6 @@
         .racer-wpm  { font-size: 2.2rem; color: #fff; line-height: 1; }
         .racer-wpm.you { color: #3d9970; }
         .racer-wpm.pixel { color: #e67e22; }
-        .racer-wpm.code  { color: #c0392b; }
 
         /* Race track */
         .race-tracks {
@@ -70,7 +69,6 @@
         .track-bar { height: 100%; border-radius: 20px; transition: width 0.3s; width: 0%; display: flex; align-items: center; padding: 0 8px; font-size: 0.72rem; color: rgba(255,255,255,0.8); }
         .track-bar.you   { background: #3d9970; }
         .track-bar.pixel { background: #e67e22; }
-        .track-bar.code  { background: #c0392b; }
         .track-pct { width: 45px; color: rgba(255,255,255,0.4); font-family: 'Share Tech Mono', monospace; font-size: 0.78rem; }
 
         /* Text display */
@@ -128,7 +126,7 @@
             font-family: 'Share Tech Mono', monospace;
             color: #fff;
         }
-        .results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .results-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
         .glass-result-card {
             background: rgba(255,255,255,0.045);
             border: 1px solid rgba(255,255,255,0.09);
@@ -221,11 +219,6 @@
                 <div class="racer-wpm pixel">90</div>
                 <div style="font-size:0.7rem;color:#666;font-family:'Share Tech Mono',monospace;">WPM</div>
             </div>
-            <div class="racer">
-                <div class="racer-name">Code</div>
-                <div class="racer-wpm code">700</div>
-                <div style="font-size:0.7rem;color:#666;font-family:'Share Tech Mono',monospace;">WPM</div>
-            </div>
         </div>
 
         <div class="race-tracks">
@@ -243,11 +236,6 @@
                 <div class="track-name">Pixel</div>
                 <div class="track-bar-wrap"><div class="track-bar pixel" id="trackPixel"></div></div>
                 <div class="track-pct" id="pctPixel">0%</div>
-            </div>
-            <div class="track-row">
-                <div class="track-name">Code</div>
-                <div class="track-bar-wrap"><div class="track-bar code" id="trackCode"></div></div>
-                <div class="track-pct" id="pctCode">0%</div>
             </div>
         </div>
 
@@ -268,11 +256,6 @@
                 <div class="glass-result-card" id="resPixelCard">
                     <div class="name">Pixel</div>
                     <div class="wpm-big">90</div>
-                    <div class="sub">WPM</div>
-                </div>
-                <div class="glass-result-card" id="resCodeCard">
-                    <div class="name">Code</div>
-                    <div class="wpm-big">700</div>
                     <div class="sub">WPM</div>
                 </div>
             </div>
@@ -316,12 +299,11 @@
         ];
 
         let text = '', typed = '', startTime = null, gameRunning = false;
-        let pixelInterval = null, codeInterval = null, humanInterval = null;
-        let pixelChars = 0, codeChars = 0, humanChars = 0;
+        let pixelInterval = null, humanInterval = null;
+        let pixelChars = 0, humanChars = 0;
 
-        const PIXEL_WPM = 90, CODE_WPM = 700, HUMAN_WPM = 60;
+        const PIXEL_WPM = 90, HUMAN_WPM = 60;
         const PIXEL_CPS = (PIXEL_WPM * 5) / 60;
-        const CODE_CPS  = (CODE_WPM  * 5) / 60;
         const HUMAN_CPS = (HUMAN_WPM * 5) / 60;
 
         function setupGame() {
@@ -334,11 +316,11 @@
             typed = '';
             startTime = null;
             gameRunning = false;
-            pixelChars = 0; codeChars = 0; humanChars = 0;
-            clearInterval(pixelInterval); clearInterval(codeInterval); clearInterval(humanInterval);
+            pixelChars = 0; humanChars = 0;
+            clearInterval(pixelInterval); clearInterval(humanInterval);
 
             renderText();
-            updateTracks(0, 0, 0, 0);
+            updateTracks(0, 0, 0);
             document.getElementById('yourWpm').textContent = '0';
             document.getElementById('hintText').textContent = 'Start typing to begin the race...';
             document.getElementById('hiddenInput').disabled = false;
@@ -356,16 +338,14 @@
             }).join('');
         }
 
-        function updateTracks(yourPct, humanPct, pixelPct, codePct) {
+        function updateTracks(yourPct, humanPct, pixelPct) {
             const clamp = v => Math.min(100, Math.max(0, v));
             document.getElementById('trackYou').style.width   = clamp(yourPct)  + '%';
             document.getElementById('trackHuman').style.width = clamp(humanPct) + '%';
             document.getElementById('trackPixel').style.width = clamp(pixelPct) + '%';
-            document.getElementById('trackCode').style.width  = clamp(codePct)  + '%';
             document.getElementById('pctYou').textContent   = Math.round(clamp(yourPct))  + '%';
             document.getElementById('pctHuman').textContent = Math.round(clamp(humanPct)) + '%';
             document.getElementById('pctPixel').textContent = Math.round(clamp(pixelPct)) + '%';
-            document.getElementById('pctCode').textContent  = Math.round(clamp(codePct))  + '%';
         }
 
         function calcWpm() {
@@ -396,22 +376,13 @@
                 updateTracksNow();
                 if (pixelChars >= text.length) clearInterval(pixelInterval);
             }, 100);
-
-            // Code races at 700 WPM
-            codeInterval = setInterval(() => {
-                if (!gameRunning) return;
-                codeChars = Math.min(text.length, codeChars + CODE_CPS * 0.1);
-                updateTracksNow();
-                if (codeChars >= text.length) clearInterval(codeInterval);
-            }, 100);
         }
 
         function updateTracksNow() {
             const yourPct  = (typed.length / text.length) * 100;
             const humanPct = (humanChars   / text.length) * 100;
             const pixelPct = (pixelChars   / text.length) * 100;
-            const codePct  = (codeChars    / text.length) * 100;
-            updateTracks(yourPct, humanPct, pixelPct, codePct);
+            updateTracks(yourPct, humanPct, pixelPct);
             document.getElementById('yourWpm').textContent = calcWpm();
         }
 
@@ -419,7 +390,7 @@
             gameRunning = false;
             document.getElementById('hiddenInput').blur();
             document.getElementById('hiddenInput').disabled = true;
-            clearInterval(pixelInterval); clearInterval(codeInterval); clearInterval(humanInterval);
+            clearInterval(pixelInterval); clearInterval(humanInterval);
             const wpm = calcWpm();
             const correct = typed.split('').filter((c, i) => c === text[i]).length;
             const acc = typed.length > 0 ? Math.round((correct / typed.length) * 100) : 0;
@@ -429,8 +400,7 @@
 
             const scores = [
                 { id: 'resYouCard', s: wpm },
-                { id: 'resPixelCard', s: PIXEL_WPM },
-                { id: 'resCodeCard', s: CODE_WPM }
+                { id: 'resPixelCard', s: PIXEL_WPM }
             ];
             const best = Math.max(...scores.map(x => x.s));
             scores.forEach(x => document.getElementById(x.id).classList.toggle('winner', x.s === best));
@@ -473,19 +443,24 @@
             people.forEach(w => bins[Math.min(bins.length - 1, Math.floor(w / BIN))]++);
 
             const cv = document.getElementById('wpmGraph');
+            // Display size first (fills card content box), then measure real CSS px
+            cv.style.width = '100%';
+            const cssW = Math.max(280, cv.clientWidth);
             const dpr = window.devicePixelRatio || 1;
-            const cssW = cv.parentElement.clientWidth - 4;
-            const cssH = 220;
+            const cssH = 230;
             cv.style.height = cssH + 'px';
-            cv.width = cssW * dpr;
-            cv.height = cssH * dpr;
+            cv.width = Math.round(cssW * dpr);
+            cv.height = Math.round(cssH * dpr);
             const g = cv.getContext('2d');
             g.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-            const padL = 30, padR = 10, padT = 16, padB = 24;
+            const padL = 48, padR = 16, padT = 34, padB = 28;
             const plotW = cssW - padL - padR, plotH = cssH - padT - padB;
-            const maxCount = Math.max(...bins);
-            const userBin = Math.min(bins.length - 1, Math.floor(userWpm / BIN));
+
+            // Nice rounded y-axis max so gridline labels stay clean
+            const rawMax = Math.max(...bins);
+            const maxCount = Math.max(10, Math.ceil(rawMax / 10) * 10);
+            const userBin = Math.min(bins.length - 1, Math.max(0, Math.floor(userWpm / BIN)));
             const pixelBin = Math.floor(90 / BIN);
 
             const start = performance.now();
@@ -494,19 +469,21 @@
                 const ease = 1 - Math.pow(1 - t, 3);
                 g.clearRect(0, 0, cssW, cssH);
 
-                // gridlines
+                // gridlines + y labels (drawn in left gutter, never under bars)
                 g.strokeStyle = 'rgba(255,255,255,0.07)';
-                g.fillStyle = 'rgba(255,255,255,0.35)';
-                g.font = '9px Share Tech Mono';
+                g.fillStyle = 'rgba(255,255,255,0.4)';
+                g.font = '10px Share Tech Mono';
                 g.textAlign = 'right';
+                g.textBaseline = 'middle';
                 for (let gy = 0; gy <= 4; gy++) {
                     const y = padT + plotH - (plotH * gy / 4);
                     g.beginPath();
-                    g.moveTo(padL, y);
-                    g.lineTo(padL + plotW, y);
+                    g.moveTo(padL, Math.round(y) + 0.5);
+                    g.lineTo(padL + plotW, Math.round(y) + 0.5);
                     g.stroke();
-                    if (gy > 0) g.fillText(Math.round(maxCount * gy / 4), padL - 6, y + 3);
+                    if (gy > 0) g.fillText(String(Math.round(maxCount * gy / 4)), padL - 8, y);
                 }
+                g.textBaseline = 'alphabetic';
 
                 const bw = plotW / bins.length;
                 bins.forEach((count, bi) => {
@@ -516,7 +493,7 @@
                     if (bi === userBin) {
                         g.save();
                         g.shadowColor = '#3d9970';
-                        g.shadowBlur = 14;
+                        g.shadowBlur = 12;
                         g.fillStyle = '#3d9970';
                         g.fillRect(x, y, bw - 4, h);
                         g.restore();
@@ -526,20 +503,36 @@
                     }
                 });
 
-                // "you" marker
+                // baseline axis
+                g.strokeStyle = 'rgba(255,255,255,0.18)';
+                g.lineWidth = 1;
+                g.beginPath();
+                g.moveTo(padL, padT + plotH + 0.5);
+                g.lineTo(padL + plotW, padT + plotH + 0.5);
+                g.stroke();
+
+                // "YOU" marker pill (kept fully inside the plot)
                 const ux = padL + userBin * bw + (bw - 4) / 2;
                 g.strokeStyle = '#3d9970';
                 g.lineWidth = 1.5;
                 g.setLineDash([3, 3]);
                 g.beginPath();
-                g.moveTo(ux, padT - 4);
-                g.lineTo(ux, padT + plotH);
+                g.moveTo(Math.round(ux) + 0.5, padT - 6);
+                g.lineTo(Math.round(ux) + 0.5, padT + plotH);
                 g.stroke();
                 g.setLineDash([]);
-                g.fillStyle = '#3d9970';
+                const label = 'YOU ' + userWpm;
                 g.font = 'bold 11px Share Tech Mono';
-                g.textAlign = 'center';
-                g.fillText('YOU ' + userWpm, Math.max(40, Math.min(cssW - 34, ux)), padT - 6);
+                const tw = g.measureText(label).width;
+                let lx = ux - tw / 2;
+                lx = Math.min(Math.max(lx, padL), padL + plotW - tw);
+                g.fillStyle = 'rgba(10,20,15,0.85)';
+                g.fillRect(lx - 6, padT - 24, tw + 12, 17);
+                g.strokeStyle = '#3d9970';
+                g.strokeRect(lx - 6.5, padT - 24.5, tw + 13, 18);
+                g.fillStyle = '#3d9970';
+                g.textAlign = 'left';
+                g.fillText(label, lx, padT - 11);
 
                 // pixel marker
                 const px = padL + pixelBin * bw + (bw - 4) / 2;
@@ -547,20 +540,22 @@
                 g.lineWidth = 1;
                 g.setLineDash([2, 4]);
                 g.beginPath();
-                g.moveTo(px, padT);
-                g.lineTo(px, padT + plotH);
+                g.moveTo(Math.round(px) + 0.5, padT);
+                g.lineTo(Math.round(px) + 0.5, padT + plotH);
                 g.stroke();
                 g.setLineDash([]);
-                g.fillStyle = 'rgba(230,126,34,0.9)';
-                g.font = '9px Share Tech Mono';
-                g.fillText('pixel', px, padT + 10);
+                g.fillStyle = 'rgba(230,126,34,0.95)';
+                g.font = '10px Share Tech Mono';
+                g.textAlign = 'center';
+                let plx = Math.min(Math.max(px, padL + 16), padL + plotW - 16);
+                g.fillText('pixel', plx, padT - 8);
 
-                // x axis labels
-                g.fillStyle = 'rgba(255,255,255,0.35)';
-                g.font = '9px Share Tech Mono';
+                // x axis labels below baseline
+                g.fillStyle = 'rgba(255,255,255,0.4)';
+                g.font = '10px Share Tech Mono';
                 g.textAlign = 'center';
                 for (let w = 0; w <= MAXW; w += 25) {
-                    g.fillText(String(w), padL + (w / MAXW) * plotW, cssH - 8);
+                    g.fillText(String(w), padL + (w / MAXW) * plotW, cssH - 9);
                 }
 
                 if (t < 1) requestAnimationFrame(frame);
