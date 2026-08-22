@@ -113,6 +113,72 @@
         .btn-act:hover { background: #272727; border-color: #27ae60; }
         .btn-act.primary { background: #27ae60; border-color: transparent; }
         .btn-act.primary:hover { background: #2ecc71; }
+
+        /* Results overlay: glass cards + reaction time distribution */
+        #rtResults {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(8,8,12,0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 26px;
+            font-family: 'Share Tech Mono', monospace;
+            color: #fff;
+            z-index: 10;
+            padding: 20px;
+        }
+        #rtResults.visible { display: flex; }
+        #rtResults h2 { font-size: 2rem; margin: 0; opacity: 0; transform: translateY(18px); }
+        .rt-grid { display: flex; gap: 20px; justify-content: center; text-align: center; }
+        .rt-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 16px;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            padding: 22px;
+            width: 170px;
+            opacity: 0;
+            transform: translateY(22px) scale(0.97);
+        }
+        .rt-card.winner { border-color: #27ae60; box-shadow: 0 0 34px rgba(39,174,96,0.2); }
+        #rtResults.visible h2, #rtResults.visible .rt-card, #rtResults.visible #rtGraphCard, #rtResults.visible .btn-retry { animation: rtIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        #rtResults.visible .rt-grid .rt-card:nth-child(2) { animation-delay: 0.13s; }
+        #rtResults.visible #rtGraphCard { animation-delay: 0.22s; }
+        #rtResults.visible .btn-retry { animation-delay: 0.34s; }
+        @keyframes rtIn { to { opacity: 1; transform: translateY(0) scale(1); } }
+        .rt-card .name { font-size: 0.78rem; color: #888; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.08em; }
+        .rt-card .big { font-size: 2rem; color: #fff; line-height: 1; }
+        .rt-card .sub { font-size: 0.72rem; color: #666; margin-top: 6px; }
+        #rtGraphCard {
+            background: rgba(255,255,255,0.045);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 16px;
+            padding: 20px 26px 24px;
+            width: min(680px, 92vw);
+            text-align: left;
+            opacity: 0;
+            transform: translateY(22px) scale(0.97);
+        }
+        .rt-graph-label { display: block; margin-bottom: 12px; font-size: 0.85rem; color: #aaa; }
+        #rtGraph { display: block; height: 230px; width: 100%; }
+        .btn-retry {
+            padding: 12px 32px;
+            background: #27ae60;
+            border: none;
+            color: #fff;
+            border-radius: 8px;
+            cursor: none;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            opacity: 0;
+            transform: translateY(18px);
+        }
     </style>
 </head>
 <body class="dark-mode">
@@ -148,12 +214,12 @@
         <div class="scoreboard">
             <div class="score-card" id="yourCard">
                 <div class="sname">You (Best)</div>
-                <div class="sval" id="yourBest">—</div>
+                <div class="sval" id="yourBest">-</div>
                 <div class="ssub">ms</div>
             </div>
             <div class="score-card" id="pixelCard">
                 <div class="sname">Pixel</div>
-                <div class="sval pixel" id="pixelVal">—</div>
+                <div class="sval pixel" id="pixelVal">-</div>
                 <div class="ssub">ms (personal best)</div>
             </div>
         </div>
@@ -170,12 +236,34 @@
         </div>
     </div>
 
+    <div id="rtResults">
+        <h2>[results]</h2>
+        <div class="rt-grid">
+            <div class="rt-card" id="rtYouCard">
+                <div class="name">You</div>
+                <div class="big" id="rtYourBest">-</div>
+                <div class="sub" id="rtYourAvg">-</div>
+            </div>
+            <div class="rt-card" id="rtPixelCard">
+                <div class="name">Pixel</div>
+                <div class="big" id="rtPixelMs">-</div>
+                <div class="sub">reaction time</div>
+            </div>
+        </div>
+        <div id="rtGraphCard">
+            <span class="rt-graph-label">[how you compare - reaction time distribution]</span>
+            <canvas id="rtGraph"></canvas>
+        </div>
+        <button class="btn-retry" onclick="closeResults()">Play Again</button>
+    </div>
+
     <script src="../../script.js"></script>
     <script>
         const MAX_ATTEMPTS = 5;
         let state = 'idle'; // idle | waiting | go | result | toosoon
         let timer = null, startTime = null;
         let attempts = [];
+        let lastRound = [];
 
         const zone = document.getElementById('clickZone');
         const zoneText = document.getElementById('zoneText');
@@ -245,15 +333,184 @@
                 clearTimeout(timer);
 
                 if (attempts.length >= MAX_ATTEMPTS) {
-                    setState('result');
-                    setZoneText('Done! Best: ' + Math.min(...attempts) + 'ms', 'Click to play again');
+                    lastRound = attempts.slice();
                     attempts = [];
+                    setState('result');
+                    setZoneText('Done! Best: ' + Math.min(...lastRound) + 'ms', 'Nice run');
+                    renderAttempts();
+                    setTimeout(showResults, 650);
                 } else {
                     setState('result');
                     setZoneText(ms + 'ms', `Click for attempt ${attempts.length + 1} of ${MAX_ATTEMPTS}`);
                 }
             }
         });
+
+        function showResults() {
+            const best = Math.min(...lastRound);
+            const avg = Math.round(lastRound.reduce((a, b) => a + b, 0) / lastRound.length);
+            const pixelMs = 120 + Math.floor(Math.random() * 71);
+            document.getElementById('rtYourBest').textContent = best + 'ms';
+            document.getElementById('rtYourAvg').textContent = 'avg ' + avg + ' ms';
+            document.getElementById('rtPixelMs').textContent = pixelMs + 'ms';
+            const youWin = best <= pixelMs;
+            document.getElementById('rtYouCard').classList.toggle('winner', youWin);
+            document.getElementById('rtPixelCard').classList.toggle('winner', !youWin);
+
+            const ov = document.getElementById('rtResults');
+            ov.classList.remove('visible');
+            void ov.offsetWidth;
+            ov.classList.add('visible');
+            drawRtGraph(best, pixelMs);
+        }
+
+        function closeResults() {
+            document.getElementById('rtResults').classList.remove('visible');
+            attempts = [];
+            lastRound = [];
+            attemptsRow.innerHTML = '';
+            document.getElementById('yourBest').textContent = '-';
+            document.getElementById('pixelVal').textContent = '-';
+            setState('idle');
+            setZoneText('Click to Start', 'React when it turns green');
+        }
+
+        // Reaction time distribution: synthetic crowd of 420 people, you & Pixel marked
+        function drawRtGraph(youMs, pixelMs) {
+            function gauss(mean, sd) {
+                let u = 0, v = 0;
+                while (u === 0) u = Math.random();
+                while (v === 0) v = Math.random();
+                return mean + sd * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+            }
+            const people = [];
+            for (let i = 0; i < 420; i++) {
+                let ms = gauss(285, 60);
+                if (ms < 140) ms = 140 + Math.random() * 40;
+                if (ms > 470) ms = 400 + Math.random() * 60;
+                people.push(ms);
+            }
+            const BIN = 10, MAXMS = 500;
+            const bins = new Array(MAXMS / BIN).fill(0);
+            people.forEach(ms => bins[Math.min(bins.length - 1, Math.floor(ms / BIN))]++);
+
+            const cv = document.getElementById('rtGraph');
+            // Exact 1:1 sizing: measure parent CONTENT box and match bitmap to CSS size
+            const cs = getComputedStyle(cv.parentElement);
+            const cssW = Math.max(280, Math.round(
+                cv.parentElement.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
+            ));
+            const dpr = window.devicePixelRatio || 1;
+            const cssH = 230;
+            cv.style.width = cssW + 'px';
+            cv.style.height = cssH + 'px';
+            cv.width = Math.round(cssW * dpr);
+            cv.height = Math.round(cssH * dpr);
+            const g = cv.getContext('2d');
+            g.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            const padL = 48, padR = 16, padT = 34, padB = 28;
+            const plotW = cssW - padL - padR, plotH = cssH - padT - padB;
+
+            const rawMax = Math.max(...bins);
+            const maxCount = Math.max(10, Math.ceil(rawMax / 10) * 10);
+            const youBin = Math.min(bins.length - 1, Math.max(0, Math.floor(youMs / BIN)));
+            const pixelBin = Math.min(bins.length - 1, Math.max(0, Math.floor(pixelMs / BIN)));
+
+            const start = performance.now();
+            function frame(now) {
+                const t = Math.min(1, (now - start) / 850);
+                const ease = 1 - Math.pow(1 - t, 3);
+                g.clearRect(0, 0, cssW, cssH);
+
+                g.strokeStyle = 'rgba(255,255,255,0.07)';
+                g.fillStyle = 'rgba(255,255,255,0.4)';
+                g.font = '10px Share Tech Mono';
+                g.textAlign = 'right';
+                g.textBaseline = 'middle';
+                for (let gy = 0; gy <= 4; gy++) {
+                    const y = padT + plotH - (plotH * gy / 4);
+                    g.beginPath();
+                    g.moveTo(padL, Math.round(y) + 0.5);
+                    g.lineTo(padL + plotW, Math.round(y) + 0.5);
+                    g.stroke();
+                    if (gy > 0) g.fillText(String(Math.round(maxCount * gy / 4)), padL - 8, y);
+                }
+                g.textBaseline = 'alphabetic';
+
+                const bw = plotW / bins.length;
+                bins.forEach((count, bi) => {
+                    const h = (count / maxCount) * plotH * ease;
+                    const x = padL + bi * bw + 2;
+                    const y = padT + plotH - h;
+                    if (bi === youBin) {
+                        g.save();
+                        g.shadowColor = '#27ae60';
+                        g.shadowBlur = 12;
+                        g.fillStyle = '#27ae60';
+                        g.fillRect(x, y, bw - 4, h);
+                        g.restore();
+                    } else {
+                        g.fillStyle = bi === pixelBin ? 'rgba(230,126,34,0.55)' : 'rgba(60,167,203,0.32)';
+                        g.fillRect(x, y, bw - 4, h);
+                    }
+                });
+
+                g.strokeStyle = 'rgba(255,255,255,0.18)';
+                g.lineWidth = 1;
+                g.beginPath();
+                g.moveTo(padL, padT + plotH + 0.5);
+                g.lineTo(padL + plotW, padT + plotH + 0.5);
+                g.stroke();
+
+                const ux = padL + youBin * bw + (bw - 4) / 2;
+                g.strokeStyle = '#27ae60';
+                g.lineWidth = 1.5;
+                g.setLineDash([3, 3]);
+                g.beginPath();
+                g.moveTo(Math.round(ux) + 0.5, padT - 6);
+                g.lineTo(Math.round(ux) + 0.5, padT + plotH);
+                g.stroke();
+                g.setLineDash([]);
+                const label = 'YOU ' + youMs + 'ms';
+                g.font = 'bold 11px Share Tech Mono';
+                const tw = g.measureText(label).width;
+                let lx = ux - tw / 2;
+                lx = Math.min(Math.max(lx, padL), padL + plotW - tw);
+                g.fillStyle = 'rgba(8,20,12,0.85)';
+                g.fillRect(lx - 6, padT - 24, tw + 12, 17);
+                g.strokeStyle = '#27ae60';
+                g.strokeRect(lx - 6.5, padT - 24.5, tw + 13, 18);
+                g.fillStyle = '#27ae60';
+                g.textAlign = 'left';
+                g.fillText(label, lx, padT - 11);
+
+                const px = padL + pixelBin * bw + (bw - 4) / 2;
+                g.strokeStyle = 'rgba(230,126,34,0.85)';
+                g.lineWidth = 1;
+                g.setLineDash([2, 4]);
+                g.beginPath();
+                g.moveTo(Math.round(px) + 0.5, padT);
+                g.lineTo(Math.round(px) + 0.5, padT + plotH);
+                g.stroke();
+                g.setLineDash([]);
+                g.fillStyle = 'rgba(230,126,34,0.95)';
+                g.font = '10px Share Tech Mono';
+                g.textAlign = 'center';
+                let plx = Math.min(Math.max(px, padL + 16), padL + plotW - 16);
+                g.fillText('pixel', plx, padT - 8);
+
+                g.fillStyle = 'rgba(255,255,255,0.4)';
+                g.font = '10px Share Tech Mono';
+                g.textAlign = 'center';
+                for (let ms = 0; ms <= MAXMS; ms += 100) {
+                    g.fillText(String(ms), padL + (ms / MAXMS) * plotW, cssH - 9);
+                }
+
+                if (t < 1) requestAnimationFrame(frame);
+            }
+            requestAnimationFrame(frame);
+        }
 
         function goBack() { window.location.href = '../index.html'; }
 
