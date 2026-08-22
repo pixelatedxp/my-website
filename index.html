@@ -200,23 +200,7 @@
             </div>
         </section>
     </main>
-    <div class="music-player fade-up-initial" id="musicPlayer">
-        <img src="assets/music/thumb.jpg" alt="Never Been With A Baddie" class="music-thumb" draggable="false">
-        <div class="music-info">
-            <span class="mono-label music-label">[now playing]</span>
-            <span class="music-track">Never Been With A Baddie</span>
-            <div class="music-eq"><span></span><span></span><span></span><span></span></div>
-        </div>
-        <button class="music-toggle" id="musicToggle" aria-label="Play or pause music">
-            <svg viewBox="0 0 24 24" fill="currentColor" class="music-icon" id="musicPlayIcon">
-                <path d="M8 5v14l11-7z"/>
-            </svg>
-            <svg viewBox="0 0 24 24" fill="currentColor" class="music-icon" id="musicPauseIcon" style="display: none;">
-                <path d="M6 5h4v14H6zM14 5h4v14h-4z"/>
-            </svg>
-        </button>
-    </div>
-    <audio id="siteAudio" src="assets/music/never-been-with-a-baddie.mp3" preload="auto" loop></audio>
+    <script src="music-player.js" data-autoplay="true"></script>
     <script src="script.js"></script>
 </body>
 </html>

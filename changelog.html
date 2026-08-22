@@ -122,10 +122,22 @@
             <div class="card-content">
                 <div class="section-header">
                     <h2 class="mono-label glitch-text" data-text="[changelog]">[changelog]</h2>
-                    <span class="mono-label">10 entries</span>
+                    <span class="mono-label">11 entries</span>
                 </div>
 
                 <div style="margin-top: 30px;">
+
+                    <div class="changelog-entry fade-up">
+                        <div class="changelog-dot"></div>
+                        <div class="changelog-date">2026-08-22 13:12 UTC</div>
+                        <div class="changelog-title">Site-Wide Music Player & Bio Update</div>
+                        <ul class="changelog-list">
+                            <li>Added a music player to the bottom-right corner of every page on the site with thumbnail, track info and play/pause button</li>
+                            <li>Autoplays on load on the main page (with first user interaction fallback for browser autoplay policies); manual play only on all other pages</li>
+                            <li>Added first track: Never Been With A Baddie (loops continuously)</li>
+                            <li>Rewrote about bio text on the main page</li>
+                        </ul>
+                    </div>
 
                     <div class="changelog-entry fade-up">
                         <div class="changelog-dot"></div>
@@ -246,6 +258,7 @@
         </section>
     </main>
     <script src="script.js"></script>
+    <script src="music-player.js"></script>
 </body>
 </html>
 
