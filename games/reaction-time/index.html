@@ -55,20 +55,26 @@
         /* Scoreboard */
         .scoreboard {
             display: grid;
-            grid-template-columns: repeat(3, 200px);
+            grid-template-columns: repeat(2, 200px);
             gap: 20px;
         }
         .score-card {
-            background: #1a1a1a;
-            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
             padding: 20px;
             text-align: center;
             font-family: 'Share Tech Mono', monospace;
-            border: 1px solid rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.09);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            transition: transform 0.15s ease;
         }
-        .score-card.winner { border-color: #27ae60; }
+        .score-card.pop { animation: scorePop 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes scorePop { 0% { transform: scale(0.94); } 60% { transform: scale(1.04); } 100% { transform: scale(1); } }
+        .score-card.winner { border-color: #27ae60; box-shadow: 0 0 34px rgba(39,174,96,0.2); }
         .score-card .sname { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
         .score-card .sval  { font-size: 2rem; color: #fff; line-height: 1; }
+        .score-card.pixel  { color: #e67e22; }
         .score-card .ssub  { font-size: 0.75rem; color: #666; margin-top: 4px; }
 
         .attempts-row {
@@ -83,10 +89,11 @@
         }
         .attempt-pill {
             padding: 4px 12px;
-            background: #1a1a1a;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 20px;
         }
-        .attempt-pill.best { background: #27ae60; color: #fff; }
+        .attempt-pill.best { background: #27ae60; border-color: transparent; color: #fff; }
 
         .btn-row {
             display: flex;
@@ -117,6 +124,7 @@
         <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
     </div>
     <div class="vignette"></div>
+    <canvas id="snowfall"></canvas>
 
     <header class="navbar fade-up-initial">
         <a href="../../index.html" class="brand">pixelis.dev</a>
@@ -145,13 +153,8 @@
             </div>
             <div class="score-card" id="pixelCard">
                 <div class="sname">Pixel</div>
-                <div class="sval">180</div>
+                <div class="sval pixel" id="pixelVal">—</div>
                 <div class="ssub">ms (personal best)</div>
-            </div>
-            <div class="score-card" id="codeCard">
-                <div class="sname">Code</div>
-                <div class="sval" id="codeVal">—</div>
-                <div class="ssub">ms (inhuman)</div>
             </div>
         </div>
 
@@ -199,20 +202,22 @@
         function updateBest() {
             if (!attempts.length) return;
             const best = Math.min(...attempts);
+            const yourCard = document.getElementById('yourCard');
+            const pixelCard = document.getElementById('pixelCard');
             document.getElementById('yourBest').textContent = best;
-            // Code reacts with ~0–5ms
-            const codeMs = Math.floor(Math.random() * 6);
-            document.getElementById('codeVal').textContent = codeMs;
+            // Pixel's reaction time varies between 120-190ms every round
+            const pixelMs = 120 + Math.floor(Math.random() * 71);
+            document.getElementById('pixelVal').textContent = pixelMs;
 
-            // Highlight winner
-            const scores = [
-                { id: 'yourCard', s: best },
-                { id: 'pixelCard', s: 180 },
-                { id: 'codeCard', s: codeMs }
-            ];
-            scores.forEach(c => document.getElementById(c.id).classList.remove('winner'));
-            scores.sort((a, b) => a.s - b.s);
-            document.getElementById(scores[0].id).classList.add('winner');
+            [yourCard, pixelCard].forEach(c => {
+                c.classList.remove('winner', 'pop');
+                void c.offsetWidth;
+                c.classList.add('pop');
+            });
+
+            // Lower ms wins
+            yourCard.classList.toggle('winner', best <= pixelMs);
+            pixelCard.classList.toggle('winner', pixelMs < best);
         }
 
         zone.addEventListener('click', () => {
