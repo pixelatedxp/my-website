@@ -68,7 +68,7 @@
         .track-bar { height: 100%; border-radius: 20px; transition: width 0.3s; width: 0%; display: flex; align-items: center; padding: 0 8px; font-size: 0.72rem; color: rgba(255,255,255,0.8); }
         .track-bar.you   { background: #3d9970; }
         .track-bar.pixel { background: #e67e22; }
-        .track-pct { width: 45px; color: rgba(255,255,255,0.4); font-family: 'Share Tech Mono', monospace; font-size: 0.78rem; }
+        .track-pct { width: 55px; color: rgba(255,255,255,0.4); font-family: 'Share Tech Mono', monospace; font-size: 0.78rem; text-align: right; }
 
         /* Text display */
         .text-display {
@@ -241,17 +241,17 @@
             <div class="track-row">
                 <div class="track-name">You</div>
                 <div class="track-bar-wrap"><div class="track-bar you" id="trackYou"></div></div>
-                <div class="track-pct" id="pctYou">0%</div>
+                <div class="track-pct" id="pctYou">0</div>
             </div>
             <div class="track-row">
                 <div class="track-name">Human</div>
                 <div class="track-bar-wrap"><div class="track-bar" style="background:#8e44ad" id="trackHuman"></div></div>
-                <div class="track-pct" id="pctHuman">0%</div>
+                <div class="track-pct" id="pctHuman">0</div>
             </div>
             <div class="track-row">
                 <div class="track-name">Pixel</div>
                 <div class="track-bar-wrap"><div class="track-bar pixel" id="trackPixel"></div></div>
-                <div class="track-pct" id="pctPixel">0%</div>
+                <div class="track-pct" id="pctPixel">0</div>
             </div>
         </div>
 
@@ -379,14 +379,16 @@
             el.innerHTML = html;
         }
 
-        function updateTracks(yourPct, humanPct, pixelPct) {
+        function updateTracks(yourWpm, humanWpm, pixelWpm) {
+            const MAX_WPM = 150;
             const clamp = v => Math.min(100, Math.max(0, v));
-            document.getElementById('trackYou').style.width   = clamp(yourPct)  + '%';
-            document.getElementById('trackHuman').style.width = clamp(humanPct) + '%';
-            document.getElementById('trackPixel').style.width = clamp(pixelPct) + '%';
-            document.getElementById('pctYou').textContent   = Math.round(clamp(yourPct))  + '%';
-            document.getElementById('pctHuman').textContent = Math.round(clamp(humanPct)) + '%';
-            document.getElementById('pctPixel').textContent = Math.round(clamp(pixelPct)) + '%';
+            const toBar = wpm => clamp((wpm / MAX_WPM) * 100);
+            document.getElementById('trackYou').style.width   = toBar(yourWpm)  + '%';
+            document.getElementById('trackHuman').style.width = toBar(humanWpm) + '%';
+            document.getElementById('trackPixel').style.width = toBar(pixelWpm) + '%';
+            document.getElementById('pctYou').textContent   = Math.round(yourWpm);
+            document.getElementById('pctHuman').textContent = Math.round(humanWpm);
+            document.getElementById('pctPixel').textContent = Math.round(pixelWpm);
         }
 
         function calcWpm() {
@@ -422,12 +424,21 @@
             }, 100);
         }
 
+        function humanWpmNow() {
+            if (!startTime) return 0;
+            const mins = (Date.now() - startTime) / 60000;
+            return mins > 0 ? Math.round((humanChars / 5) / mins) : 0;
+        }
+        function pixelWpmNow() {
+            if (!startTime) return 0;
+            const mins = (Date.now() - startTime) / 60000;
+            return mins > 0 ? Math.round((pixelChars / 5) / mins) : 0;
+        }
+
         function updateTracksNow() {
-            const yourPct  = (cursorPos / text.length) * 100;
-            const humanPct = (humanChars  / text.length) * 100;
-            const pixelPct = (pixelChars  / text.length) * 100;
-            updateTracks(yourPct, humanPct, pixelPct);
-            document.getElementById('yourWpm').textContent = calcWpm();
+            const yourWpm = calcWpm();
+            updateTracks(yourWpm, humanWpmNow(), pixelWpmNow());
+            document.getElementById('yourWpm').textContent = yourWpm;
         }
 
         function endGame() {
@@ -465,24 +476,17 @@
             drawWpmGraph(wpm, finalPixelWpm);
         }
 
-        // WPM comparison chart: synthetic crowd distribution with you & Pixel marked
+        // WPM comparison chart: smooth area distribution with you & Pixel marked
         function drawWpmGraph(userWpm, pWpm) {
-            function gauss(mean, sd) {
-                let u = 0, v = 0;
-                while (u === 0) u = Math.random();
-                while (v === 0) v = Math.random();
-                return mean + sd * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+            const MAXW = 140;
+            // Synthetic gaussian crowd distribution peaking ~42 WPM
+            const crowd = [];
+            for (let i = 0; i <= MAXW; i++) {
+                let w = Math.exp(-Math.pow(i - 42, 2) / (2 * 17 * 17));
+                if (i > 70) w *= Math.exp(-(i - 70) * 0.02);
+                crowd.push(w);
             }
-            const people = [];
-            for (let i = 0; i < 420; i++) {
-                let w = gauss(42, 17);
-                if (w < 8) w = 8 + Math.random() * 6;
-                if (w > 140) w = 110 + Math.random() * 30;
-                people.push(w);
-            }
-            const BIN = 10, MAXW = 140;
-            const bins = new Array(MAXW / BIN).fill(0);
-            people.forEach(w => bins[Math.min(bins.length - 1, Math.floor(w / BIN))]++);
+            const maxVal = Math.max(...crowd);
 
             const cv = document.getElementById('wpmGraph');
             const cs = getComputedStyle(cv.parentElement);
@@ -498,11 +502,9 @@
             const g = cv.getContext('2d');
             g.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-            const padL = 48, padR = 16, padT = 34, padB = 28;
+            const padL = 36, padR = 12, padT = 48, padB = 28;
             const plotW = cssW - padL - padR, plotH = cssH - padT - padB;
-
-            const rawMax = Math.max(...bins);
-            const maxCount = Math.max(10, Math.ceil(rawMax / 10) * 10);
+            const step = plotW / (MAXW + 1);
 
             const start = performance.now();
             function frame(now) {
@@ -510,30 +512,53 @@
                 const ease = 1 - Math.pow(1 - t, 3);
                 g.clearRect(0, 0, cssW, cssH);
 
+                // Horizontal gridlines only (no y-axis labels)
                 g.strokeStyle = 'rgba(255,255,255,0.07)';
-                g.fillStyle = 'rgba(255,255,255,0.4)';
-                g.font = '10px Share Tech Mono';
-                g.textAlign = 'right';
-                g.textBaseline = 'middle';
                 for (let gy = 0; gy <= 4; gy++) {
                     const y = padT + plotH - (plotH * gy / 4);
                     g.beginPath();
                     g.moveTo(padL, Math.round(y) + 0.5);
                     g.lineTo(padL + plotW, Math.round(y) + 0.5);
                     g.stroke();
-                    if (gy > 0) g.fillText(String(Math.round(maxCount * gy / 4)), padL - 8, y);
                 }
-                g.textBaseline = 'alphabetic';
 
-                const bw = plotW / bins.length;
-                bins.forEach((count, bi) => {
-                    const h = (count / maxCount) * plotH * ease;
-                    const x = padL + bi * bw + 2;
-                    const y = padT + plotH - h;
-                    g.fillStyle = 'rgba(60,167,203,0.32)';
-                    g.fillRect(x, y, bw - 4, h);
+                // Smooth filled area (bezier curves like sequence memory)
+                g.beginPath();
+                g.moveTo(padL, padT + plotH);
+                crowd.forEach((val, i) => {
+                    const x = padL + i * step + step / 2;
+                    const y = padT + plotH - (val / maxVal) * plotH * ease;
+                    if (i === 0) g.lineTo(x, y);
+                    else {
+                        const prevX = padL + (i - 1) * step + step / 2;
+                        const prevY = padT + plotH - (crowd[i - 1] / maxVal) * plotH * ease;
+                        const cpX = (prevX + x) / 2;
+                        g.bezierCurveTo(cpX, prevY, cpX, y, x, y);
+                    }
                 });
+                g.lineTo(padL + MAXW * step + step / 2, padT + plotH);
+                g.closePath();
+                g.fillStyle = 'rgba(60,167,203,0.18)';
+                g.fill();
 
+                // Line stroke
+                g.beginPath();
+                crowd.forEach((val, i) => {
+                    const x = padL + i * step + step / 2;
+                    const y = padT + plotH - (val / maxVal) * plotH * ease;
+                    if (i === 0) g.moveTo(x, y);
+                    else {
+                        const prevX = padL + (i - 1) * step + step / 2;
+                        const prevY = padT + plotH - (crowd[i - 1] / maxVal) * plotH * ease;
+                        const cpX = (prevX + x) / 2;
+                        g.bezierCurveTo(cpX, prevY, cpX, y, x, y);
+                    }
+                });
+                g.strokeStyle = 'rgba(60,167,203,0.7)';
+                g.lineWidth = 2;
+                g.stroke();
+
+                // Baseline
                 g.strokeStyle = 'rgba(255,255,255,0.18)';
                 g.lineWidth = 1;
                 g.beginPath();
@@ -541,8 +566,16 @@
                 g.lineTo(padL + plotW, padT + plotH + 0.5);
                 g.stroke();
 
-                // "YOU" marker at exact WPM position
-                const ux = padL + (Math.min(userWpm, MAXW) / MAXW) * plotW;
+                // Marker X positions
+                const ux = padL + Math.min(userWpm, MAXW) * step + step / 2;
+                const px = padL + Math.min(pWpm, MAXW) * step + step / 2;
+
+                // Anti-overlap: when close, one label goes up, other goes below baseline
+                const markersClose = Math.abs(ux - px) < 60;
+                const youLabelY = markersClose ? padT - 38 : padT - 24;
+                const pixelLabelY = markersClose ? padT + 18 : padT - 10;
+
+                // YOU marker
                 g.strokeStyle = '#3d9970';
                 g.lineWidth = 1.5;
                 g.setLineDash([3, 3]);
@@ -551,22 +584,6 @@
                 g.lineTo(Math.round(ux) + 0.5, padT + plotH);
                 g.stroke();
                 g.setLineDash([]);
-
-                // pixel marker at exact WPM position
-                const px = padL + (Math.min(pWpm, MAXW) / MAXW) * plotW;
-                g.strokeStyle = 'rgba(230,126,34,0.85)';
-                g.lineWidth = 1;
-                g.setLineDash([2, 4]);
-                g.beginPath();
-                g.moveTo(Math.round(px) + 0.5, padT);
-                g.lineTo(Math.round(px) + 0.5, padT + plotH);
-                g.stroke();
-                g.setLineDash([]);
-
-                // Offset labels so they never overlap: when close together, one goes up, other goes down
-                const markersClose = Math.abs(ux - px) < 60;
-                const youLabelY = markersClose ? padT - 36 : padT - 24;
-                const pixelLabelY = markersClose ? padT + 18 : padT - 8;
 
                 // YOU label pill
                 const label = 'YOU ' + userWpm;
@@ -582,6 +599,16 @@
                 g.textAlign = 'left';
                 g.fillText(label, lx, youLabelY);
 
+                // pixel marker
+                g.strokeStyle = 'rgba(230,126,34,0.85)';
+                g.lineWidth = 1;
+                g.setLineDash([2, 4]);
+                g.beginPath();
+                g.moveTo(Math.round(px) + 0.5, padT);
+                g.lineTo(Math.round(px) + 0.5, padT + plotH);
+                g.stroke();
+                g.setLineDash([]);
+
                 // pixel label
                 g.fillStyle = 'rgba(230,126,34,0.95)';
                 g.font = '10px Share Tech Mono';
@@ -595,7 +622,7 @@
                 g.textAlign = 'center';
                 const tickStep = cssW < 480 ? 20 : 10;
                 for (let w = 0; w <= MAXW; w += tickStep) {
-                    g.fillText(String(w), padL + (w / MAXW) * plotW, cssH - 9);
+                    g.fillText(String(w), padL + w * step + step / 2, cssH - 9);
                 }
 
                 if (t < 1) requestAnimationFrame(frame);
