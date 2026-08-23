@@ -256,6 +256,11 @@ body::before {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 20px;
 }
+.hall-of-fame-grid img {
+    max-height: 80px;
+    width: auto;
+    object-fit: contain;
+}
 .glow-card {
     position: relative;
     background-color: var(--inner-card-border);
