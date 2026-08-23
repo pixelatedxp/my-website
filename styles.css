@@ -334,6 +334,7 @@ body::before {
     color: var(--accent-teal);
 }
 @media (max-width: 600px) {
+    #sticky { display: none; }
     .navbar {
         flex-direction: column;
         gap: 16px;
