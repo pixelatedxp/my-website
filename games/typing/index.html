@@ -359,23 +359,21 @@
 
         function renderText() {
             const el = document.getElementById('textDisplay');
-            let ti = 0, wrongCount = 0, html = '';
+            let ti = 0, correctCount = 0, html = '';
             for (let pi = 0; pi < typed.length; pi++) {
                 if (ti < text.length && typed[pi] === text[ti]) {
                     html += `<span class="char correct">${text[ti]}</span>`;
                     ti++;
-                    wrongCount = 0;
-                } else {
-                    wrongCount++;
+                    correctCount++;
+                } else if (ti < text.length) {
+                    html += `<span class="char wrong">${text[ti]}</span>`;
+                    ti++;
                 }
             }
-            if (ti < text.length) {
-                html += `<span class="char${wrongCount > 0 ? ' wrong' : ''} cursor">${text[ti]}</span>`;
+            for (let k = ti; k < text.length; k++) {
+                html += `<span class="char${k === ti ? ' cursor' : ''}">${text[k]}</span>`;
             }
-            for (let k = ti + 1; k < text.length; k++) {
-                html += `<span class="char">${text[k]}</span>`;
-            }
-            alignedLen = ti;
+            alignedLen = correctCount;
             el.innerHTML = html;
         }
 
