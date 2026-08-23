@@ -140,7 +140,10 @@
                             <li>Fixed snowfall on every arcade game: the toggle existed but pages were missing the canvas element entirely</li>
                             <li>Typing test: expanded sentence pool from 5 to 25 and rebuilt results as scroll-down glassmorphic cards with an animated WPM distribution chart showing where you rank</li>
                             <li>Typing test: Code removed from the race, top bar, results cards and the chart. It's now you vs Avg Human vs Pixel only</li>
-                            <li>Typing test: Pixel's race pace now varies between 80 and 100 WPM every run instead of a flat 90</li>
+                            <li>Typing test: Pixel's pace now varies between 80 and 85 WPM every run and rubber-bands up to 90 when he falls behind, shown live on his label</li>
+                            <li>Fixed typo cascading: one wrong keypress no longer marks every following character red</li>
+                            <li>Typing chart axis now runs 0 to 140 with ticks every 10, markers at exact scores, and an "About the test" panel beside the graph</li>
+                            <li>Sequence memory results gained a smoothed level-distribution curve beside an explainer panel; Code card removed</li>
                             <li>Fixed the WPM distribution chart rendering stretched and blurry on scaled displays by measuring layout only after the results screen becomes visible and matching bitmap size to CSS size exactly</li>
                             <li>Snake: removed the vs Code mode completely, now only vs Pixel with animated pulsing food dots</li>
                             <li>Snake: both boards render an animated snakes-and-food preview before you press start instead of sitting empty</li>
