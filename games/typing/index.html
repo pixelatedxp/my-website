@@ -551,18 +551,6 @@
                 g.lineTo(Math.round(ux) + 0.5, padT + plotH);
                 g.stroke();
                 g.setLineDash([]);
-                const label = 'YOU ' + userWpm;
-                g.font = 'bold 11px Share Tech Mono';
-                const tw = g.measureText(label).width;
-                let lx = ux - tw / 2;
-                lx = Math.min(Math.max(lx, padL), padL + plotW - tw);
-                g.fillStyle = 'rgba(10,20,15,0.85)';
-                g.fillRect(lx - 6, padT - 24, tw + 12, 17);
-                g.strokeStyle = '#3d9970';
-                g.strokeRect(lx - 6.5, padT - 24.5, tw + 13, 18);
-                g.fillStyle = '#3d9970';
-                g.textAlign = 'left';
-                g.fillText(label, lx, padT - 11);
 
                 // pixel marker at exact WPM position
                 const px = padL + (Math.min(pWpm, MAXW) / MAXW) * plotW;
@@ -574,11 +562,32 @@
                 g.lineTo(Math.round(px) + 0.5, padT + plotH);
                 g.stroke();
                 g.setLineDash([]);
+
+                // Offset labels so they never overlap: when close together, one goes up, other goes down
+                const markersClose = Math.abs(ux - px) < 60;
+                const youLabelY = markersClose ? padT - 36 : padT - 24;
+                const pixelLabelY = markersClose ? padT + 18 : padT - 8;
+
+                // YOU label pill
+                const label = 'YOU ' + userWpm;
+                g.font = 'bold 11px Share Tech Mono';
+                const tw = g.measureText(label).width;
+                let lx = ux - tw / 2;
+                lx = Math.min(Math.max(lx, padL), padL + plotW - tw);
+                g.fillStyle = 'rgba(10,20,15,0.85)';
+                g.fillRect(lx - 6, youLabelY - 12, tw + 12, 17);
+                g.strokeStyle = '#3d9970';
+                g.strokeRect(lx - 6.5, youLabelY - 12.5, tw + 13, 18);
+                g.fillStyle = '#3d9970';
+                g.textAlign = 'left';
+                g.fillText(label, lx, youLabelY);
+
+                // pixel label
                 g.fillStyle = 'rgba(230,126,34,0.95)';
                 g.font = '10px Share Tech Mono';
                 g.textAlign = 'center';
                 let plx = Math.min(Math.max(px, padL + 16), padL + plotW - 16);
-                g.fillText('pixel', plx, padT - 8);
+                g.fillText('pixel', plx, pixelLabelY);
 
                 // x axis: ticks every 10, skip some on narrow screens
                 g.fillStyle = 'rgba(255,255,255,0.4)';
