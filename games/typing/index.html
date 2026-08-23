@@ -68,7 +68,7 @@
         .track-bar { height: 100%; border-radius: 20px; transition: width 0.3s; width: 0%; display: flex; align-items: center; padding: 0 8px; font-size: 0.72rem; color: rgba(255,255,255,0.8); }
         .track-bar.you   { background: #3d9970; }
         .track-bar.pixel { background: #e67e22; }
-        .track-pct { width: 55px; color: rgba(255,255,255,0.4); font-family: 'Share Tech Mono', monospace; font-size: 0.78rem; text-align: right; }
+        .track-pct { width: 45px; color: rgba(255,255,255,0.4); font-family: 'Share Tech Mono', monospace; font-size: 0.78rem; }
 
         /* Text display */
         .text-display {
@@ -241,17 +241,17 @@
             <div class="track-row">
                 <div class="track-name">You</div>
                 <div class="track-bar-wrap"><div class="track-bar you" id="trackYou"></div></div>
-                <div class="track-pct" id="pctYou">0</div>
+                <div class="track-pct" id="pctYou">0%</div>
             </div>
             <div class="track-row">
                 <div class="track-name">Human</div>
                 <div class="track-bar-wrap"><div class="track-bar" style="background:#8e44ad" id="trackHuman"></div></div>
-                <div class="track-pct" id="pctHuman">0</div>
+                <div class="track-pct" id="pctHuman">0%</div>
             </div>
             <div class="track-row">
                 <div class="track-name">Pixel</div>
                 <div class="track-bar-wrap"><div class="track-bar pixel" id="trackPixel"></div></div>
-                <div class="track-pct" id="pctPixel">0</div>
+                <div class="track-pct" id="pctPixel">0%</div>
             </div>
         </div>
 
@@ -379,16 +379,14 @@
             el.innerHTML = html;
         }
 
-        function updateTracks(yourWpm, humanWpm, pixelWpm) {
-            const MAX_WPM = 150;
+        function updateTracks(yourPct, humanPct, pixelPct) {
             const clamp = v => Math.min(100, Math.max(0, v));
-            const toBar = wpm => clamp((wpm / MAX_WPM) * 100);
-            document.getElementById('trackYou').style.width   = toBar(yourWpm)  + '%';
-            document.getElementById('trackHuman').style.width = toBar(humanWpm) + '%';
-            document.getElementById('trackPixel').style.width = toBar(pixelWpm) + '%';
-            document.getElementById('pctYou').textContent   = Math.round(yourWpm);
-            document.getElementById('pctHuman').textContent = Math.round(humanWpm);
-            document.getElementById('pctPixel').textContent = Math.round(pixelWpm);
+            document.getElementById('trackYou').style.width   = clamp(yourPct)  + '%';
+            document.getElementById('trackHuman').style.width = clamp(humanPct) + '%';
+            document.getElementById('trackPixel').style.width = clamp(pixelPct) + '%';
+            document.getElementById('pctYou').textContent   = Math.round(clamp(yourPct))  + '%';
+            document.getElementById('pctHuman').textContent = Math.round(clamp(humanPct)) + '%';
+            document.getElementById('pctPixel').textContent = Math.round(clamp(pixelPct)) + '%';
         }
 
         function calcWpm() {
@@ -424,21 +422,12 @@
             }, 100);
         }
 
-        function humanWpmNow() {
-            if (!startTime) return 0;
-            const mins = (Date.now() - startTime) / 60000;
-            return mins > 0 ? Math.round((humanChars / 5) / mins) : 0;
-        }
-        function pixelWpmNow() {
-            if (!startTime) return 0;
-            const mins = (Date.now() - startTime) / 60000;
-            return mins > 0 ? Math.round((pixelChars / 5) / mins) : 0;
-        }
-
         function updateTracksNow() {
-            const yourWpm = calcWpm();
-            updateTracks(yourWpm, humanWpmNow(), pixelWpmNow());
-            document.getElementById('yourWpm').textContent = yourWpm;
+            const yourPct  = (cursorPos / text.length) * 100;
+            const humanPct = (humanChars  / text.length) * 100;
+            const pixelPct = (pixelChars  / text.length) * 100;
+            updateTracks(yourPct, humanPct, pixelPct);
+            document.getElementById('yourWpm').textContent = calcWpm();
         }
 
         function endGame() {
@@ -502,7 +491,7 @@
             const g = cv.getContext('2d');
             g.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-            const padL = 36, padR = 12, padT = 48, padB = 28;
+            const padL = 36, padR = 12, padT = 60, padB = 28;
             const plotW = cssW - padL - padR, plotH = cssH - padT - padB;
             const step = plotW / (MAXW + 1);
 
@@ -572,8 +561,8 @@
 
                 // Anti-overlap: when close, one label goes up, other goes below baseline
                 const markersClose = Math.abs(ux - px) < 60;
-                const youLabelY = markersClose ? padT - 38 : padT - 24;
-                const pixelLabelY = markersClose ? padT + 18 : padT - 10;
+                const youLabelY = markersClose ? padT - 42 : padT - 28;
+                const pixelLabelY = markersClose ? padT + 18 : padT - 12;
 
                 // YOU marker
                 g.strokeStyle = '#3d9970';
@@ -609,12 +598,18 @@
                 g.stroke();
                 g.setLineDash([]);
 
-                // pixel label
-                g.fillStyle = 'rgba(230,126,34,0.95)';
+                // pixel label pill
                 g.font = '10px Share Tech Mono';
+                const ptw = g.measureText('pixel').width;
+                let plx = px - ptw / 2;
+                plx = Math.min(Math.max(plx, padL), padL + plotW - ptw);
+                g.fillStyle = 'rgba(10,20,15,0.85)';
+                g.fillRect(plx - 6, pixelLabelY - 11, ptw + 12, 16);
+                g.strokeStyle = 'rgba(230,126,34,0.85)';
+                g.strokeRect(plx - 6.5, pixelLabelY - 11.5, ptw + 13, 17);
+                g.fillStyle = 'rgba(230,126,34,0.95)';
                 g.textAlign = 'center';
-                let plx = Math.min(Math.max(px, padL + 16), padL + plotW - 16);
-                g.fillText('pixel', plx, pixelLabelY);
+                g.fillText('pixel', plx + ptw / 2, pixelLabelY);
 
                 // x axis: ticks every 10, skip some on narrow screens
                 g.fillStyle = 'rgba(255,255,255,0.4)';
