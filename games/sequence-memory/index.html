@@ -31,7 +31,7 @@
         #results { display: none; position: fixed; inset: 0; background: rgba(8,8,12,0.72); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); flex-direction: column; align-items: center; justify-content: center; gap: 28px; font-family: 'Share Tech Mono', monospace; color: #fff; z-index: 10; }
         #results.visible { display: flex; }
         #results h2 { font-size: 2rem; margin: 0; opacity: 0; transform: translateY(18px); }
-        .vs-grid { display: grid; grid-template-columns: repeat(3, 180px); gap: 20px; text-align: center; }
+        .vs-grid { display: grid; grid-template-columns: repeat(2, 180px); gap: 20px; text-align: center; }
         .vs-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); padding: 20px; opacity: 0; transform: translateY(22px) scale(0.97); }
         .vs-card.winner { border-color: #6c5ce7; box-shadow: 0 0 34px rgba(108,92,231,0.25); }
         #results.visible h2, #results.visible .vs-card, #results.visible .btn-retry, #results.visible #rMsg { animation: cardIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
@@ -45,6 +45,15 @@
         .vs-card .big { font-size: 2.2rem; color: #fff; }
         .vs-card .sub { font-size: 0.75rem; color: #666; margin-top: 4px; }
         .btn-retry { padding: 12px 32px; background: #6c5ce7; border: none; color: #fff; border-radius: 8px; cursor: none; font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; font-weight: bold; opacity: 0; transform: translateY(18px); }
+        .results-duo { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; align-items: start; max-width: 700px; }
+        .results-duo .span-graph-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); padding: 20px; opacity: 0; transform: translateY(22px) scale(0.97); text-align: left; }
+        #spanGraph { display: block; height: 230px; width: 100%; }
+        .results-duo .about-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); padding: 20px; opacity: 0; transform: translateY(22px) scale(0.97); font-size: 0.85rem; color: rgba(255,255,255,0.65); line-height: 1.65; text-align: left; }
+        .results-duo .about-card .about-title { margin-bottom: 10px; }
+        .results-duo .about-card p { margin: 0 0 12px; }
+        .results-duo .about-card p:last-child { margin-bottom: 0; }
+        #results.visible .results-duo .span-graph-card, #results.visible .results-duo .about-card { animation: cardIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.38s; }
+        @media (max-width: 700px) { .results-duo { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body class="dark-mode">
@@ -79,9 +88,20 @@
         <div class="vs-grid">
             <div class="vs-card" id="rYou"><div class="name">You</div><div class="big" id="rYouVal">-</div><div class="sub">level reached</div></div>
             <div class="vs-card" id="rPixel"><div class="name">Pixel</div><div class="big">12</div><div class="sub">personal best</div></div>
-            <div class="vs-card" id="rCode"><div class="name">Code</div><div class="big">∞</div><div class="sub">never forgets</div></div>
         </div>
         <div id="rMsg" style="font-family:'Share Tech Mono',monospace; font-size:0.9rem; color:#888;"></div>
+        <div class="results-duo">
+            <div class="span-graph-card">
+                <span class="mono-label" style="display:block; margin-bottom:12px;" data-text="[statistics]">[statistics]</span>
+                <canvas id="spanGraph"></canvas>
+            </div>
+            <div class="about-card">
+                <span class="mono-label about-title" data-text="[about the test]">[about the test]</span>
+                <p>Memorize the sequence of buttons that light up, then press them in order.</p>
+                <p>Every time you finish the pattern, it gets longer.</p>
+                <p>Make a mistake, and the test is over.</p>
+            </div>
+        </div>
         <button class="btn-retry" onclick="resetGame()">Play Again</button>
     </div>
 
@@ -95,7 +115,6 @@
             <div><div class="stat-label-sm">Your Level</div><div class="stat-val" style="color:#6c5ce7" id="yourLevel">0</div></div>
             <div><div class="stat-label-sm">Round</div><div class="stat-val" id="roundDisplay">-</div></div>
             <div><div class="stat-label-sm">Pixel's Best</div><div class="stat-val" style="color:#e67e22">12</div></div>
-            <div><div class="stat-label-sm">Code's Best</div><div class="stat-val" style="color:#c0392b">∞</div></div>
         </div>
     </div>
 
@@ -170,7 +189,139 @@
             document.getElementById('rYou').classList.toggle('winner', reached >= best && reached > 0);
             document.getElementById('rPixel').classList.toggle('winner', 12 >= best);
             document.getElementById('results').classList.add('visible');
+            drawSpanGraph(reached);
         }
+        function drawSpanGraph(youLevel) {
+            const MAXLVL = 29;
+            // Synthetic distribution peaking around level 8, tapering toward 0 and 29
+            const norm = [];
+            for (let i = 0; i <= MAXLVL; i++) {
+                let w = Math.exp(-Math.pow(i - 8, 2) / (2 * 3.5 * 3.5));
+                if (i > 12) w *= Math.exp(-(i - 12) * 0.15);
+                norm.push(w);
+            }
+            const maxVal = Math.max(...norm);
+
+            const cv = document.getElementById('spanGraph');
+            if (!cv) return;
+            const cs = getComputedStyle(cv.parentElement);
+            const cssW = Math.max(200, Math.round(
+                cv.parentElement.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
+            ));
+            const dpr = window.devicePixelRatio || 1;
+            const cssH = 230;
+            cv.style.width = cssW + 'px';
+            cv.style.height = cssH + 'px';
+            cv.width = Math.round(cssW * dpr);
+            cv.height = Math.round(cssH * dpr);
+            const g = cv.getContext('2d');
+            g.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            const padL = 36, padR = 12, padT = 34, padB = 28;
+            const plotW = cssW - padL - padR, plotH = cssH - padT - padB;
+            const step = plotW / (MAXLVL + 1);
+
+            const start = performance.now();
+            function frame(now) {
+                const t = Math.min(1, (now - start) / 850);
+                const ease = 1 - Math.pow(1 - t, 3);
+                g.clearRect(0, 0, cssW, cssH);
+
+                g.strokeStyle = 'rgba(255,255,255,0.07)';
+                g.fillStyle = 'rgba(255,255,255,0.35)';
+                g.font = '9px Share Tech Mono';
+                g.textAlign = 'right';
+                g.textBaseline = 'middle';
+                for (let gy = 0; gy <= 4; gy++) {
+                    const y = padT + plotH - (plotH * gy / 4);
+                    g.beginPath();
+                    g.moveTo(padL, Math.round(y) + 0.5);
+                    g.lineTo(padL + plotW, Math.round(y) + 0.5);
+                    g.stroke();
+                }
+                g.textBaseline = 'alphabetic';
+
+                // Smooth filled area
+                g.beginPath();
+                g.moveTo(padL, padT + plotH);
+                norm.forEach((val, i) => {
+                    const x = padL + i * step + step / 2;
+                    const y = padT + plotH - (val / maxVal) * plotH * ease;
+                    if (i === 0) g.lineTo(x, y);
+                    else {
+                        const prevX = padL + (i - 1) * step + step / 2;
+                        const prevY = padT + plotH - (norm[i - 1] / maxVal) * plotH * ease;
+                        const cpX = (prevX + x) / 2;
+                        g.bezierCurveTo(cpX, prevY, cpX, y, x, y);
+                    }
+                });
+                g.lineTo(padL + plotW, padT + plotH);
+                g.closePath();
+                g.fillStyle = 'rgba(108,92,231,0.18)';
+                g.fill();
+
+                // Line stroke
+                g.beginPath();
+                norm.forEach((val, i) => {
+                    const x = padL + i * step + step / 2;
+                    const y = padT + plotH - (val / maxVal) * plotH * ease;
+                    if (i === 0) g.moveTo(x, y);
+                    else {
+                        const prevX = padL + (i - 1) * step + step / 2;
+                        const prevY = padT + plotH - (norm[i - 1] / maxVal) * plotH * ease;
+                        const cpX = (prevX + x) / 2;
+                        g.bezierCurveTo(cpX, prevY, cpX, y, x, y);
+                    }
+                });
+                g.strokeStyle = '#6c5ce7';
+                g.lineWidth = 2;
+                g.stroke();
+
+                // Baseline
+                g.strokeStyle = 'rgba(255,255,255,0.18)';
+                g.lineWidth = 1;
+                g.beginPath();
+                g.moveTo(padL, padT + plotH + 0.5);
+                g.lineTo(padL + plotW, padT + plotH + 0.5);
+                g.stroke();
+
+                // YOU marker at exact level
+                const ux = padL + Math.min(youLevel, MAXLVL) * step + step / 2;
+                g.strokeStyle = '#3d9970';
+                g.lineWidth = 1.5;
+                g.setLineDash([3, 3]);
+                g.beginPath();
+                g.moveTo(Math.round(ux) + 0.5, padT - 6);
+                g.lineTo(Math.round(ux) + 0.5, padT + plotH);
+                g.stroke();
+                g.setLineDash([]);
+                const label = 'YOU ' + youLevel;
+                g.font = 'bold 11px Share Tech Mono';
+                const tw = g.measureText(label).width;
+                let lx = ux - tw / 2;
+                lx = Math.min(Math.max(lx, padL), padL + plotW - tw);
+                g.fillStyle = 'rgba(10,20,15,0.85)';
+                g.fillRect(lx - 6, padT - 24, tw + 12, 17);
+                g.strokeStyle = '#3d9970';
+                g.strokeRect(lx - 6.5, padT - 24.5, tw + 13, 18);
+                g.fillStyle = '#3d9970';
+                g.textAlign = 'left';
+                g.fillText(label, lx, padT - 11);
+
+                // X axis: ticks every integer (skip some on narrow)
+                g.fillStyle = 'rgba(255,255,255,0.4)';
+                g.font = '9px Share Tech Mono';
+                g.textAlign = 'center';
+                const tickStep = cssW < 400 ? 5 : (cssW < 550 ? 2 : 1);
+                for (let lv = 0; lv <= MAXLVL; lv += tickStep) {
+                    g.fillText(String(lv), padL + lv * step + step / 2, cssH - 9);
+                }
+
+                if (t < 1) requestAnimationFrame(frame);
+            }
+            requestAnimationFrame(frame);
+        }
+
         function resetGame() {
             document.getElementById('results').classList.remove('visible');
             document.getElementById('startBtn').style.display = 'inline-block';
