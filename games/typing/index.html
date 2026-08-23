@@ -326,6 +326,7 @@
         let pixelInterval = null, humanInterval = null;
         let pixelChars = 0, humanChars = 0;
         let alignedLen = 0;
+        let cursorPos = 0;
 
         const HUMAN_WPM = 60;
         const HUMAN_CPS = (HUMAN_WPM * 5) / 60;
@@ -374,6 +375,7 @@
                 html += `<span class="char${k === ti ? ' cursor' : ''}">${text[k]}</span>`;
             }
             alignedLen = correctCount;
+            cursorPos = ti;
             el.innerHTML = html;
         }
 
@@ -390,7 +392,7 @@
         function calcWpm() {
             if (!startTime) return 0;
             const mins = (Date.now() - startTime) / 60000;
-            const words = typed.trim().split(/\s+/).length;
+            const words = alignedLen / 5;
             return mins > 0 ? Math.round(words / mins) : 0;
         }
 
@@ -411,7 +413,7 @@
             // Pixel rubber-bands toward 90 WPM when he's behind, otherwise stays at base pace
             pixelInterval = setInterval(() => {
                 if (!gameRunning) return;
-                const target = pixelChars < alignedLen ? 90 : pixelWpm;
+                const target = pixelChars < cursorPos ? 90 : pixelWpm;
                 pixelEffWpm += (target - pixelEffWpm) * 0.09;
                 pixelChars = Math.min(text.length, pixelChars + (pixelEffWpm * 5 / 60) * 0.1);
                 document.getElementById('pixelWpmLabel').textContent = Math.round(pixelEffWpm);
@@ -421,7 +423,7 @@
         }
 
         function updateTracksNow() {
-            const yourPct  = (alignedLen / text.length) * 100;
+            const yourPct  = (cursorPos / text.length) * 100;
             const humanPct = (humanChars  / text.length) * 100;
             const pixelPct = (pixelChars  / text.length) * 100;
             updateTracks(yourPct, humanPct, pixelPct);
@@ -605,7 +607,7 @@
             if (!gameRunning) return;
             renderText();
             updateTracksNow();
-            if (alignedLen >= text.length) endGame();
+            if (cursorPos >= text.length) endGame();
         });
 
         document.addEventListener('keydown', (e) => {
