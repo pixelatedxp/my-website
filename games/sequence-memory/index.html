@@ -47,7 +47,7 @@
         .btn-retry { padding: 12px 32px; background: #6c5ce7; border: none; color: #fff; border-radius: 8px; cursor: none; font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; font-weight: bold; opacity: 0; transform: translateY(18px); }
         .results-duo { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; align-items: start; max-width: 700px; }
         .results-duo .span-graph-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); padding: 20px; opacity: 0; transform: translateY(22px) scale(0.97); text-align: left; }
-        #spanGraph { display: block; height: 230px; width: 100%; }
+        #spanGraph { display: block; height: 280px; width: 100%; }
         .results-duo .about-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); padding: 20px; opacity: 0; transform: translateY(22px) scale(0.97); font-size: 0.85rem; color: rgba(255,255,255,0.65); line-height: 1.65; text-align: left; }
         .results-duo .about-card .about-title { margin-bottom: 10px; }
         .results-duo .about-card p { margin: 0 0 12px; }
@@ -209,7 +209,7 @@
                 cv.parentElement.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
             ));
             const dpr = window.devicePixelRatio || 1;
-            const cssH = 230;
+            const cssH = 280;
             cv.style.width = cssW + 'px';
             cv.style.height = cssH + 'px';
             cv.width = Math.round(cssW * dpr);
