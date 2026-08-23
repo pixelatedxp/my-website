@@ -154,6 +154,13 @@
         .graph-label { display: block; margin-bottom: 14px; }
         #wpmGraph { width: 100%; height: 220px; display: block; }
         .graph-legend { display: block; margin-top: 12px; color: #777; }
+        .results-duo { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; align-items: start; }
+        .results-duo .graph-card { grid-column: 1; }
+        .results-duo .about-card { grid-column: 2; display: flex; flex-direction: column; justify-content: flex-start; padding: 26px 30px; font-size: 0.85rem; color: rgba(255,255,255,0.65); line-height: 1.65; text-align: left; }
+        .results-duo .about-card .about-title { margin-bottom: 10px; }
+        .results-duo .about-card p { margin: 0 0 12px; }
+        .results-duo .about-card p:last-child { margin-bottom: 0; }
+        @media (max-width: 700px) { .results-duo { grid-template-columns: 1fr; } }
 
         .btn-retry {
             align-self: center;
@@ -259,10 +266,18 @@
                     <div class="sub">WPM</div>
                 </div>
             </div>
-            <div class="glass-result-card graph-card" id="graphCard">
-                <span class="mono-label graph-label" data-text="[how you compare - wpm distribution]">[how you compare - wpm distribution]</span>
-                <canvas id="wpmGraph"></canvas>
-                <span class="mono-label graph-legend" id="graphLegend"></span>
+            <div class="results-duo">
+                <div class="glass-result-card graph-card" id="graphCard">
+                    <span class="mono-label graph-label" data-text="[how you compare - wpm distribution]">[how you compare - wpm distribution]</span>
+                    <canvas id="wpmGraph"></canvas>
+                    <span class="mono-label graph-legend" id="graphLegend"></span>
+                </div>
+                <div class="glass-result-card about-card" id="aboutCard">
+                    <span class="mono-label graph-label about-title" data-text="[about the test]">[about the test]</span>
+                    <p>This is a simple test of typing speed, measuring words per minute, or WPM.</p>
+                    <p>The standard measure of WPM is (number of characters / 5) / (time taken). By that measurement, "quick brown fox" is 15 characters, including spaces.</p>
+                    <p>The recorded score is WPM * Accuracy.</p>
+                </div>
             </div>
             <button class="btn-retry" onclick="setupGame()">Play Again</button>
         </div>
@@ -301,11 +316,13 @@
         let text = '', typed = '', startTime = null, gameRunning = false;
         let pixelInterval = null, humanInterval = null;
         let pixelChars = 0, humanChars = 0;
+        let alignedLen = 0;
 
         const HUMAN_WPM = 60;
         const HUMAN_CPS = (HUMAN_WPM * 5) / 60;
-        // Pixel's pace is rolled fresh every race, somewhere between 80 and 100 WPM
-        let pixelWpm = 90;
+        // Pixel rolls a base pace of 80-85 WPM and rubber-bands up to 90 when he falls behind
+        let pixelWpm = 85;
+        let pixelEffWpm = 85;
 
         function setupGame() {
             document.documentElement.classList.remove('results-open');
@@ -319,8 +336,9 @@
             gameRunning = false;
             pixelChars = 0; humanChars = 0;
             clearInterval(pixelInterval); clearInterval(humanInterval);
-            pixelWpm = 80 + Math.floor(Math.random() * 21);
-            document.getElementById('pixelWpmLabel').textContent = pixelWpm;
+            pixelWpm = 80 + Math.floor(Math.random() * 6);
+            pixelEffWpm = pixelWpm;
+            document.getElementById('pixelWpmLabel').textContent = Math.round(pixelEffWpm);
 
             renderText();
             updateTracks(0, 0, 0);
@@ -333,12 +351,20 @@
 
         function renderText() {
             const el = document.getElementById('textDisplay');
-            el.innerHTML = text.split('').map((ch, i) => {
-                let cls = 'char';
-                if (i < typed.length)  cls += typed[i] === ch ? ' correct' : ' wrong';
-                else if (i === typed.length) cls += ' cursor';
-                return `<span class="${cls}">${ch}</span>`;
-            }).join('');
+            let ti = 0, html = '';
+            for (let pi = 0; pi < typed.length; pi++) {
+                if (ti < text.length && typed[pi] === text[ti]) {
+                    html += `<span class="char correct">${text[ti]}</span>`;
+                    ti++;
+                } else {
+                    html += `<span class="char wrong">${typed[pi]}</span>`;
+                }
+            }
+            for (let k = ti; k < text.length; k++) {
+                html += `<span class="char${k === ti ? ' cursor' : ''}">${text[k]}</span>`;
+            }
+            alignedLen = ti;
+            el.innerHTML = html;
         }
 
         function updateTracks(yourPct, humanPct, pixelPct) {
@@ -372,20 +398,22 @@
                 if (humanChars >= text.length) clearInterval(humanInterval);
             }, 100);
 
-            // Pixel races somewhere between 80 and 100 WPM
-            const pixelCps = (pixelWpm * 5) / 60;
+            // Pixel rubber-bands toward 90 WPM when he's behind, otherwise stays at base pace
             pixelInterval = setInterval(() => {
                 if (!gameRunning) return;
-                pixelChars = Math.min(text.length, pixelChars + pixelCps * 0.1);
+                const target = pixelChars < alignedLen ? 90 : pixelWpm;
+                pixelEffWpm += (target - pixelEffWpm) * 0.09;
+                pixelChars = Math.min(text.length, pixelChars + (pixelEffWpm * 5 / 60) * 0.1);
+                document.getElementById('pixelWpmLabel').textContent = Math.round(pixelEffWpm);
                 updateTracksNow();
                 if (pixelChars >= text.length) clearInterval(pixelInterval);
             }, 100);
         }
 
         function updateTracksNow() {
-            const yourPct  = (typed.length / text.length) * 100;
-            const humanPct = (humanChars   / text.length) * 100;
-            const pixelPct = (pixelChars   / text.length) * 100;
+            const yourPct  = (alignedLen / text.length) * 100;
+            const humanPct = (humanChars  / text.length) * 100;
+            const pixelPct = (pixelChars  / text.length) * 100;
             updateTracks(yourPct, humanPct, pixelPct);
             document.getElementById('yourWpm').textContent = calcWpm();
         }
@@ -396,16 +424,16 @@
             document.getElementById('hiddenInput').disabled = true;
             clearInterval(pixelInterval); clearInterval(humanInterval);
             const wpm = calcWpm();
-            const correct = typed.split('').filter((c, i) => c === text[i]).length;
-            const acc = typed.length > 0 ? Math.round((correct / typed.length) * 100) : 0;
+            const acc = typed.length > 0 ? Math.round((alignedLen / typed.length) * 100) : 0;
+            const finalPixelWpm = Math.round(pixelEffWpm);
 
             document.getElementById('resYouWpm').textContent = wpm + ' WPM';
             document.getElementById('resYouAcc').textContent = acc + '% accuracy';
-            document.getElementById('resPixelWpm').textContent = pixelWpm;
+            document.getElementById('resPixelWpm').textContent = finalPixelWpm;
 
             const scores = [
                 { id: 'resYouCard', s: wpm },
-                { id: 'resPixelCard', s: pixelWpm }
+                { id: 'resPixelCard', s: finalPixelWpm }
             ];
             const best = Math.max(...scores.map(x => x.s));
             scores.forEach(x => document.getElementById(x.id).classList.toggle('winner', x.s === best));
@@ -426,7 +454,7 @@
             }, 350);
 
             // Draw only after the section is laid out: measuring while display:none returns width 0
-            drawWpmGraph(wpm, pixelWpm);
+            drawWpmGraph(wpm, finalPixelWpm);
         }
 
         // WPM comparison chart: synthetic crowd distribution with you & Pixel marked
@@ -444,13 +472,11 @@
                 if (w > 140) w = 110 + Math.random() * 30;
                 people.push(w);
             }
-            const BIN = 5, MAXW = 150;
+            const BIN = 10, MAXW = 140;
             const bins = new Array(MAXW / BIN).fill(0);
             people.forEach(w => bins[Math.min(bins.length - 1, Math.floor(w / BIN))]++);
 
             const cv = document.getElementById('wpmGraph');
-            // Exact 1:1 sizing: measure parent CONTENT box, set style and bitmap to matching
-            // dimensions so the browser never scales the bitmap (scaling = blur/stretch)
             const cs = getComputedStyle(cv.parentElement);
             const cssW = Math.max(280, Math.round(
                 cv.parentElement.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
@@ -467,11 +493,8 @@
             const padL = 48, padR = 16, padT = 34, padB = 28;
             const plotW = cssW - padL - padR, plotH = cssH - padT - padB;
 
-            // Nice rounded y-axis max so gridline labels stay clean
             const rawMax = Math.max(...bins);
             const maxCount = Math.max(10, Math.ceil(rawMax / 10) * 10);
-            const userBin = Math.min(bins.length - 1, Math.max(0, Math.floor(userWpm / BIN)));
-            const pixelBin = Math.min(bins.length - 1, Math.floor(pWpm / BIN));
 
             const start = performance.now();
             function frame(now) {
@@ -479,7 +502,6 @@
                 const ease = 1 - Math.pow(1 - t, 3);
                 g.clearRect(0, 0, cssW, cssH);
 
-                // gridlines + y labels (drawn in left gutter, never under bars)
                 g.strokeStyle = 'rgba(255,255,255,0.07)';
                 g.fillStyle = 'rgba(255,255,255,0.4)';
                 g.font = '10px Share Tech Mono';
@@ -500,20 +522,10 @@
                     const h = (count / maxCount) * plotH * ease;
                     const x = padL + bi * bw + 2;
                     const y = padT + plotH - h;
-                    if (bi === userBin) {
-                        g.save();
-                        g.shadowColor = '#3d9970';
-                        g.shadowBlur = 12;
-                        g.fillStyle = '#3d9970';
-                        g.fillRect(x, y, bw - 4, h);
-                        g.restore();
-                    } else {
-                        g.fillStyle = bi === pixelBin ? 'rgba(230,126,34,0.55)' : 'rgba(60,167,203,0.32)';
-                        g.fillRect(x, y, bw - 4, h);
-                    }
+                    g.fillStyle = 'rgba(60,167,203,0.32)';
+                    g.fillRect(x, y, bw - 4, h);
                 });
 
-                // baseline axis
                 g.strokeStyle = 'rgba(255,255,255,0.18)';
                 g.lineWidth = 1;
                 g.beginPath();
@@ -521,8 +533,8 @@
                 g.lineTo(padL + plotW, padT + plotH + 0.5);
                 g.stroke();
 
-                // "YOU" marker pill (kept fully inside the plot)
-                const ux = padL + userBin * bw + (bw - 4) / 2;
+                // "YOU" marker at exact WPM position
+                const ux = padL + (Math.min(userWpm, MAXW) / MAXW) * plotW;
                 g.strokeStyle = '#3d9970';
                 g.lineWidth = 1.5;
                 g.setLineDash([3, 3]);
@@ -544,8 +556,8 @@
                 g.textAlign = 'left';
                 g.fillText(label, lx, padT - 11);
 
-                // pixel marker
-                const px = padL + pixelBin * bw + (bw - 4) / 2;
+                // pixel marker at exact WPM position
+                const px = padL + (Math.min(pWpm, MAXW) / MAXW) * plotW;
                 g.strokeStyle = 'rgba(230,126,34,0.85)';
                 g.lineWidth = 1;
                 g.setLineDash([2, 4]);
@@ -560,11 +572,12 @@
                 let plx = Math.min(Math.max(px, padL + 16), padL + plotW - 16);
                 g.fillText('pixel', plx, padT - 8);
 
-                // x axis labels below baseline
+                // x axis: ticks every 10, skip some on narrow screens
                 g.fillStyle = 'rgba(255,255,255,0.4)';
                 g.font = '10px Share Tech Mono';
                 g.textAlign = 'center';
-                for (let w = 0; w <= MAXW; w += 25) {
+                const tickStep = cssW < 480 ? 20 : 10;
+                for (let w = 0; w <= MAXW; w += tickStep) {
                     g.fillText(String(w), padL + (w / MAXW) * plotW, cssH - 9);
                 }
 
@@ -573,7 +586,7 @@
             requestAnimationFrame(frame);
 
             document.getElementById('graphLegend').textContent =
-                'sample of 420 typists · green bar = where you landed · orange = pixel at ' + pWpm + ' wpm';
+                'sample of 420 typists \u00b7 green line = where you landed \u00b7 orange = pixel at ' + pWpm + ' wpm';
         }
 
         document.getElementById('hiddenInput').addEventListener('input', (e) => {
@@ -586,7 +599,7 @@
             if (!gameRunning) return;
             renderText();
             updateTracksNow();
-            if (typed.length >= text.length) endGame();
+            if (alignedLen >= text.length) endGame();
         });
 
         document.addEventListener('keydown', (e) => {
