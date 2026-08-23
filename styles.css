@@ -1,5 +1,7 @@
 ﻿* { scrollbar-width: none; }
 *::-webkit-scrollbar { display: none; }
+html, body { scrollbar-width: none; overflow-x: hidden; }
+html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
 :root {
     --bg-color-light: #f5f5f7;
     --text-primary-light: #1d1d1f;
