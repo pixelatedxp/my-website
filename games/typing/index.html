@@ -564,12 +564,12 @@
                 const youLabelY = markersClose ? padT - 42 : padT - 28;
                 const pixelLabelY = markersClose ? padT + 18 : padT - 12;
 
-                // YOU marker
+                // YOU marker — line from bottom of label pill to baseline
                 g.strokeStyle = '#3d9970';
                 g.lineWidth = 1.5;
                 g.setLineDash([3, 3]);
                 g.beginPath();
-                g.moveTo(Math.round(ux) + 0.5, 0);
+                g.moveTo(Math.round(ux) + 0.5, youLabelY + 5);
                 g.lineTo(Math.round(ux) + 0.5, padT + plotH);
                 g.stroke();
                 g.setLineDash([]);
@@ -588,12 +588,12 @@
                 g.textAlign = 'left';
                 g.fillText(label, lx, youLabelY);
 
-                // pixel marker
+                // pixel marker — line from bottom of label pill to baseline
                 g.strokeStyle = 'rgba(230,126,34,0.85)';
                 g.lineWidth = 1;
                 g.setLineDash([2, 4]);
                 g.beginPath();
-                g.moveTo(Math.round(px) + 0.5, 0);
+                g.moveTo(Math.round(px) + 0.5, pixelLabelY + 5);
                 g.lineTo(Math.round(px) + 0.5, padT + plotH);
                 g.stroke();
                 g.setLineDash([]);

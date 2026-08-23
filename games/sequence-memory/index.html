@@ -217,7 +217,7 @@
             const g = cv.getContext('2d');
             g.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-            const padL = 36, padR = 12, padT = 34, padB = 28;
+            const padL = 36, padR = 12, padT = 60, padB = 28;
             const plotW = cssW - padL - padR, plotH = cssH - padT - padB;
             const step = plotW / (MAXLVL + 1);
 
@@ -285,28 +285,62 @@
                 g.lineTo(padL + plotW, padT + plotH + 0.5);
                 g.stroke();
 
-                // YOU marker at exact level
+                // Marker X positions
+                const pixelLevel = 12;
                 const ux = padL + Math.min(youLevel, MAXLVL) * step + step / 2;
+                const px = padL + Math.min(pixelLevel, MAXLVL) * step + step / 2;
+
+                // Anti-overlap: when close, one goes up, other below baseline
+                const markersClose = Math.abs(ux - px) < 60;
+                const youLabelY = markersClose ? padT - 42 : padT - 28;
+                const pixelLabelY = markersClose ? padT + 18 : padT - 12;
+
+                // YOU marker - line from bottom of pill to baseline
                 g.strokeStyle = '#3d9970';
                 g.lineWidth = 1.5;
                 g.setLineDash([3, 3]);
                 g.beginPath();
-                g.moveTo(Math.round(ux) + 0.5, padT - 6);
+                g.moveTo(Math.round(ux) + 0.5, youLabelY + 5);
                 g.lineTo(Math.round(ux) + 0.5, padT + plotH);
                 g.stroke();
                 g.setLineDash([]);
+
+                // YOU label pill
                 const label = 'YOU ' + youLevel;
                 g.font = 'bold 11px Share Tech Mono';
                 const tw = g.measureText(label).width;
                 let lx = ux - tw / 2;
                 lx = Math.min(Math.max(lx, padL), padL + plotW - tw);
                 g.fillStyle = 'rgba(10,20,15,0.85)';
-                g.fillRect(lx - 6, padT - 24, tw + 12, 17);
+                g.fillRect(lx - 6, youLabelY - 12, tw + 12, 17);
                 g.strokeStyle = '#3d9970';
-                g.strokeRect(lx - 6.5, padT - 24.5, tw + 13, 18);
+                g.strokeRect(lx - 6.5, youLabelY - 12.5, tw + 13, 18);
                 g.fillStyle = '#3d9970';
                 g.textAlign = 'left';
-                g.fillText(label, lx, padT - 11);
+                g.fillText(label, lx, youLabelY);
+
+                // pixel marker - line from bottom of pill to baseline
+                g.strokeStyle = 'rgba(230,126,34,0.85)';
+                g.lineWidth = 1;
+                g.setLineDash([2, 4]);
+                g.beginPath();
+                g.moveTo(Math.round(px) + 0.5, pixelLabelY + 5);
+                g.lineTo(Math.round(px) + 0.5, padT + plotH);
+                g.stroke();
+                g.setLineDash([]);
+
+                // pixel label pill
+                g.font = '10px Share Tech Mono';
+                const ptw = g.measureText('pixel').width;
+                let plx = px - ptw / 2;
+                plx = Math.min(Math.max(plx, padL), padL + plotW - ptw);
+                g.fillStyle = 'rgba(10,20,15,0.85)';
+                g.fillRect(plx - 6, pixelLabelY - 11, ptw + 12, 16);
+                g.strokeStyle = 'rgba(230,126,34,0.85)';
+                g.strokeRect(plx - 6.5, pixelLabelY - 11.5, ptw + 13, 17);
+                g.fillStyle = 'rgba(230,126,34,0.95)';
+                g.textAlign = 'center';
+                g.fillText('pixel', plx + ptw / 2, pixelLabelY);
 
                 // X axis: ticks every integer (skip some on narrow)
                 g.fillStyle = 'rgba(255,255,255,0.4)';
