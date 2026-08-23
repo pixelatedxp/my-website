@@ -46,7 +46,7 @@
         .racer-wpm.you { color: #3d9970; }
         .racer-wpm.pixel { color: #e67e22; }
 
-        /* Race track */
+        
         .race-tracks {
             width: 100%;
             max-width: 860px;
@@ -70,7 +70,7 @@
         .track-bar.pixel { background: #e67e22; }
         .track-pct { width: 45px; color: rgba(255,255,255,0.4); font-family: 'Share Tech Mono', monospace; font-size: 0.78rem; }
 
-        /* Text display */
+        
         .text-display {
             font-family: 'Share Tech Mono', monospace;
             font-size: 1.2rem;
@@ -86,7 +86,7 @@
         .char.wrong   { color: #c0392b; background: rgba(192,57,43,0.2); }
         .char.cursor  { border-left: 2px solid #fff; }
 
-        /* Hidden input */
+        
         #hiddenInput {
             position: absolute;
             opacity: 0;
@@ -110,7 +110,7 @@
 
         .hint { font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; color: rgba(255,255,255,0.25); }
 
-        /* Results: fixed overlay matching sequence memory style */
+        
         .results-section {
             display: none;
             position: fixed;
@@ -330,7 +330,7 @@
 
         const HUMAN_WPM = 60;
         const HUMAN_CPS = (HUMAN_WPM * 5) / 60;
-        // Pixel rolls a base pace of 80-85 WPM and rubber-bands up to 90 when he falls behind
+        
         let pixelWpm = 85;
         let pixelEffWpm = 85;
 
@@ -402,7 +402,7 @@
             startTime = Date.now();
             gameRunning = true;
 
-            // Average human at 60 WPM
+            
             humanInterval = setInterval(() => {
                 if (!gameRunning) return;
                 humanChars = Math.min(text.length, humanChars + HUMAN_CPS * 0.1);
@@ -410,7 +410,7 @@
                 if (humanChars >= text.length) clearInterval(humanInterval);
             }, 100);
 
-            // Pixel rubber-bands toward 90 WPM when he's behind, otherwise stays at base pace
+            
             pixelInterval = setInterval(() => {
                 if (!gameRunning) return;
                 const target = pixelChars < cursorPos ? 90 : pixelWpm;
@@ -461,14 +461,14 @@
                 document.querySelector('#results .btn-retry').classList.add('show');
             }, 250);
 
-            // Draw only after the section is laid out: measuring while display:none returns width 0
+            
             drawWpmGraph(wpm, finalPixelWpm);
         }
 
-        // WPM comparison chart: smooth area distribution with you & Pixel marked
+        
         function drawWpmGraph(userWpm, pWpm) {
             const MAXW = 140;
-            // Synthetic gaussian crowd distribution peaking ~42 WPM
+            
             const crowd = [];
             for (let i = 0; i <= MAXW; i++) {
                 let w = Math.exp(-Math.pow(i - 42, 2) / (2 * 17 * 17));
@@ -501,7 +501,7 @@
                 const ease = 1 - Math.pow(1 - t, 3);
                 g.clearRect(0, 0, cssW, cssH);
 
-                // Horizontal gridlines only (no y-axis labels)
+                
                 g.strokeStyle = 'rgba(255,255,255,0.07)';
                 for (let gy = 0; gy <= 4; gy++) {
                     const y = padT + plotH - (plotH * gy / 4);
@@ -511,7 +511,7 @@
                     g.stroke();
                 }
 
-                // Smooth filled area (bezier curves like sequence memory)
+                
                 g.beginPath();
                 g.moveTo(padL, padT + plotH);
                 crowd.forEach((val, i) => {
@@ -530,7 +530,7 @@
                 g.fillStyle = 'rgba(60,167,203,0.18)';
                 g.fill();
 
-                // Line stroke
+                
                 g.beginPath();
                 crowd.forEach((val, i) => {
                     const x = padL + i * step + step / 2;
@@ -547,7 +547,7 @@
                 g.lineWidth = 2;
                 g.stroke();
 
-                // Baseline
+                
                 g.strokeStyle = 'rgba(255,255,255,0.18)';
                 g.lineWidth = 1;
                 g.beginPath();
@@ -555,16 +555,16 @@
                 g.lineTo(padL + plotW, padT + plotH + 0.5);
                 g.stroke();
 
-                // Marker X positions
+                
                 const ux = padL + Math.min(userWpm, MAXW) * step + step / 2;
                 const px = padL + Math.min(pWpm, MAXW) * step + step / 2;
 
-                // Anti-overlap: when close, one label goes up, other goes below baseline
+                
                 const markersClose = Math.abs(ux - px) < 60;
                 const youLabelY = markersClose ? padT - 42 : padT - 28;
                 const pixelLabelY = markersClose ? padT + 18 : padT - 12;
 
-                // YOU marker — line from bottom of label pill to baseline
+                
                 g.strokeStyle = '#3d9970';
                 g.lineWidth = 1.5;
                 g.setLineDash([3, 3]);
@@ -574,7 +574,7 @@
                 g.stroke();
                 g.setLineDash([]);
 
-                // YOU label pill
+                
                 const label = 'YOU ' + userWpm;
                 g.font = 'bold 11px Share Tech Mono';
                 const tw = g.measureText(label).width;
@@ -588,7 +588,7 @@
                 g.textAlign = 'left';
                 g.fillText(label, lx, youLabelY);
 
-                // pixel marker — line from bottom of label pill to baseline
+                
                 g.strokeStyle = 'rgba(230,126,34,0.85)';
                 g.lineWidth = 1;
                 g.setLineDash([2, 4]);
@@ -598,7 +598,7 @@
                 g.stroke();
                 g.setLineDash([]);
 
-                // pixel label pill
+                
                 g.font = '10px Share Tech Mono';
                 const ptw = g.measureText('pixel').width;
                 let plx = px - ptw / 2;
@@ -611,7 +611,7 @@
                 g.textAlign = 'center';
                 g.fillText('pixel', plx + ptw / 2, pixelLabelY);
 
-                // x axis: ticks every 10, skip some on narrow screens
+                
                 g.fillStyle = 'rgba(255,255,255,0.4)';
                 g.font = '10px Share Tech Mono';
                 g.textAlign = 'center';
@@ -631,7 +631,7 @@
         document.getElementById('hiddenInput').addEventListener('input', (e) => {
             const val = e.target.value;
             typed = val;
-            // Auto-start on first character
+            
             if (!gameRunning && typed.length > 0) {
                 startGame();
             }

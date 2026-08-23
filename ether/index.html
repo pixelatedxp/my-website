@@ -35,7 +35,7 @@
             --transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* --- Global Navbar --- */
+        
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -92,7 +92,7 @@
             display: none;
         }
 
-        /* --- Background Aesthetic --- */
+        
         .mesh-bg {
             position: fixed;
             top: 0;
@@ -123,7 +123,7 @@
             100% { transform: translate(50px, 100px) scale(1.1); }
         }
 
-        /* --- Cursor Trail --- */
+        
         .cursor-trail {
             position: fixed;
             top: 0;
@@ -142,7 +142,7 @@
             mix-blend-mode: difference;
         }
 
-        /* --- Main Layout --- */
+        
         .container {
             display: flex;
             flex-direction: column;
@@ -174,7 +174,7 @@
             box-shadow: 0 0 40px rgba(255, 255, 255, 0.05);
         }
 
-        /* --- Content Styling --- */
+        
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -325,7 +325,7 @@
             font-weight: 600;
         }
 
-        /* --- Discord Button --- */
+        
         .discord-btn {
             display: inline-flex;
             align-items: center;
@@ -356,7 +356,7 @@
             fill: currentColor;
         }
 
-        /* --- Fade Up Animation --- */
+        
         .fade-up {
             opacity: 0;
             transform: translateY(30px);
@@ -368,7 +368,7 @@
             transform: translateY(0);
         }
 
-        /* --- Responsive --- */
+        
         @media (max-width: 640px) {
             .hero-card { padding: 3rem 1.5rem; }
             .brand-name { font-size: 3.5rem; }
@@ -456,7 +456,7 @@
     </main>
 
     <script>
-        // --- Cursor Trail Logic ---
+        
         const coords = { x: 0, y: 0 };
         const circles = [];
         const trail = document.getElementById('trail');
@@ -500,7 +500,7 @@
         }
         animateCircles();
 
-        // --- Fade Up Observer ---
+        
         const observerOptions = {
             threshold: 0.1
         };
@@ -515,7 +515,7 @@
 
         document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-        // --- Parallax Effect on Mouse Move ---
+        
         document.addEventListener('mousemove', (e) => {
             const x = e.clientX / window.innerWidth;
             const y = e.clientY / window.innerHeight;
@@ -534,7 +534,7 @@
             });
         });
 
-        // Initialize scroll to top
+        
         document.addEventListener('DOMContentLoaded', () => {
             if ('scrollRestoration' in history) {
                 history.scrollRestoration = 'manual';

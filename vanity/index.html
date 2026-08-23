@@ -26,14 +26,14 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 <style>
-/* Dashboard-specific overrides on top of pixelis.dev styles */
+
 body {  display: flex;  justify-content: center;  align-items: center;  min-height: 100vh;  margin: 0;  padding: 0;  background: var(--bg-color);  color: var(--text-primary);  font-family: var(--font-main);  overflow-x: hidden; zoom: 1.25; }
 
 * {
   cursor: none !important;
 }
 
-/* Cursor Trail */
+
 .cursor-trail {
   pointer-events: none;
   z-index: 999999;
@@ -52,11 +52,11 @@ body {  display: flex;  justify-content: center;  align-items: center;  min-heig
   z-index: 999999;
 }
 
-/* Autoload Toggle Switch */
+
 .switch-input:checked + .slider { background-color: #a78bfa !important; }
 .switch-input:checked + .slider .knob { transform: translateX(14px); }
 
-/* Toast system - keep dashboard toast styles */
+
 #toast-container {
   position: fixed;
   top: 20px;
@@ -108,7 +108,7 @@ body {  display: flex;  justify-content: center;  align-items: center;  min-heig
   to { transform: translateX(100%); opacity: 0; }
 }
 
-/* Dashboard intro screen styles */
+
 #intro{  width:95%;max-width:480px;  display:flex;flex-direction:column;align-items:center;  padding:60px 20px;  position:relative;  text-align:center;  z-index: 1;  margin-top: -180px;}
 .intro-grid{
   position:absolute;top:0;left:0;right:0;bottom:0;
@@ -141,7 +141,7 @@ body {  display: flex;  justify-content: center;  align-items: center;  min-heig
   display:flex;align-items:center;justify-content:center;
 }
 
-/* Global Navbar Styling */
+
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -277,7 +277,7 @@ body {  display: flex;  justify-content: center;  align-items: center;  min-heig
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
 @keyframes pdot{0%,100%{opacity:1;}50%{opacity:0.3;}}
 
-/* Dashboard window styles */
+
 .window{
   width:95%;max-width:95%;
   background:var(--card-bg);border:1px solid var(--card-border);
@@ -517,7 +517,7 @@ body {  display: flex;  justify-content: center;  align-items: center;  min-heig
 .cs-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.25);}
 .cs-dot.active{background:var(--text-primary);box-shadow:0 0 6px rgba(255,255,255,0.7);animation:pdot 1.6s ease-in-out infinite;}
 
-/* Donation section */
+
 .info-section {
   margin-top: 20px;
   padding: 16px;
@@ -612,7 +612,7 @@ body {  display: flex;  justify-content: center;  align-items: center;  min-heig
   justify-content: space-between;
 }
 
-/* Page header styling */
+
 .page-header {
   position: fixed;
   top: 20px;
@@ -631,7 +631,7 @@ body {  display: flex;  justify-content: center;  align-items: center;  min-heig
 #intro { margin-top: -180px; }
 .window { margin-top: -50px; }
 
-/* Glitch text effect */
+
 .glitch {
   position: relative;
 }
@@ -704,7 +704,7 @@ body {  display: flex;  justify-content: center;  align-items: center;  min-heig
   100% { clip: rect(63px, 9999px, 78px, 0); }
 }
 
-/* Enhanced target card styling */
+
 .tcard {
   display: flex;
   align-items: center;
@@ -773,7 +773,7 @@ body {  display: flex;  justify-content: center;  align-items: center;  min-heig
   z-index: 1;
 }
 
-/* About Us section styling */
+
 .about-section {
   margin-top: 20px;
   padding: 20px;
@@ -875,7 +875,7 @@ body {  display: flex;  justify-content: center;  align-items: center;  min-heig
   margin-top: 4px;
 }
 
-/* Activity log styling */
+
 .activity-log {
   display: flex;
   flex-direction: column;
@@ -907,7 +907,7 @@ body {  display: flex;  justify-content: center;  align-items: center;  min-heig
   font-weight: 600;
 }
 
-/* System status styling */
+
 .status-grid {
   display: flex;
   flex-direction: column;
@@ -944,7 +944,7 @@ body {  display: flex;  justify-content: center;  align-items: center;  min-heig
   text-align: right;
 }
 
-/* Leaderboard styling */
+
 .leaderboard {
   display: flex;
   flex-direction: column;
@@ -989,7 +989,7 @@ body {  display: flex;  justify-content: center;  align-items: center;  min-heig
   color: #a78bfa;
 }
 
-/* Changelog styling */
+
 .changelog {
   display: flex;
   flex-direction: column;
@@ -1018,7 +1018,7 @@ body {  display: flex;  justify-content: center;  align-items: center;  min-heig
   line-height: 1.5;
 }
 
-/* Team section styling */
+
 .team-grid {
   display: flex;
   flex-direction: column;
@@ -1058,7 +1058,7 @@ body {  display: flex;  justify-content: center;  align-items: center;  min-heig
   margin-top: 2px;
 }
 
-/* Dashboard footer styling */
+
 .dashboard-footer {
   margin-top: 24px;
   padding-top: 20px;
@@ -1086,7 +1086,7 @@ body {  display: flex;  justify-content: center;  align-items: center;  min-heig
   font-weight: 500;
 }
 
-/* Pixel bio section styling */
+
 .pixel-bio {
   margin-top: 20px;
   padding: 20px;
@@ -1456,7 +1456,7 @@ body {  display: flex;  justify-content: center;  align-items: center;  min-heig
 <script>
 lucide.createIcons();
 
-// Custom Trail Cursor (1:1 from website)
+
 const coords = { x: 0, y: 0 };
 
 let cursorTrail = document.querySelector('.cursor-trail');
@@ -1474,7 +1474,7 @@ while(cursorTrail.children.length < 60) {
 
 const circles = document.querySelectorAll(".circle");
 
-// Initialize circles
+
 circles.forEach(function (circle, index) {
   circle.x = 0;
   circle.y = 0;
@@ -1493,7 +1493,7 @@ function animateCircles() {
     circle.style.left = ((x / 1.25) - 3) + "px";
     circle.style.top = ((y / 1.25) - 3) + "px";
 
-    // Adjust scale down per trail piece without 3d perspective shift
+    
     circle.style.transform = `scale(${(circles.length - index) / circles.length})`;
 
     circle.x = x;
@@ -1519,7 +1519,7 @@ interactables.forEach(el => {
   });
 });
 
-// Toast system
+
 function showToast(message, isError = true, duration = 5000) {
   const container = document.getElementById('toast-container');
   const toast = document.createElement('div');
@@ -1541,14 +1541,14 @@ if (!document.querySelector('#slideOutStyle')) {
   document.head.appendChild(style);
 }
 
-// No inactivity timeout
 
-// Preload deploy sound
+
+
 const deploySound = new Audio('deploy-sound.wav');
 deploySound.preload = 'auto';
 deploySound.volume = 0.5;
 
-// Add sound playback to deploy instance button
+
 const joinBtn = document.getElementById('join-btn');
 if (joinBtn) {
   joinBtn.addEventListener('click', (e) => {
@@ -1558,7 +1558,7 @@ if (joinBtn) {
   });
 }
 
-// Intro loading
+
 const loadLabels = ['Initializing modules…','Establishing feed…','Connecting to bots…','Loading target data…','All systems go.'];
 let lblIdx = 0;
 function cycleLabel() {
@@ -1574,7 +1574,7 @@ function cycleLabel() {
 }
 const lblInterval = setInterval(cycleLabel, 420);
 
-// Parse URL parameters immediately on page load to update intro-targets
+
 (function parseUrlParamsOnLoad() {
   let params = new URLSearchParams();
   const queryString = window.location.href.split('?')[1];
@@ -1618,7 +1618,7 @@ function enterApp() {
   showToast('You can now open profiles by clicking any target', false, 8000);
 }
 
-// Tabs
+
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1634,7 +1634,7 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
-// Spotlight effect for target cards
+
 document.addEventListener('mousemove', (e) => {
   document.querySelectorAll('.tcard').forEach(card => {
     const rect = card.getBoundingClientRect();
@@ -1645,7 +1645,7 @@ document.addEventListener('mousemove', (e) => {
   });
 });
 
-// Bots with custom headshots (imgur fallback)
+
 const FALLBACK_AVATAR = "https://i.ibb.co/vCSrSZvW/image.png";
 const bots = [
   { name: 'Vanitylogger360731', task: 'Logging · Instance A' },
@@ -1665,7 +1665,7 @@ function buildBots() {
     `;
     bl.appendChild(c);
   });
-  // Update intro bots count
+  
   const introBots = document.getElementById('intro-bots');
   if (introBots) {
     introBots.textContent = bots.length;
@@ -1673,7 +1673,7 @@ function buildBots() {
   lucide.createIcons();
 }
 
-// Avatar fetch for targets
+
 async function fetchAvatars(userIdList) {
   const map = {};
   const validUserIds = userIdList.filter(id => id > 0);
@@ -1804,12 +1804,12 @@ function copyToClipboard(text) {
 
 function initApp() {
   buildBots();
-  // Add animation class to initial active tab
+  
   const initialActivePanel = document.querySelector('.tab-panel.active');
   if (initialActivePanel) {
     initialActivePanel.classList.add('tab-panel-active');
   }
-  // Always use manual parsing for compatibility
+  
   const params = new URLSearchParams();
   const queryString = window.location.href.split('?')[1];
   if (queryString) {
@@ -1823,7 +1823,7 @@ function initApp() {
   }
 
   let dataString = params.get('data');
-  // Decode URL-encoded data parameter
+  
   if (dataString) {
     dataString = decodeURIComponent(dataString);
   }
@@ -1832,7 +1832,7 @@ function initApp() {
   const joinBtn = document.getElementById('join-btn');
   const footer  = document.getElementById('footer-bar');
 
-  // Autoload Initialization
+  
   const autoloadToggle = document.getElementById('autoload-toggle');
   if (autoloadToggle) {
     autoloadToggle.checked = localStorage.getItem('vanity_autoload') === 'true';
@@ -1889,7 +1889,7 @@ function initApp() {
   }
   lucide.createIcons();
 
-  // CashApp donation copy
+  
   const cashItem = document.getElementById('cashapp-donate');
   if (cashItem) {
     const addr = cashItem.querySelector('.donate-addr').innerText;
@@ -1899,10 +1899,10 @@ function initApp() {
   }
 }
 
-// Copy to clipboard function for button
-// Removed duplicate function
 
-// --- Blacklist Logic ---
+
+
+
 let vanityBlacklist = JSON.parse(localStorage.getItem('vanity_blacklist') || '[]');
 
 function renderBlacklist() {
@@ -1956,7 +1956,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     renderBlacklist();
 });
-setTimeout(renderBlacklist, 100); // Check again if DOM is already loaded
+setTimeout(renderBlacklist, 100); 
 
 </script>
     <script src="../music-player.js"></script>

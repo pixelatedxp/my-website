@@ -27,7 +27,7 @@
             user-select: none;
         }
 
-        /* The big click zone */
+        
         #clickZone {
             width: min(520px, 90vw);
             height: 280px;
@@ -52,7 +52,7 @@
         .zone-big { font-size: 3.5rem; font-weight: bold; line-height: 1; }
         .zone-sub { font-size: 0.9rem; opacity: 0.7; }
 
-        /* Scoreboard */
+        
         .scoreboard {
             display: grid;
             grid-template-columns: repeat(2, 200px);
@@ -114,7 +114,7 @@
         .btn-act.primary { background: #27ae60; border-color: transparent; }
         .btn-act.primary:hover { background: #2ecc71; }
 
-        /* Results overlay: glass cards + reaction time distribution */
+        
         #rtResults {
             display: none;
             position: fixed;
@@ -260,7 +260,7 @@
     <script src="../../script.js"></script>
     <script>
         const MAX_ATTEMPTS = 5;
-        let state = 'idle'; // idle | waiting | go | result | toosoon
+        let state = 'idle'; 
         let timer = null, startTime = null;
         let attempts = [];
         let lastRound = [];
@@ -293,7 +293,7 @@
             const yourCard = document.getElementById('yourCard');
             const pixelCard = document.getElementById('pixelCard');
             document.getElementById('yourBest').textContent = best;
-            // Pixel's reaction time varies between 120-190ms every round
+            
             const pixelMs = 120 + Math.floor(Math.random() * 71);
             document.getElementById('pixelVal').textContent = pixelMs;
 
@@ -303,14 +303,14 @@
                 c.classList.add('pop');
             });
 
-            // Lower ms wins
+            
             yourCard.classList.toggle('winner', best <= pixelMs);
             pixelCard.classList.toggle('winner', pixelMs < best);
         }
 
         zone.addEventListener('click', () => {
             if (state === 'idle' || state === 'result' || state === 'toosoon') {
-                // Start a new attempt
+                
                 clearTimeout(timer);
                 setState('waiting');
                 setZoneText('Wait...', 'Do not click yet!');
@@ -321,7 +321,7 @@
                     setZoneText('CLICK!', 'Go go go!');
                 }, delay);
             } else if (state === 'waiting') {
-                // Clicked too early
+                
                 clearTimeout(timer);
                 setState('toosoon');
                 setZoneText('Too Soon!', 'Click to try again');
@@ -375,7 +375,7 @@
             setZoneText('Click to Start', 'React when it turns green');
         }
 
-        // Reaction time distribution: synthetic crowd of 420 people, you & Pixel marked
+        
         function drawRtGraph(youMs, pixelMs) {
             function gauss(mean, sd) {
                 let u = 0, v = 0;
@@ -395,7 +395,7 @@
             people.forEach(ms => bins[Math.min(bins.length - 1, Math.floor(ms / BIN))]++);
 
             const cv = document.getElementById('rtGraph');
-            // Exact 1:1 sizing: measure parent CONTENT box and match bitmap to CSS size
+            
             const cs = getComputedStyle(cv.parentElement);
             const cssW = Math.max(280, Math.round(
                 cv.parentElement.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
@@ -514,7 +514,7 @@
 
         function goBack() { window.location.href = '../index.html'; }
 
-        // Initial state
+        
         setState('idle');
     </script>
     <script src="../../music-player.js"></script>

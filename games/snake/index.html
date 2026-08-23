@@ -135,11 +135,11 @@
     function drawGame(g, isAI) {
         const { ctx, snake, food } = g;
         ctx.clearRect(0, 0, COLS*CELL, ROWS*CELL);
-        // Grid
+        
         ctx.fillStyle = '#252525';
         ctx.fillRect(0, 0, COLS*CELL, ROWS*CELL);
 
-        // Food: animated pulsing red point
+        
         const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 160);
         const foodR = (CELL / 2 - 2) * (0.72 + 0.38 * pulse);
         ctx.save();
@@ -151,7 +151,7 @@
         ctx.fill();
         ctx.restore();
 
-        // Snake
+        
         snake.forEach((s, i) => {
             ctx.fillStyle = i === 0 ? (isAI ? '#e67e22' : '#3d9970') : (isAI ? 'rgba(230,126,34,0.5)' : 'rgba(61,153,112,0.5)');
             ctx.fillRect(s.x*CELL + 1, s.y*CELL + 1, CELL - 2, CELL - 2);
@@ -181,7 +181,7 @@
         } else { g.snake.pop(); }
     }
 
-    // Greedy AI for Pixel (human-like, can die occasionally)
+    
     function aiMove(g) {
         if (g.dead) return;
         const head = g.snake[0];
@@ -214,7 +214,7 @@
         aiGame = createGame('aiCanvas');
 
         const playerSpeed = 120;
-        const aiSpeed = 135; // Pixel plays at human-like speed
+        const aiSpeed = 135; 
 
         gameInterval = setInterval(() => {
             stepGame(playerGame);
@@ -260,25 +260,25 @@
         document.getElementById('yourScore').textContent = 0;
         document.getElementById('aiScore').textContent = 0;
 
-        // Redraw preview boards
+        
         renderPreview();
         document.getElementById('gameMsg').textContent = 'Use arrow keys or WASD';
     }
 
-    // Controls
+    
     const keyMap = { ArrowUp:{x:0,y:-1}, ArrowDown:{x:0,y:1}, ArrowLeft:{x:-1,y:0}, ArrowRight:{x:1,y:0}, w:{x:0,y:-1}, s:{x:0,y:1}, a:{x:-1,y:0}, d:{x:1,y:0} };
     document.addEventListener('keydown', e => {
         const d = keyMap[e.key];
         if (!d || !playerGame) return;
         e.preventDefault();
-        // Prevent reversing
+        
         if (d.x !== -playerGame.dir.x || d.y !== -playerGame.dir.y) {
             playerGame.nextDir = d;
         }
     });
 
-    // Animated pre-start preview: both boards show live snakes & pulsing food
-    // instead of sitting as empty gray boxes. The loop stops itself once a game runs.
+    
+    
     let previewRaf = null;
     function stopPreview() {
         if (previewRaf) { cancelAnimationFrame(previewRaf); previewRaf = null; }
@@ -295,7 +295,7 @@
         };
         loop();
     }
-    try { renderPreview(); } catch (err) { /* boards stay static rather than breaking the page */ }
+    try { renderPreview(); } catch (err) {  }
     </script>
     <script src="../../music-player.js"></script>
 </body>

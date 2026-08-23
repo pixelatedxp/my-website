@@ -122,12 +122,12 @@
             });
         });
 
-        // Restore previous playback position and state
+        
         var saved = loadState();
         if (saved && saved.time > 0) {
             audio.currentTime = saved.time;
             if (saved.playing && !saved.paused) {
-                // Try to resume playback
+                
                 tryStart();
             }
         } else if (autoplay) {

@@ -102,7 +102,7 @@
             width: 100%;
         }
 
-        /* Results overlay */
+        
         #results {
             display: none;
             position: absolute;
@@ -301,18 +301,18 @@
             const alpha = Math.max(0, 1 - progress * 0.4);
 
             ctx.save();
-            // Outer ring
+            
             ctx.strokeStyle = `rgba(192, 57, 43, ${alpha})`;
             ctx.lineWidth = 2;
             ctx.beginPath(); ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2); ctx.stroke();
-            // Middle ring
+            
             ctx.strokeStyle = `rgba(231, 76, 60, ${alpha})`;
             ctx.lineWidth = 1.5;
             ctx.beginPath(); ctx.arc(t.x, t.y, t.r * 0.6, 0, Math.PI * 2); ctx.stroke();
-            // Center dot
+            
             ctx.fillStyle = `rgba(231, 76, 60, ${alpha})`;
             ctx.beginPath(); ctx.arc(t.x, t.y, t.r * 0.2, 0, Math.PI * 2); ctx.fill();
-            // Crosshair lines
+            
             ctx.strokeStyle = `rgba(231, 76, 60, ${alpha * 0.7})`;
             ctx.lineWidth = 1;
             ctx.beginPath();
@@ -369,7 +369,7 @@
             document.getElementById('yourScore').textContent = score;
             document.getElementById('yourAcc').textContent = acc + ' acc';
 
-            // Determine winners
+            
             const scores = [
                 { id: 'yourCard', s: score },
                 { id: 'pixelCard', s: 44 },
