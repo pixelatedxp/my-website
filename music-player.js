@@ -58,6 +58,30 @@
         var toggleBtn = document.getElementById('musicToggle');
         var userPaused = false;
         var playToken = 0;
+        var STORAGE_KEY = 'musicPlayerState';
+
+        function saveState() {
+            try {
+                sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    time: audio.currentTime,
+                    playing: !audio.paused,
+                    paused: userPaused
+                }));
+            } catch (e) {}
+        }
+
+        function loadState() {
+            try {
+                var raw = sessionStorage.getItem(STORAGE_KEY);
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) { return null; }
+        }
+
+        audio.addEventListener('timeupdate', function () {
+            if (!audio.paused) saveState();
+        });
+        audio.addEventListener('pause', saveState);
+        audio.addEventListener('play', saveState);
 
         function setPlayingUI(isPlaying) {
             player.classList.toggle('playing', isPlaying);
@@ -98,7 +122,15 @@
             });
         });
 
-        if (autoplay) {
+        // Restore previous playback position and state
+        var saved = loadState();
+        if (saved && saved.time > 0) {
+            audio.currentTime = saved.time;
+            if (saved.playing && !saved.paused) {
+                // Try to resume playback
+                tryStart();
+            }
+        } else if (autoplay) {
             var interactionEvents = ['pointerdown', 'keydown', 'touchstart'];
             var startOnInteraction = function (e) {
                 interactionEvents.forEach(function (ev) { document.removeEventListener(ev, startOnInteraction); });
