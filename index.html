@@ -38,22 +38,24 @@
     </header>
     <main class="container">
         <hr class="nav-divider fade-up-initial">
-        <section class="card section fade-up-initial" id="about">
-            <div class="card-content">
-                <h2 class="mono-label glitch-text" data-text="[about]">[about]</h2>
-                <h1 class="main-heading">Hi, I'm Pixel.</h1>
-                <p class="bio-text">Hi, I'm Pixel. I'm chopped, I'm a teenager, and I code some stuff that absolutely nobody needs, but it's fun to make, so yeah, fuck you. I don't care if you don't like my stuff.</p>
-                <p class="bio-text" style="margin-top: 15px;">Anyways, I get no baddies, but it's fine because I can always go home and game. Lowkey got some friends, but no baddies, and girls think I'm chopped.</p>
-                <p class="bio-text" style="margin-top: 15px;">Anddd I do NOT study ONE BIT, so STOP MAKING FUN OF MY A,B,B. IT'S GOOD BECAUSE I DIDN'T STUDY FOR THE EXAM I SWEARRRR.</p>
-                <p class="bio-text" style="margin-top: 15px;">I code shit. I game. I don't study. Life is good.</p>
-            </div>
-        </section>
-        <section class="card section fade-up" id="sticky" style="max-width: 340px; padding: 20px 24px; margin-top: -10px;">
-            <div class="card-content">
-                <h2 class="mono-label glitch-text" data-text="[sticky]">[sticky]</h2>
-                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px; padding-left: 16px; position: relative; line-height: 1.5;"><span style="position: absolute; left: 0; color: #3d9970; font-family: var(--font-mono); font-weight: bold;">></span>lowkey pretty sad right now, kinda miss them, it was fun talking, got no one to rlly talk to like I had b4.</p>
-            </div>
-        </section>
+        <div style="display: flex; gap: 16px; align-items: flex-start;">
+            <section class="card section fade-up-initial" id="about" style="flex: 1; min-width: 0;">
+                <div class="card-content">
+                    <h2 class="mono-label glitch-text" data-text="[about]">[about]</h2>
+                    <h1 class="main-heading">Hi, I'm Pixel.</h1>
+                    <p class="bio-text">Hi, I'm Pixel. I'm chopped, I'm a teenager, and I code some stuff that absolutely nobody needs, but it's fun to make, so yeah, fuck you. I don't care if you don't like my stuff.</p>
+                    <p class="bio-text" style="margin-top: 15px;">Anyways, I get no baddies, but it's fine because I can always go home and game. Lowkey got some friends, but no baddies, and girls think I'm chopped.</p>
+                    <p class="bio-text" style="margin-top: 15px;">Anddd I do NOT study ONE BIT, so STOP MAKING FUN OF MY A,B,B. IT'S GOOD BECAUSE I DIDN'T STUDY FOR THE EXAM I SWEARRRR.</p>
+                    <p class="bio-text" style="margin-top: 15px;">I code shit. I game. I don't study. Life is good.</p>
+                </div>
+            </section>
+            <section class="card section fade-up" id="sticky" style="max-width: 280px; padding: 20px 24px; flex-shrink: 0;">
+                <div class="card-content">
+                    <h2 class="mono-label glitch-text" data-text="[sticky]">[sticky]</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px; padding-left: 16px; position: relative; line-height: 1.5;"><span style="position: absolute; left: 0; color: #3d9970; font-family: var(--font-mono); font-weight: bold;">></span>lowkey pretty sad right now, kinda miss them, it was fun talking, got no one to rlly talk to like I had b4.</p>
+                </div>
+            </section>
+        </div>
         <section class="card section fade-up" id="projects">
             <div class="card-content">
                 <div class="section-header">
