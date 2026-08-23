@@ -12,8 +12,7 @@
     <style>
         * { cursor: none !important; }
         html { height: 100%; }
-        body { display: flex; flex-direction: column; height: 100vh; overflow-y: hidden; }
-        html.results-open, html.results-open body { height: auto; min-height: 100%; overflow-x: hidden; overflow-y: auto; }
+        body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         .navbar { display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 0 40px !important; flex-shrink: 0; width: 100%; box-sizing: border-box; }
 
         .game-area {
@@ -111,15 +110,28 @@
 
         .hint { font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; color: rgba(255,255,255,0.25); }
 
-        /* Results: scroll-down glass section */
+        /* Results: fixed overlay matching sequence memory style */
         .results-section {
             display: none;
-            padding: 10px 40px 70px;
+            position: fixed;
+            inset: 0;
+            background: rgba(8,8,12,0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+            font-family: 'Share Tech Mono', monospace;
+            color: #fff;
+            z-index: 10;
+            padding: 20px;
+            overflow: auto;
         }
-        .results-section.visible { display: block; }
+        .results-section.visible { display: flex; }
         .results-inner {
             max-width: 860px;
-            margin: 0 auto;
+            width: 100%;
             display: flex;
             flex-direction: column;
             gap: 24px;
@@ -128,31 +140,29 @@
         }
         .results-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
         .glass-result-card {
-            background: rgba(255,255,255,0.045);
+            background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.09);
             border-radius: 16px;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             padding: 26px;
             text-align: center;
             opacity: 0;
-            transform: translateY(26px);
-            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateY(22px) scale(0.97);
         }
-        .glass-result-card.show { opacity: 1; transform: translateY(0); }
+        .glass-result-card.show { opacity: 1; transform: translateY(0) scale(1); }
         .results-inner h2 {
             opacity: 0;
             transform: translateY(18px);
-            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .results-inner h2.show { opacity: 1; transform: translateY(0); }
-        .glass-result-card.winner { border-color: #3d9970; box-shadow: 0 0 34px rgba(61,153,112,0.18); }
+        .glass-result-card.winner { border-color: #3d9970; box-shadow: 0 0 34px rgba(61,153,112,0.2); }
         .glass-result-card .name { font-size: 0.8rem; color: #888; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.08em; }
         .glass-result-card .wpm-big { font-size: 2.4rem; line-height: 1; color: #fff; }
         .glass-result-card .sub { font-size: 0.75rem; color: #666; margin-top: 6px; }
         .graph-card { text-align: left; }
         .graph-label { display: block; margin-bottom: 14px; }
-        #wpmGraph { width: 100%; height: 220px; display: block; }
+        #wpmGraph { width: 100%; height: 280px; display: block; }
         .graph-legend { display: block; margin-top: 12px; color: #777; }
         .results-duo { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; align-items: start; }
         .results-duo .graph-card { grid-column: 1; }
@@ -173,11 +183,10 @@
             font-family: 'Share Tech Mono', monospace;
             font-size: 0.9rem;
             font-weight: bold;
-            transition: all 0.2s;
             opacity: 0;
             transform: translateY(18px);
         }
-        .btn-retry.show { opacity: 1; transform: translateY(0); transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.55s, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.55s, background 0.2s; }
+        .btn-retry.show { opacity: 1; transform: translateY(0); }
         .btn-retry:hover { background: #2ecc71; }
     </style>
 </head>
@@ -325,7 +334,6 @@
         let pixelEffWpm = 85;
 
         function setupGame() {
-            document.documentElement.classList.remove('results-open');
             const resSection = document.getElementById('results');
             resSection.classList.remove('visible');
             resSection.querySelectorAll('.glass-result-card').forEach(c => c.classList.remove('show', 'winner'));
@@ -357,7 +365,7 @@
                     html += `<span class="char correct">${text[ti]}</span>`;
                     ti++;
                 } else {
-                    html += `<span class="char wrong">${typed[pi]}</span>`;
+                    html += `<span class="char wrong">${text[ti]}</span>`;
                 }
             }
             for (let k = ti; k < text.length; k++) {
@@ -438,7 +446,6 @@
             const best = Math.max(...scores.map(x => x.s));
             scores.forEach(x => document.getElementById(x.id).classList.toggle('winner', x.s === best));
 
-            document.documentElement.classList.add('results-open');
             const resSection = document.getElementById('results');
             resSection.classList.remove('visible');
             void resSection.offsetWidth;
@@ -449,9 +456,6 @@
                 });
                 document.querySelector('#results .btn-retry').classList.add('show');
             }, 250);
-            setTimeout(() => {
-                document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 350);
 
             // Draw only after the section is laid out: measuring while display:none returns width 0
             drawWpmGraph(wpm, finalPixelWpm);
@@ -482,7 +486,7 @@
                 cv.parentElement.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
             ));
             const dpr = window.devicePixelRatio || 1;
-            const cssH = 230;
+            const cssH = 280;
             cv.style.width = cssW + 'px';
             cv.style.height = cssH + 'px';
             cv.width = Math.round(cssW * dpr);
