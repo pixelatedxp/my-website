@@ -343,9 +343,9 @@ body::before {
     color: var(--accent-teal);
 }
 .side-sticky-note {
-    position: absolute;
+    position: fixed;
     right: 20px;
-    top: 20px;
+    top: 20%;
     width: 200px;
     min-height: 160px;
     background-color: #fff799;
