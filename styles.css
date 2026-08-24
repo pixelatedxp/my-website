@@ -344,15 +344,15 @@ body::before {
 }
 .side-sticky-note {
     position: fixed;
-    right: 20px;
+    right: 30px;
     top: 20%;
     width: 200px;
     min-height: 160px;
-    background-color: #fff799;
-    box-shadow: -3px 4px 10px rgba(0, 0, 0, 0.3);
+    background-color: #ffeaa7;
+    box-shadow: 2px 4px 16px rgba(0, 0, 0, 0.25);
     padding: 15px;
-    border-radius: 8px 0 0 8px;
-    z-index: 2;
+    border-radius: 10px;
+    z-index: 9999;
     font-family: 'Share Tech Mono', monospace;
 }
 .note-header {
