@@ -34,10 +34,10 @@
         player.className = 'music-player';
         player.id = 'musicPlayer';
         player.innerHTML =
-            '<img src="' + prefix + 'assets/music/thumb.jpg" alt="Never Been With A Baddie" class="music-thumb" draggable="false">' +
+            '<img src="' + prefix + 'assets/music/thumb.jpg" alt="Im Doing Fine" class="music-thumb" draggable="false">' +
             '<div class="music-info">' +
                 '<span class="music-label">[now playing]</span>' +
-                '<span class="music-track">Never Been With A Baddie</span>' +
+                '<span class="music-track">Im Doing Fine</span>' +
                 '<div class="music-eq"><span></span><span></span><span></span><span></span></div>' +
             '</div>' +
             '<button class="music-toggle" id="musicToggle" aria-label="Play or pause music">' +
