@@ -344,7 +344,7 @@ body::before {
 }
 .side-sticky-note {
     position: absolute;
-    right: -200px;
+    right: 20px;
     top: 20px;
     width: 200px;
     min-height: 160px;
