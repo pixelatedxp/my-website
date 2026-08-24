@@ -342,8 +342,39 @@ body::before {
 .card-link:hover {
     color: var(--accent-teal);
 }
+.side-sticky-note {
+    position: absolute;
+    right: -200px;
+    top: 20px;
+    width: 200px;
+    min-height: 160px;
+    background-color: #fff799;
+    box-shadow: -3px 4px 10px rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    border-radius: 8px 0 0 8px;
+    z-index: 2;
+    font-family: 'Share Tech Mono', monospace;
+}
+.note-header {
+    font-weight: bold;
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 4px;
+    border-bottom: 1px dashed #ccc;
+    padding-bottom: 5px;
+}
+.note-date {
+    font-size: 0.7rem;
+    color: #999;
+    margin-bottom: 8px;
+}
+.note-body {
+    font-size: 0.8rem;
+    color: #333;
+    line-height: 1.5;
+}
 @media (max-width: 600px) {
-    #sticky { position: static !important; width: 100% !important; max-width: none !important; margin-top: 12px; }
+    #sticky { position: static !important; width: 100% !important; max-width: none !important; margin-top: 12px; right: auto !important; }
     .navbar {
         flex-direction: column;
         gap: 16px;
