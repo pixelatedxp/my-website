@@ -48,7 +48,7 @@
 
         var audio = document.createElement('audio');
         audio.id = 'siteAudio';
-        audio.src = prefix + 'assets/music/never-been-with-a-baddie.mp3';
+        audio.src = prefix + 'assets/music/im-doing-fine.mp3';
         audio.loop = true;
         audio.preload = 'auto';
         document.body.appendChild(audio);
