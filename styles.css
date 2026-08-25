@@ -374,7 +374,7 @@ body::before {
     line-height: 1.5;
 }
 @media (max-width: 600px) {
-    #sticky { position: static !important; width: 100% !important; max-width: none !important; margin-top: 12px; right: auto !important; }
+    .side-sticky-note { position: static !important; width: 100% !important; max-width: none !important; margin-top: 12px; right: auto !important; top: auto !important; }
     .navbar {
         flex-direction: column;
         gap: 16px;
