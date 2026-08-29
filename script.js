@@ -149,6 +149,7 @@
         const ctx = canvas.getContext('2d');
         let particles = [];
         let animFrame;
+        let snowIntensity = 1;
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -190,7 +191,7 @@
         }
         function initSnow() {
             particles = [];
-            const count = Math.min(Math.floor(window.innerWidth / 8), 150);
+            const count = Math.min(Math.floor(window.innerWidth / 8), 150) * snowIntensity;
             for (let i = 0; i < count; i++) {
                 particles.push(new Snowflake());
             }
@@ -262,6 +263,20 @@
                 }
             }
         });
+        window.addEventListener('easteregg:snowstorm', () => {
+            if (!snowEnabled) {
+                startSnow();
+                localStorage.setItem('snowEnabled', 'true');
+            }
+            snowIntensity = 4;
+            initSnow();
+            canvas.classList.add('snowstorm');
+            window.setTimeout(() => {
+                snowIntensity = 1;
+                initSnow();
+                canvas.classList.remove('snowstorm');
+            }, 15000);
+        });
     }
 });
 function copyEmail(element) {
@@ -306,4 +321,13 @@ function bindImageZoom() {
 }
 document.addEventListener('DOMContentLoaded', bindImageZoom);
 bindImageZoom();
+
+(function loadEasterEggs() {
+    var current = document.currentScript;
+    if (!current || !current.src || document.querySelector('script[data-pixelis-eggs]')) return;
+    var eggs = document.createElement('script');
+    eggs.src = new URL('easter-eggs.js', current.src).href;
+    eggs.dataset.pixelisEggs = 'true';
+    document.head.appendChild(eggs);
+})();
 
