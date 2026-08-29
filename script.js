@@ -183,7 +183,8 @@
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                const snowColor = document.body.classList.contains('light-mode') ? '0, 0, 0' : '255, 255, 255';
+                ctx.fillStyle = `rgba(${snowColor}, ${this.opacity})`;
                 ctx.fill();
             }
         }
