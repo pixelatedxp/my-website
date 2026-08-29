@@ -34,10 +34,10 @@
         player.className = 'music-player';
         player.id = 'musicPlayer';
         player.innerHTML =
-            '<img src="' + prefix + 'assets/music/thumb.jpg" alt="Im Doing Fine" class="music-thumb" draggable="false">' +
+            '<img src="' + prefix + 'assets/music/thumb.jpg" alt="s0rrow - unhappy" class="music-thumb" draggable="false">' +
             '<div class="music-info">' +
                 '<span class="music-label">[now playing]</span>' +
-                '<span class="music-track">Im Doing Fine</span>' +
+                '<span class="music-track">s0rrow - unhappy</span>' +
                 '<div class="music-eq"><span></span><span></span><span></span><span></span></div>' +
             '</div>' +
             '<button class="music-toggle" id="musicToggle" aria-label="Play or pause music">' +
@@ -48,7 +48,7 @@
 
         var audio = document.createElement('audio');
         audio.id = 'siteAudio';
-        audio.src = prefix + 'assets/music/im-doing-fine.mp3';
+        audio.src = prefix + 'assets/music/s0rrow-unhappy.mp3';
         audio.loop = true;
         audio.preload = 'auto';
         document.body.appendChild(audio);
