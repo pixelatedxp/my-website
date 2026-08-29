@@ -48,11 +48,6 @@ body.dark-mode {
     --vignette: var(--vignette-dark);
     --doodle-color: #ffffff;
 }
-body.egg-purple {
-    --accent-teal: #a855f7;
-    --accent-teal-hover: #c084fc;
-    --vignette: radial-gradient(circle at center, transparent 35%, rgba(168, 85, 247, 0.16) 100%);
-}
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
@@ -517,16 +512,8 @@ body::before {
 .egg-doodle-label { position: absolute; left: 50%; bottom: 8%; transform: translateX(-50%); color: #f5c542; font: .8rem var(--font-mono); white-space: nowrap; }
 .egg-heart { position: fixed; z-index: 1000002; pointer-events: none; color: #ff5c9a; font-size: 24px; animation: eggHeart 1.4s ease-out forwards; }
 @keyframes eggHeart { to { opacity: 0; transform: translateY(-90px) rotate(20deg) scale(1.5); } }
-body.egg-overdrive { animation: eggJolt .14s steps(2) infinite; }
-body.egg-overdrive::after { content: ''; position: fixed; inset: 0; z-index: 999999; pointer-events: none; background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(60, 167, 203, .12) 4px); mix-blend-mode: screen; }
-@keyframes eggJolt { 50% { filter: hue-rotate(10deg) saturate(1.25); } }
 #snowfall.snowstorm { filter: drop-shadow(0 0 3px var(--doodle-color)); }
 .egg-rare-note { position: fixed; right: 24px; top: 110px; z-index: 8000; width: 190px; padding: 14px; transform: rotate(3deg); border: 1px solid rgba(0, 0, 0, .15); background: #fff3a6; color: #27231a; box-shadow: 0 8px 24px rgba(0, 0, 0, .2); font: .78rem/1.4 var(--font-mono); }
 .egg-speech { position: fixed; z-index: 1000002; max-width: 220px; padding: 9px 12px; border: 1px solid var(--accent-teal); border-radius: 12px 12px 12px 2px; background: var(--card-bg); color: var(--text-primary); font: .75rem var(--font-mono); animation: eggToast 4s ease forwards; pointer-events: none; }
-.egg-redacted { cursor: pointer; user-select: none; }
-.egg-redacted .egg-secret-copy { display: none; }
-.egg-redacted.revealed .egg-censored { display: none; }
-.egg-redacted.revealed .egg-secret-copy { display: list-item; }
-.brand.egg-logo-glitch { color: var(--accent-teal); text-shadow: 2px 0 #ff4d8d, -2px 0 #4de8ff; }
-@media (prefers-reduced-motion: reduce) { body.egg-overdrive, .egg-toast, .egg-heart { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .egg-toast, .egg-heart { animation: none; } }
 

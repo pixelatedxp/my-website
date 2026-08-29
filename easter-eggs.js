@@ -103,21 +103,8 @@
 
     function initKeyboardEggs(openTerminal) {
         var typed = '';
-        var konami = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
-        var konamiIndex = 0;
         document.addEventListener('keydown', function (event) {
             var key = event.key.toLowerCase();
-            if (key === konami[konamiIndex]) {
-                konamiIndex++;
-                if (konamiIndex === konami.length) {
-                    konamiIndex = 0;
-                    document.body.classList.add('egg-overdrive');
-                    unlock('overdrive', 'glitch overdrive');
-                    window.setTimeout(function () { document.body.classList.remove('egg-overdrive'); }, 18000);
-                }
-            } else {
-                konamiIndex = key === konami[0] ? 1 : 0;
-            }
             var target = event.target;
             if (target && (target.matches('input, textarea, [contenteditable="true"]') || event.ctrlKey || event.metaKey || event.altKey)) return;
             if (key.length === 1) typed = (typed + key).slice(-5);
@@ -157,24 +144,6 @@
         }
     }
 
-    function initThemeEgg() {
-        if (localStorage.getItem('pixelisPurpleTheme') === 'true') document.body.classList.add('egg-purple');
-        var toggle = document.getElementById('themeToggle');
-        if (!toggle) return;
-        var clicks = [];
-        toggle.addEventListener('click', function () {
-            var now = Date.now();
-            clicks.push(now);
-            clicks = clicks.filter(function (time) { return now - time < 3200; });
-            if (clicks.length >= 7) {
-                clicks = [];
-                document.body.classList.toggle('egg-purple');
-                localStorage.setItem('pixelisPurpleTheme', document.body.classList.contains('egg-purple'));
-                unlock('purple', 'forbidden purple theme');
-            }
-        });
-    }
-
     function initSnowstorm() {
         var toggle = document.getElementById('snowToggle');
         if (!toggle) return;
@@ -199,28 +168,6 @@
                 held = false;
             }
         }, true);
-    }
-
-    function initLogo() {
-        var brand = document.querySelector('.brand');
-        if (!brand || !document.getElementById('goatDoodle')) return;
-        var original = brand.textContent;
-        var names = ['pixelis.dev', 'probably-not-a-virus.exe', 'homework-later.dev', 'still pixel.'];
-        var count = 0;
-        var resetTimer;
-        brand.addEventListener('click', function (event) {
-            event.preventDefault();
-            window.clearTimeout(resetTimer);
-            count++;
-            brand.textContent = names[count % names.length];
-            brand.classList.add('egg-logo-glitch');
-            if (count >= 5) { unlock('logo', 'identity carousel'); count = 0; }
-            resetTimer = window.setTimeout(function () {
-                brand.textContent = original;
-                brand.classList.remove('egg-logo-glitch');
-                count = 0;
-            }, 1800);
-        });
     }
 
     function initMusicSecret() {
@@ -285,23 +232,6 @@
         });
     }
 
-    function initRedactedLog() {
-        if (!/changelog/i.test(window.location.pathname)) return;
-        var first = document.querySelector('.changelog-entry');
-        if (!first || !first.parentNode) return;
-        var entry = document.createElement('div');
-        entry.className = 'changelog-entry fade-up egg-redacted';
-        entry.innerHTML = '<div class="changelog-dot"></div><div class="changelog-date">[REDACTED] UTC</div>' +
-            '<div class="changelog-title">Classified Maintenance</div><ul class="changelog-list">' +
-            '<li class="egg-censored">██████████████████████████████</li>' +
-            '<li class="egg-secret-copy">Added things that definitely do not exist. You saw nothing.</li></ul>';
-        first.parentNode.insertBefore(entry, first);
-        entry.addEventListener('click', function () {
-            entry.classList.add('revealed');
-            unlock('redacted', 'security clearance: questionable');
-        });
-    }
-
     function initExplorer() {
         var sections = Array.prototype.slice.call(document.querySelectorAll('main section[id]'));
         if (sections.length < 3 || !('IntersectionObserver' in window)) return;
@@ -328,18 +258,14 @@
     function init() {
         if (window.__pixelisEggsLoaded) return;
         window.__pixelisEggsLoaded = true;
-        if (localStorage.getItem('pixelisPurpleTheme') === 'true') document.body.classList.add('egg-purple');
         var openTerminal = initTerminal();
         initKeyboardEggs(openTerminal);
         initDoodles();
-        initThemeEgg();
         initSnowstorm();
-        initLogo();
         initMusicSecret();
         initRareNote();
         initCursorHeart();
         initHallSecret();
-        initRedactedLog();
         initExplorer();
         initArcadeVisits();
     }
