@@ -413,4 +413,81 @@ body::before {
 .glitch-text {
     display: inline-block;
 }
+.goat-doodle {
+    position: absolute;
+    right: calc(100% + 10px);
+    left: auto;
+    width: 420px;
+    height: 196px;
+    pointer-events: none;
+    z-index: 9999;
+}
+.goat-doodle svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+.crayon {
+    fill: none;
+    stroke: white;
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: url(#rough);
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+}
+.goat-doodle.animate .G { animation: draw .18s linear forwards; }
+.goat-doodle.animate .O { animation: draw .18s linear .16s forwards; }
+.goat-doodle.animate .A { animation: draw .24s linear .32s forwards; }
+.goat-doodle.animate .T { animation: draw .22s linear .52s forwards; }
+.goat-doodle.animate .line { animation: draw .9s ease-out .70s forwards; }
+.goat-doodle.animate .arrow { animation: draw .12s linear 1.55s forwards; }
+@keyframes draw {
+    to { stroke-dashoffset: 0; }
+}
+@media (max-width: 1000px) {
+    .goat-doodle {
+        display: none;
+    }
+}
+.simp-doodle {
+    position: absolute;
+    right: calc(100% + 12px);
+    left: auto;
+    width: 340px;
+    height: 159px;
+    transform: translateY(-50%) rotate(-4deg);
+    pointer-events: none;
+    z-index: 9999;
+}
+.simp-doodle svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+.simp-crayon {
+    fill: none;
+    stroke: white;
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: url(#simpRough);
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+}
+.simp-doodle.animate .simp-S { animation: simpDraw .16s linear forwards; }
+.simp-doodle.animate .simp-I { animation: simpDraw .12s linear .13s forwards; }
+.simp-doodle.animate .simp-M { animation: simpDraw .18s linear .23s forwards; }
+.simp-doodle.animate .simp-P { animation: simpDraw .16s linear .38s forwards; }
+.simp-doodle.animate .simp-line { animation: simpDraw .78s ease-out .52s forwards; }
+.simp-doodle.animate .simp-arrow { animation: simpDraw .12s linear 1.24s forwards; }
+@keyframes simpDraw {
+    to { stroke-dashoffset: 0; }
+}
+@media (max-width: 1000px) {
+    .simp-doodle {
+        display: none;
+    }
+}
 
