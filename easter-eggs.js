@@ -155,7 +155,7 @@
                 held = true;
                 window.dispatchEvent(new CustomEvent('easteregg:snowstorm'));
                 unlock('snowstorm', 'weather warning');
-                toast('[system] snowstorm active for 15 seconds');
+                toast('[system] snowstorm rolling in...');
             }, 3000);
         }
         function cancel() { window.clearTimeout(timer); }

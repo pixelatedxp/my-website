@@ -150,6 +150,8 @@
         let particles = [];
         let animFrame;
         let snowIntensity = 1;
+        let stormRampTimer;
+        let stormHoldTimer;
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -157,8 +159,9 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
         class Snowflake {
-            constructor() {
+            constructor(entering = false) {
                 this.reset();
+                if (entering) this.y = -this.size - (Math.random() * 30);
             }
             reset() {
                 this.x = Math.random() * canvas.width;
@@ -189,12 +192,45 @@
                 ctx.fill();
             }
         }
+        function baseSnowCount() {
+            return Math.min(Math.floor(window.innerWidth / 8), 150);
+        }
         function initSnow() {
             particles = [];
-            const count = Math.min(Math.floor(window.innerWidth / 8), 150) * snowIntensity;
+            const count = Math.round(baseSnowCount() * snowIntensity);
             for (let i = 0; i < count; i++) {
                 particles.push(new Snowflake());
             }
+        }
+        function setSnowIntensity(intensity) {
+            snowIntensity = intensity;
+            const desiredCount = Math.round(baseSnowCount() * snowIntensity);
+            while (particles.length < desiredCount) particles.push(new Snowflake(true));
+            if (particles.length > desiredCount) particles.splice(desiredCount);
+        }
+        function rampSnow(toIntensity, duration, onComplete) {
+            if (stormRampTimer) clearInterval(stormRampTimer);
+            const fromIntensity = snowIntensity;
+            const steps = Math.max(1, Math.round(duration / 250));
+            let step = 0;
+            stormRampTimer = setInterval(() => {
+                step++;
+                const progress = step / steps;
+                setSnowIntensity(fromIntensity + ((toIntensity - fromIntensity) * progress));
+                if (step >= steps) {
+                    clearInterval(stormRampTimer);
+                    stormRampTimer = null;
+                    if (onComplete) onComplete();
+                }
+            }, 250);
+        }
+        function cancelStorm() {
+            if (stormRampTimer) clearInterval(stormRampTimer);
+            if (stormHoldTimer) clearTimeout(stormHoldTimer);
+            stormRampTimer = null;
+            stormHoldTimer = null;
+            snowIntensity = 1;
+            canvas.classList.remove('snowstorm');
         }
         function animateSnow() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -216,6 +252,7 @@
         }
         function stopSnow() {
             snowEnabled = false;
+            cancelStorm();
             canvas.style.display = 'none';
             if (animFrame) {
                 cancelAnimationFrame(animFrame);
@@ -268,14 +305,13 @@
                 startSnow();
                 localStorage.setItem('snowEnabled', 'true');
             }
-            snowIntensity = 4;
-            initSnow();
+            if (stormHoldTimer) clearTimeout(stormHoldTimer);
             canvas.classList.add('snowstorm');
-            window.setTimeout(() => {
-                snowIntensity = 1;
-                initSnow();
-                canvas.classList.remove('snowstorm');
-            }, 15000);
+            rampSnow(4, 6000, () => {
+                stormHoldTimer = setTimeout(() => {
+                    rampSnow(1, 6000, () => canvas.classList.remove('snowstorm'));
+                }, 9000);
+            });
         });
     }
 });
