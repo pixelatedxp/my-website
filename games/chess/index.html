@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="../../assets/favicon.png">
     <link rel="stylesheet" href="../../styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+    <link rel="stylesheet" href="vendor/chessboard-1.0.0.min.css">
 
     <style>
         
@@ -25,10 +25,7 @@
             box-sizing: border-box;
         }
 
-        html, body {
-            height: 100%;
-            overflow: hidden;
-        }
+        html, body { min-height: 100%; }
 
         body {
             display: flex;
@@ -43,13 +40,12 @@
             justify-content: center;
             gap: 30px;
             padding: 10px 20px;
-            overflow: hidden;
-            zoom: 0.85;
+            overflow: auto;
         }
 
         
         #myBoard {
-            width: 460px;
+            width: min(460px, 78vw);
             flex-shrink: 0;
             border: 8px solid #222;
             border-radius: 6px;
@@ -194,7 +190,7 @@
             border: 2px solid rgba(255,255,255,0.05);
             position: relative;
             overflow: hidden;
-            display: none; 
+            display: flex;
             flex-direction: column;
             justify-content: flex-end;
         }
@@ -351,6 +347,16 @@
             background: #2ecc71;
             box-shadow: 0 6px 20px rgba(61, 153, 112, 0.6);
         }
+
+        @media (max-width: 900px) {
+            body { overflow: auto; }
+            .chess-page { flex-direction: column; justify-content: flex-start; padding: 28px 14px 110px; overflow: visible; }
+            .game-panel { width: min(100%, 500px); height: 430px; }
+            .board-wrapper { width: min(100%, 510px); }
+            .board-main { min-width: 0; flex: 1; }
+            #myBoard { width: 100%; box-sizing: border-box; }
+            .cc-link { position: static; align-self: center; margin-bottom: 24px; }
+        }
     </style>
 </head>
 <body class="dark-mode">
@@ -444,7 +450,7 @@
                 <div class="eval-toggle-wrapper">
                     <span>Eval</span>
                     <label class="switch">
-                        <input type="checkbox" id="evalToggle">
+                        <input type="checkbox" id="evalToggle" checked>
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -459,18 +465,18 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+    <script src="vendor/jquery-3.5.1.min.js"></script>
+    <script src="vendor/chess-0.10.3.min.js"></script>
+    <script src="vendor/chessboard-1.0.0.min.js"></script>
 
-    <script src="chess-logic.js?v=3"></script>
+    <script src="chess-logic.js?v=5"></script>
 
-    <script src="../../script.js?v=3"></script>
+    <script src="../../script.js?v=5"></script>
 
     <a href="https://www.chess.com/member/voidxprt" target="_blank" class="cc-link">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3h12a3 3 0 0 0 3-3z"></path></svg>
         Add me on chess.com!
     </a>
-    <script src="../../music-player.js"></script>
+    <script src="../../music-player.js?v=3"></script>
 </body>
 </html>

@@ -1,4 +1,6 @@
 (function () {
+    'use strict';
+
     var scriptEl = document.currentScript;
     var autoplay = scriptEl && scriptEl.getAttribute('data-autoplay') === 'true';
     var segs = window.location.pathname.split('/').filter(Boolean);
@@ -6,144 +8,193 @@
     var prefix = '';
     for (var i = 0; i < segs.length; i++) prefix += '../';
 
+    var tracks = [
+        { title: 's0rrow - unhappy', file: 's0rrow-unhappy.mp3' },
+        { title: 'close my eyes', file: 'close my eyes.mp3' },
+        { title: 'fake ur face', file: 'fake ur face.mp3' },
+        { title: 'give me hints', file: 'give me hints.mp3' },
+        { title: 'i can see your evil soul', file: 'i can see your evil soul.mp3' },
+        { title: 'unhappy', file: 'unhappy.mp3' }
+    ];
+    var rareTrack = { title: '??? - i have no friends', file: 'i have no friends.mp3', rare: true };
+
     function init() {
         if (document.getElementById('siteAudio')) return;
 
         var css = document.createElement('style');
         css.textContent =
-            '.music-player{position:fixed;bottom:20px;right:20px;display:flex;align-items:center;gap:12px;padding:10px 12px;background-color:var(--card-bg, rgba(30,30,35,0.85));border:1px solid var(--card-border, rgba(255,255,255,0.06));border-radius:16px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,0.25);z-index:9000;opacity:0;transform:translateY(16px);transition:opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s ease, border-color 0.4s ease;pointer-events:none}' +
-            '.music-player.visible{opacity:1;transform:translateY(0);pointer-events:auto}' +
-            '.music-thumb{width:44px;height:44px;border-radius:10px;object-fit:cover;-webkit-user-select:none;user-select:none}' +
-            '.music-info{display:flex;flex-direction:column;gap:2px;max-width:150px;font-family:\'Syne\',sans-serif}' +
-            '.music-label{font-family:\'Share Tech Mono\',monospace;color:var(--text-secondary,#98989d);font-size:.75rem;text-transform:lowercase}' +
-            '.music-track{font-size:.8rem;font-weight:700;color:var(--text-primary,#f5f5f7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
-            '.music-eq{display:flex;align-items:flex-end;gap:2px;height:10px}' +
-            '.music-eq span{width:3px;height:3px;border-radius:1px;background-color:var(--accent-teal,#3ca7cb);opacity:.4;transition:opacity .3s}' +
-            '.music-player.playing .music-eq span{opacity:1;animation:eqBounce .9s ease-in-out infinite}' +
-            '.music-player.playing .music-eq span:nth-child(2){animation-delay:.15s}' +
-            '.music-player.playing .music-eq span:nth-child(3){animation-delay:.3s}' +
-            '.music-player.playing .music-eq span:nth-child(4){animation-delay:.45s}' +
-            '@keyframes eqBounce{0%,100%{height:3px}50%{height:10px}}' +
-            '.music-toggle{background:none;border:none;display:flex;align-items:center;justify-content:center;padding:5px;color:var(--text-secondary,#98989d);transition:color .2s,transform .2s}' +
-            '.music-toggle:hover{color:var(--accent-teal,#3ca7cb);transform:scale(1.1)}' +
-            '.music-icon{width:22px;height:22px}' +
-            '@media(max-width:600px){.music-player{bottom:14px;right:14px;max-width:calc(100vw - 28px)}}';
+            '.music-player{position:fixed;bottom:20px;right:20px;display:grid;grid-template-columns:auto minmax(0,165px) auto;align-items:center;gap:10px;padding:10px 12px;background:var(--card-bg,rgba(30,30,35,.88));border:1px solid var(--card-border,rgba(255,255,255,.08));border-radius:16px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,.28);z-index:9000;opacity:0;transform:translateY(16px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1),background-color .4s,border-color .4s;pointer-events:none}' +
+            '.music-player.visible{opacity:1;transform:translateY(0);pointer-events:auto}.music-player.rare{border-color:#ff5c9a;box-shadow:0 8px 36px rgba(255,92,154,.16)}' +
+            '.music-thumb{width:46px;height:46px;border-radius:10px;object-fit:cover;user-select:none;-webkit-user-select:none}.music-info{min-width:0;font-family:\'Syne\',sans-serif}.music-label{display:block;color:var(--text-secondary,#98989d);font:.68rem \'Share Tech Mono\',monospace;text-transform:lowercase}.music-track-window{width:100%;overflow:hidden;white-space:nowrap}.music-track-inner{display:inline-block;font-size:.8rem;font-weight:700;color:var(--text-primary,#f5f5f7);will-change:transform}.music-track-inner.scrolling{animation:musicMarquee 6s ease-in-out 1s infinite alternate}@keyframes musicMarquee{to{transform:translateX(var(--scroll-distance,0px))}}' +
+            '.music-visualizer{display:flex;align-items:flex-end;gap:2px;height:12px;margin-top:3px}.music-visualizer span{width:3px;height:2px;border-radius:2px;background:var(--accent-teal,#3ca7cb);opacity:.35;transition:height .09s linear,opacity .2s}.music-player.playing .music-visualizer span{opacity:.95}.music-player.rare .music-visualizer span{background:#ff5c9a}' +
+            '.music-controls{display:flex;align-items:center;gap:1px}.music-btn{border:0;background:none;color:var(--text-secondary,#98989d);display:grid;place-items:center;padding:4px;transition:color .2s,transform .2s}.music-btn:hover{color:var(--accent-teal,#3ca7cb);transform:scale(1.1)}.music-btn svg{width:18px;height:18px}.music-toggle svg{width:22px;height:22px}' +
+            '.music-volume{position:relative;display:flex;align-items:center}.music-volume-panel{position:absolute;right:-8px;bottom:34px;width:110px;padding:9px;border:1px solid var(--card-border,rgba(255,255,255,.08));border-radius:10px;background:var(--card-bg,#202024);box-shadow:0 8px 22px rgba(0,0,0,.3);opacity:0;transform:translateY(5px);pointer-events:none;transition:.2s}.music-volume:hover .music-volume-panel,.music-volume:focus-within .music-volume-panel{opacity:1;transform:none;pointer-events:auto}.music-volume-panel input{width:100%;accent-color:var(--accent-teal,#3ca7cb)}' +
+            '@media(max-width:600px){.music-player{bottom:12px;right:12px;grid-template-columns:auto minmax(0,125px) auto;max-width:calc(100vw - 24px);gap:7px}.music-thumb{width:40px;height:40px}.music-btn{padding:3px}}@media(prefers-reduced-motion:reduce){.music-track-inner.scrolling{animation:none}}';
         document.head.appendChild(css);
 
         var player = document.createElement('div');
         player.className = 'music-player';
         player.id = 'musicPlayer';
         player.innerHTML =
-            '<img src="' + prefix + 'assets/music/thumb.jpg" alt="s0rrow - unhappy" class="music-thumb" draggable="false">' +
-            '<div class="music-info">' +
-                '<span class="music-label">[now playing]</span>' +
-                '<span class="music-track">s0rrow - unhappy</span>' +
-                '<div class="music-eq"><span></span><span></span><span></span><span></span></div>' +
-            '</div>' +
-            '<button class="music-toggle" id="musicToggle" aria-label="Play or pause music">' +
-                '<svg viewBox="0 0 24 24" fill="currentColor" class="music-icon" id="musicPlayIcon"><path d="M8 5v14l11-7z"/></svg>' +
-                '<svg viewBox="0 0 24 24" fill="currentColor" class="music-icon" id="musicPauseIcon" style="display: none;"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>' +
-            '</button>';
+            '<img src="' + prefix + 'assets/music/thumb.jpg" alt="Album art" class="music-thumb" draggable="false">' +
+            '<div class="music-info"><span class="music-label">[now playing]</span><div class="music-track-window"><span class="music-track music-track-inner"></span></div><div class="music-visualizer" aria-hidden="true">' +
+                '<span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>' +
+            '</div></div>' +
+            '<div class="music-controls">' +
+                '<button class="music-btn" id="musicPrev" aria-label="Previous track"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>' +
+                '<button class="music-btn music-toggle" id="musicToggle" aria-label="Play or pause music"><svg viewBox="0 0 24 24" fill="currentColor" id="musicPlayIcon"><path d="M8 5v14l11-7z"/></svg><svg viewBox="0 0 24 24" fill="currentColor" id="musicPauseIcon" style="display:none"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg></button>' +
+                '<button class="music-btn" id="musicNext" aria-label="Next track"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg></button>' +
+                '<div class="music-volume"><button class="music-btn" id="musicVolumeButton" aria-label="Adjust volume"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 4V5L8 9H4zm11.5 3a3.5 3.5 0 0 0-1.5-2.87v5.74A3.5 3.5 0 0 0 15.5 12zm0-6.18v2.06a5 5 0 0 1 0 8.24v2.06a7 7 0 0 0 0-12.36z"/></svg></button><div class="music-volume-panel"><input id="musicVolume" type="range" min="0" max="1" step="0.02" value="0.65" aria-label="Music volume"></div></div>' +
+            '</div>';
         document.body.appendChild(player);
 
         var audio = document.createElement('audio');
         audio.id = 'siteAudio';
-        audio.src = prefix + 'assets/music/s0rrow-unhappy.mp3';
-        audio.loop = true;
-        audio.preload = 'auto';
+        audio.preload = 'metadata';
         document.body.appendChild(audio);
 
+        var title = player.querySelector('.music-track');
+        var titleWindow = player.querySelector('.music-track-window');
         var playIcon = document.getElementById('musicPlayIcon');
         var pauseIcon = document.getElementById('musicPauseIcon');
-        var toggleBtn = document.getElementById('musicToggle');
-        var userPaused = false;
-        var playToken = 0;
+        var volume = document.getElementById('musicVolume');
+        var bars = Array.prototype.slice.call(player.querySelectorAll('.music-visualizer span'));
         var STORAGE_KEY = 'musicPlayerState';
-
-        function saveState() {
-            try {
-                sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
-                    time: audio.currentTime,
-                    playing: !audio.paused,
-                    paused: userPaused
-                }));
-            } catch (e) {}
-        }
+        var currentIndex = 0;
+        var currentRare = false;
+        var userPaused = false;
+        var shouldResume = false;
+        var playToken = 0;
+        var audioContext;
+        var analyser;
+        var frequencyData;
+        var visualFrame;
+        var lastSavedSecond = -1;
 
         function loadState() {
+            try { var raw = sessionStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
+        }
+        function saveState() {
             try {
-                var raw = sessionStorage.getItem(STORAGE_KEY);
-                return raw ? JSON.parse(raw) : null;
-            } catch (e) { return null; }
+                sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ index: currentIndex, rare: currentRare, time: audio.currentTime || 0, playing: shouldResume, paused: userPaused, volume: audio.volume }));
+            } catch (e) {}
         }
-
-        audio.addEventListener('timeupdate', function () {
-            if (!audio.paused) saveState();
-        });
-        audio.addEventListener('pause', saveState);
-        audio.addEventListener('play', saveState);
-
-        function setPlayingUI(isPlaying) {
-            player.classList.toggle('playing', isPlaying);
-            if (playIcon) playIcon.style.display = isPlaying ? 'none' : '';
-            if (pauseIcon) pauseIcon.style.display = isPlaying ? '' : 'none';
-        }
-        audio.addEventListener('play', function () { setPlayingUI(true); });
-        audio.addEventListener('pause', function () { setPlayingUI(false); });
-
-        function tryStart() {
-            var token = ++playToken;
-            var p = audio.play();
-            if (p && p.then) {
-                p.then(function () {
-                    if (token !== playToken) audio.pause();
-                }).catch(function () {});
-            }
-        }
-
-        function stopPlayback() {
-            userPaused = true;
-            playToken++;
-            audio.pause();
-        }
-
-        toggleBtn.addEventListener('click', function () {
-            if (audio.paused) {
-                userPaused = false;
-                tryStart();
-            } else {
-                stopPlayback();
-            }
-        });
-
-        requestAnimationFrame(function () {
+        function activeTrack() { return currentRare ? rareTrack : tracks[currentIndex]; }
+        function updateTitle() {
+            var track = activeTrack();
+            title.textContent = track.title;
+            player.classList.toggle('rare', !!track.rare);
+            player.querySelector('.music-label').textContent = track.rare ? '[rare transmission]' : '[now playing]';
             requestAnimationFrame(function () {
-                player.classList.add('visible');
+                var distance = Math.min(0, titleWindow.clientWidth - title.scrollWidth);
+                title.style.setProperty('--scroll-distance', distance + 'px');
+                title.classList.toggle('scrolling', distance < -4);
             });
-        });
-
-        
-        var saved = loadState();
-        if (saved && saved.time > 0) {
-            audio.currentTime = saved.time;
-            if (saved.playing && !saved.paused) {
-                
-                tryStart();
+        }
+        function setTrack(index, rare, keepPlaying, resumeAt) {
+            var wasPlaying = keepPlaying === undefined ? !audio.paused : keepPlaying;
+            currentRare = !!rare;
+            if (!currentRare) currentIndex = (index + tracks.length) % tracks.length;
+            var track = activeTrack();
+            var savedTime = Math.max(0, Number(resumeAt) || 0);
+            audio.addEventListener('loadedmetadata', function restoreTrackState() {
+                if (savedTime > 0 && Number.isFinite(audio.duration)) {
+                    audio.currentTime = Math.min(savedTime, Math.max(0, audio.duration - .5));
+                }
+                saveState();
+                if (wasPlaying) tryStart();
+            }, { once: true });
+            audio.src = prefix + 'assets/music/' + encodeURIComponent(track.file).replace(/%2F/g, '/');
+            audio.load();
+            updateTitle();
+        }
+        function setPlayingUI(playing) {
+            player.classList.toggle('playing', playing);
+            playIcon.style.display = playing ? 'none' : '';
+            pauseIcon.style.display = playing ? '' : 'none';
+            if (playing) startVisualizer();
+        }
+        function ensureAnalyser() {
+            if (analyser) return;
+            var AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            audioContext = new AudioCtx();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 64;
+            frequencyData = new Uint8Array(analyser.frequencyBinCount);
+            var source = audioContext.createMediaElementSource(audio);
+            source.connect(analyser);
+            analyser.connect(audioContext.destination);
+        }
+        function startVisualizer() {
+            ensureAnalyser();
+            if (audioContext && audioContext.state === 'suspended') audioContext.resume().catch(function () {});
+            if (visualFrame) return;
+            function draw() {
+                visualFrame = requestAnimationFrame(draw);
+                if (!analyser || audio.paused) {
+                    bars.forEach(function (bar) { bar.style.height = '2px'; });
+                    if (audio.paused) { cancelAnimationFrame(visualFrame); visualFrame = null; }
+                    return;
+                }
+                analyser.getByteFrequencyData(frequencyData);
+                bars.forEach(function (bar, index) {
+                    var value = frequencyData[Math.min(frequencyData.length - 1, index + 1)] || 0;
+                    bar.style.height = (2 + Math.round(value / 24)) + 'px';
+                });
             }
-        } else if (autoplay) {
-            var interactionEvents = ['pointerdown', 'keydown', 'touchstart'];
-            var startOnInteraction = function (e) {
-                interactionEvents.forEach(function (ev) { document.removeEventListener(ev, startOnInteraction); });
-                if (!player.contains(e.target) && !userPaused && audio.paused) tryStart();
+            draw();
+        }
+        function tryStart() {
+            userPaused = false;
+            shouldResume = true;
+            var token = ++playToken;
+            var promise = audio.play();
+            if (promise && promise.then) promise.then(function () { if (token !== playToken) audio.pause(); }).catch(function () { shouldResume = false; saveState(); });
+        }
+        function stopPlayback() { userPaused = true; shouldResume = false; playToken++; audio.pause(); }
+
+        document.getElementById('musicToggle').addEventListener('click', function () { if (audio.paused) tryStart(); else stopPlayback(); });
+        document.getElementById('musicPrev').addEventListener('click', function () { setTrack(currentRare ? currentIndex : currentIndex - 1, false); });
+        document.getElementById('musicNext').addEventListener('click', function () { setTrack(currentRare ? currentIndex : currentIndex + 1, false); });
+        volume.addEventListener('input', function () { audio.volume = Number(volume.value); saveState(); });
+        audio.addEventListener('play', function () { setPlayingUI(true); saveState(); });
+        audio.addEventListener('pause', function () { setPlayingUI(false); saveState(); });
+        audio.addEventListener('timeupdate', function () {
+            var second = Math.floor(audio.currentTime);
+            if (!audio.paused && second !== lastSavedSecond) {
+                lastSavedSecond = second;
+                saveState();
+            }
+        });
+        audio.addEventListener('ended', function () { setTrack(currentIndex + 1, false, true); });
+        window.addEventListener('pixelis:rare-track', function () { setTrack(currentIndex, !currentRare, !audio.paused); });
+        window.addEventListener('pagehide', saveState);
+        document.addEventListener('visibilitychange', function () { if (document.hidden) saveState(); });
+
+        var saved = loadState();
+        if (saved) {
+            currentIndex = Math.max(0, Math.min(tracks.length - 1, Number(saved.index) || 0));
+            currentRare = !!saved.rare;
+            audio.volume = typeof saved.volume === 'number' ? saved.volume : .65;
+            volume.value = audio.volume;
+        } else audio.volume = .65;
+        userPaused = !!(saved && saved.paused);
+        shouldResume = !!(saved && saved.playing && !saved.paused);
+        setTrack(currentIndex, currentRare, !!(saved && saved.playing && !saved.paused), saved ? saved.time : 0);
+
+        requestAnimationFrame(function () { requestAnimationFrame(function () { player.classList.add('visible'); }); });
+        if (!saved && autoplay) {
+            var events = ['pointerdown', 'keydown', 'touchstart'];
+            var startOnInteraction = function (event) {
+                events.forEach(function (name) { document.removeEventListener(name, startOnInteraction); });
+                if (!player.contains(event.target) && !userPaused && audio.paused) tryStart();
             };
             tryStart();
-            interactionEvents.forEach(function (ev) { document.addEventListener(ev, startOnInteraction, { passive: true }); });
+            events.forEach(function (name) { document.addEventListener(name, startOnInteraction, { passive: true }); });
         }
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
 })();

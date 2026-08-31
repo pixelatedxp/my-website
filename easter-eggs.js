@@ -2,6 +2,15 @@
     'use strict';
 
     var ACHIEVEMENT_KEY = 'pixelisAchievements';
+    var ACHIEVEMENTS = {
+        terminal: 'there is no terminal', auditor: 'checked the receipts', whoami: 'identity crisis resolved',
+        sudo: 'not in the sudoers file', secrets: 'asked the obvious question', goat: 'certified goat',
+        simp: 'professional simp', snowstorm: 'weather warning', 'secret-track': 'the B-side',
+        'rare-note': 'two percent club', 'hall-secret': 'the portrait speaks', explorer: 'scrolled the whole thing',
+        'arcade-tourist': 'arcade regular', fivehours: 'five minutes later', biscuits: 'hands off the biscuits',
+        blackmail: 'nothing to blackmail', lockin: 'locked all the way in',
+        'simp-defense': 'honestly understandable', 'beat-pixel': 'faster than Pixel'
+    };
     var unlocked = loadJson(ACHIEVEMENT_KEY, {});
     var toastStack;
 
@@ -25,6 +34,7 @@
     }
     function unlock(id, title) {
         if (unlocked[id]) return false;
+        title = title || ACHIEVEMENTS[id] || id;
         unlocked[id] = { title: title, unlockedAt: new Date().toISOString() };
         saveAchievements();
         toast('[achievement unlocked] ' + title);
@@ -67,8 +77,12 @@
             terminal.setAttribute('aria-hidden', 'true');
         }
         function achievementsText() {
-            var names = Object.keys(unlocked).map(function (key) { return unlocked[key].title; });
-            return names.length ? names.join('\n- ') : 'none yet. suspicious.';
+            var names = Object.keys(ACHIEVEMENTS).filter(function (key) { return unlocked[key]; }).map(function (key) {
+                return '[x] ' + ACHIEVEMENTS[key];
+            });
+            var remaining = Object.keys(ACHIEVEMENTS).filter(function (key) { return !unlocked[key]; }).length;
+            return (names.length ? names.join('\n') : '[ ] none yet. suspicious.') +
+                '\n\n[ ' + remaining + ' hidden achievement' + (remaining === 1 ? '' : 's') + ' remaining ]';
         }
         function run(command) {
             var cmd = command.trim().toLowerCase();
@@ -80,9 +94,20 @@
                 secrets: 'the good secrets are not listed in the help menu.',
                 pixel: 'you found me twice. that feels intentional.'
             };
+            var secretCommands = {
+                fivehours: ['context: the first guy always says, "bro I\'m hopping on CS2 in five minutes," then finally appears about five hours later asking if everyone is still on.', 'fivehours'],
+                biscuits: ['context: she loves biscuits and tea. taking one of her biscuits is treated like a serious personal betrayal, so keep your hands off them.', 'biscuits'],
+                blackmail: ['context: the GOAT will blackmail you with absolutely anything you send him, so give him no material whatsoever. he is still the GOAT though.', 'blackmail'],
+                lockin: ['context: this guy went through a dark-psychology phase, a religious phase, and finally a delete-Discord, block-everyone, fully-locked-in phase.', 'lockin']
+            };
             if (cmd === 'clear') { output.textContent = ''; return; }
             if (cmd === 'exit') { close(); return; }
-            if (cmd === 'achievements') { print('- ' + achievementsText()); unlock('auditor', 'checked the receipts'); return; }
+            if (cmd === 'achievements') { unlock('auditor', 'checked the receipts'); print(achievementsText()); return; }
+            if (secretCommands[cmd]) {
+                print(secretCommands[cmd][0]);
+                unlock(secretCommands[cmd][1]);
+                return;
+            }
             print(replies[cmd] || 'command not found: ' + (cmd || '[silence]'));
             if (cmd === 'whoami') unlock('whoami', 'identity crisis resolved');
             if (cmd === 'sudo') unlock('sudo', 'not in the sudoers file');
@@ -173,19 +198,7 @@
     function initMusicSecret() {
         document.addEventListener('dblclick', function (event) {
             if (!event.target.closest('.music-thumb')) return;
-            var audio = document.getElementById('siteAudio');
-            var label = document.querySelector('.music-track');
-            if (!audio) return;
-            var wasPlaying = !audio.paused;
-            if (!audio.dataset.originalSrc) {
-                audio.dataset.originalSrc = audio.src;
-                audio.dataset.originalLabel = label ? label.textContent : '';
-            }
-            var secretOn = audio.dataset.secretOn !== 'true';
-            audio.dataset.secretOn = String(secretOn);
-            audio.src = secretOn ? new URL('never-been-with-a-baddie.mp3', audio.src).href : audio.dataset.originalSrc;
-            if (label) label.textContent = secretOn ? 'secret track - never been with a baddie' : audio.dataset.originalLabel;
-            if (wasPlaying) audio.play().catch(function () {});
+            window.dispatchEvent(new CustomEvent('pixelis:rare-track'));
             unlock('secret-track', 'the B-side');
         });
     }
@@ -212,23 +225,84 @@
     }
 
     function initHallSecret() {
-        var images = document.querySelectorAll('.hall-of-fame-grid img');
-        if (!images.length) return;
-        var target = images[Math.min(3, images.length - 1)];
-        var clicks = 0;
-        target.style.cursor = 'help';
-        target.addEventListener('click', function () {
-            clicks++;
-            if (clicks !== 3) return;
-            var rect = target.getBoundingClientRect();
-            var bubble = document.createElement('div');
-            bubble.className = 'egg-speech';
-            bubble.textContent = 'bro why did you click me three times 😭';
-            bubble.style.left = Math.min(rect.right, window.innerWidth - 230) + 'px';
-            bubble.style.top = Math.max(12, rect.top - 20) + 'px';
-            document.body.appendChild(bubble);
-            window.setTimeout(function () { bubble.remove(); }, 4200);
-            unlock('hall-secret', 'the portrait speaks');
+        var cards = Array.prototype.slice.call(document.querySelectorAll('.lore-card'));
+        if (!cards.length) return;
+        var seen = loadJson('pixelisLoreSeen', {});
+
+        function bubble(card, message, duration, inside) {
+            var old = card.querySelector('.lore-bubble');
+            if (old) old.remove();
+            var item = document.createElement('div');
+            item.className = 'lore-bubble';
+            if (inside) item.classList.add('lore-bubble-inside');
+            item.textContent = message;
+            card.appendChild(item);
+            requestAnimationFrame(function () { item.classList.add('show'); });
+            if (duration !== 0) {
+                window.setTimeout(function () { item.classList.remove('show'); window.setTimeout(function () { item.remove(); }, 250); }, duration || 5200);
+            }
+        }
+
+        function scatter(card, symbols) {
+            var rect = card.getBoundingClientRect();
+            for (var i = 0; i < 9; i++) {
+                var bit = document.createElement('span');
+                bit.className = 'lore-particle';
+                bit.textContent = symbols[i % symbols.length];
+                bit.style.left = (rect.left + rect.width / 2) + 'px';
+                bit.style.top = (rect.top + rect.height / 2) + 'px';
+                bit.style.setProperty('--lore-x', ((Math.random() - .5) * 190) + 'px');
+                bit.style.setProperty('--lore-y', (-40 - Math.random() * 130) + 'px');
+                document.body.appendChild(bit);
+                window.setTimeout(function (node) { node.remove(); }, 1700, bit);
+            }
+        }
+
+        function mark(card) {
+            var id = card.dataset.loreId;
+            if (!seen[id]) {
+                seen[id] = true;
+                try { localStorage.setItem('pixelisLoreSeen', JSON.stringify(seen)); } catch (e) {}
+                unlock('hall-secret');
+            }
+            if (id === 'simp-defense') unlock('simp-defense');
+        }
+
+        function reveal(card) {
+            var id = card.dataset.loreId;
+            if (id === 'biscuits-tea') {
+                bubble(card, 'she loves biscuits and tea. do NOT take her biscuits if you value your life.');
+                scatter(card, ['🍪', '☕']);
+                mark(card);
+            } else if (id === 'pookie') {
+                bubble(card, 'poookie </3', 0, true);
+                mark(card);
+            } else if (id === 'simp-defense') {
+                bubble(card, 'I don\'t blame him for simping. that girl is pretty ash.');
+                var doodle = document.getElementById('simpDoodle');
+                if (doodle) {
+                    var caption = doodle.querySelector('.simp-confession');
+                    if (!caption) {
+                        caption = document.createElement('span');
+                        caption.className = 'simp-confession';
+                        caption.textContent = '(you can\'t blame him, she\'s pretty ash)';
+                        doodle.appendChild(caption);
+                    }
+                    caption.classList.add('show');
+                }
+                scatter(card, ['♥', '♡']);
+                mark(card);
+            }
+        }
+
+        cards.forEach(function (card) {
+            var id = card.dataset.loreId;
+            card.addEventListener('keydown', function (event) { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); reveal(card); } });
+            if (id === 'biscuits-tea' || id === 'simp-defense') {
+                card.addEventListener('dblclick', function () { reveal(card); });
+            } else {
+                card.addEventListener('click', function () { reveal(card); });
+            }
         });
     }
 
@@ -268,6 +342,9 @@
         initHallSecret();
         initExplorer();
         initArcadeVisits();
+        window.addEventListener('pixelis:achievement', function (event) {
+            if (event.detail && event.detail.id) unlock(event.detail.id, event.detail.title);
+        });
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

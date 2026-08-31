@@ -499,6 +499,13 @@ body::before {
     }
 }
 
+.bio-simp-doodle {
+    top: 121px;
+}
+.bio-simp-doodle .simp-crayon {
+    filter: url(#bioSimpRough);
+}
+
 /* Optional discoveries: isolated from the core layout and controls. */
 .egg-toast-stack { position: fixed; left: 20px; bottom: 20px; z-index: 1000001; display: grid; gap: 8px; pointer-events: none; }
 .egg-toast { max-width: min(340px, calc(100vw - 40px)); padding: 11px 14px; border: 1px solid var(--accent-teal); border-radius: 10px; background: var(--card-bg); color: var(--text-primary); box-shadow: var(--glass-shadow); backdrop-filter: blur(16px); font: .78rem var(--font-mono); animation: eggToast 4s ease forwards; }
@@ -521,5 +528,20 @@ body::before {
 #snowfall.snowstorm { filter: drop-shadow(0 0 3px var(--doodle-color)); }
 .egg-rare-note { position: fixed; right: 24px; top: 110px; z-index: 8000; width: 190px; padding: 14px; transform: rotate(3deg); border: 1px solid rgba(0, 0, 0, .15); background: #fff3a6; color: #27231a; box-shadow: 0 8px 24px rgba(0, 0, 0, .2); font: .78rem/1.4 var(--font-mono); }
 .egg-speech { position: fixed; z-index: 1000002; max-width: 220px; padding: 9px 12px; border: 1px solid var(--accent-teal); border-radius: 12px 12px 12px 2px; background: var(--card-bg); color: var(--text-primary); font: .75rem var(--font-mono); animation: eggToast 4s ease forwards; pointer-events: none; }
+.lore-card { position: relative; isolation: isolate; }
+.lore-bubble { position: absolute; z-index: 20; left: 50%; bottom: calc(100% - 8px); width: min(245px, 86vw); padding: 11px 13px; border: 1px solid var(--accent-teal); border-radius: 12px 12px 12px 3px; background: color-mix(in srgb, var(--card-bg) 94%, black); color: var(--text-primary); box-shadow: var(--glass-shadow); font: .76rem/1.45 var(--font-mono); opacity: 0; transform: translate(-50%, 10px) scale(.96); transition: opacity .25s ease, transform .25s ease; pointer-events: none; }
+.lore-bubble.show { opacity: 1; transform: translate(-50%, 0) scale(1); }
+.lore-bubble.lore-bubble-inside { left: 50%; top: 50%; bottom: auto; width: max-content; max-width: 86%; font-size: .9rem; text-align: center; transform: translate(-50%, calc(-50% + 10px)) scale(.96); }
+.lore-bubble.lore-bubble-inside.show { transform: translate(-50%, -50%) scale(1); }
+.lore-card.lore-hiding img { animation: loreHide .85s ease; }
+@keyframes loreHide { 35% { opacity: .12; transform: translateX(26px) rotate(4deg); } }
+.lore-card.lore-warning { animation: loreWarning .18s linear 8 alternate; }
+@keyframes loreWarning { to { border-color: #ef4444; box-shadow: 0 0 28px rgba(239,68,68,.35); } }
+.lore-card.lore-whistle img { animation: loreWhistle .35s ease 4 alternate; }
+@keyframes loreWhistle { to { transform: rotate(3deg) scale(1.03); filter: brightness(1.18); } }
+.lore-particle { position: fixed; z-index: 1000003; pointer-events: none; font-size: 24px; animation: loreScatter 1.6s ease-out forwards; }
+@keyframes loreScatter { to { opacity: 0; transform: translate(var(--lore-x), var(--lore-y)) rotate(220deg) scale(1.4); } }
+.simp-confession { position: absolute; left: 36px; top: 72%; width: 300px; color: var(--doodle-color); font: .72rem/1.25 var(--font-mono); text-align: center; opacity: 0; transform: rotate(2deg) translateY(8px); transition: opacity .5s ease, transform .5s ease; }
+.simp-confession.show { opacity: .92; transform: rotate(2deg) translateY(0); }
 @media (prefers-reduced-motion: reduce) { .egg-toast, .egg-heart { animation: none; } }
 

@@ -190,7 +190,7 @@ function updateCapturedPieces() {
     ['q','r','b','n','p'].forEach(p => {
         let diff = initial[p] - current[p];
         for (let i = 0; i < diff; i++) {
-            whiteCaptured.push(`<img src="https://chessboardjs.com/img/chesspieces/wikipedia/b${p.toUpperCase()}.png" class="captured-piece">`);
+            whiteCaptured.push(`<img src="vendor/pieces/b${p.toUpperCase()}.png" class="captured-piece" alt="">`);
         }
     });
 
@@ -198,7 +198,7 @@ function updateCapturedPieces() {
     ['Q','R','B','N','P'].forEach(p => {
         let diff = initial[p] - current[p];
         for (let i = 0; i < diff; i++) {
-            blackCaptured.push(`<img src="https://chessboardjs.com/img/chesspieces/wikipedia/w${p}.png" class="captured-piece">`);
+            blackCaptured.push(`<img src="vendor/pieces/w${p}.png" class="captured-piece" alt="">`);
         }
     });
 
@@ -374,7 +374,7 @@ let waitingForEval = false;
 
 function initEngine() {
     try {
-        stockfish = new Worker('stockfish.js');
+        stockfish = new Worker('stockfish.js?v=2');
         stockfish.onmessage = function(e) {
             const msg = e.data;
             if (typeof msg !== 'string') return;
@@ -435,6 +435,11 @@ function initEngine() {
         stockfish.postMessage('setoption name Skill Level value 7');
         stockfish.postMessage('isready');
         setStatus('White to move.');
+        stockfish.onerror = function () {
+            stockfish = null;
+            setStatus('Chess engine failed to load. Refresh to try again.');
+            say('The engine crashed. That one does not count.', true);
+        };
     } catch(err) {
         console.error('Engine error:', err);
         setStatus('Engine Error. Playing local mode.');
@@ -446,13 +451,13 @@ function askEngineEvalThenMove() {
     setStatus('Thinking...');
     waitingForEval = true;
     stockfish.postMessage('position fen ' + game.fen());
-    stockfish.postMessage('go depth 8');
+    stockfish.postMessage('go movetime 350');
 }
 
 function askEngineMove() {
     if (!stockfish) return;
     stockfish.postMessage('position fen ' + game.fen());
-    stockfish.postMessage('go depth 12');
+    stockfish.postMessage('go movetime 800');
 }
 
 function onDragStart(source, piece) {
@@ -504,10 +509,15 @@ board = Chessboard('myBoard', {
     onDragStart: onDragStart,
     onDrop:      onDrop,
     onSnapEnd:   onSnapEnd,
-    pieceTheme:  'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+    pieceTheme:  'vendor/pieces/{piece}.png'
 });
 
 initEngine();
+updateEvalBar(0);
+
+window.addEventListener('resize', function () {
+    if (board && typeof board.resize === 'function') board.resize();
+});
 
 document.getElementById('evalToggle').addEventListener('change', () => {
     updateEvalBar(currentEval);
@@ -592,7 +602,7 @@ document.getElementById('hintBtn').addEventListener('click', () => {
 
     askingForHint = true;
     stockfish.postMessage('position fen ' + game.fen());
-    stockfish.postMessage('go depth 10');
+    stockfish.postMessage('go movetime 600');
 });
 
 setTimeout(() => {

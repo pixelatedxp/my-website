@@ -188,6 +188,10 @@
         }
         .btn-retry.show { opacity: 1; transform: translateY(0); }
         .btn-retry:hover { background: #2ecc71; }
+        .result-actions { display: flex; justify-content: center; gap: 10px; }
+        .btn-share { align-self: center; padding: 12px 24px; border: 1px solid rgba(255,255,255,.15); border-radius: 8px; background: rgba(255,255,255,.06); color: #fff; font: .85rem 'Share Tech Mono', monospace; opacity: 0; transform: translateY(18px); }
+        .btn-share.show { opacity: 1; transform: translateY(0); }
+        .btn-share:hover { border-color: #3ca7cb; color: #3ca7cb; }
     </style>
 </head>
 <body class="dark-mode">
@@ -285,14 +289,17 @@
                     <span class="mono-label graph-label about-title" data-text="[about the test]">[about the test]</span>
                     <p>This is a simple test of typing speed, measuring words per minute, or WPM.</p>
                     <p>The standard measure of WPM is (number of characters / 5) / (time taken). By that measurement, "quick brown fox" is 15 characters, including spaces.</p>
-                    <p>The recorded score is WPM * Accuracy.</p>
+                    <p>The displayed result is net WPM: gross WPM multiplied by accuracy. Gross WPM is every typed character divided by five and then by elapsed minutes.</p>
                 </div>
             </div>
-            <button class="btn-retry" onclick="setupGame()">Play Again</button>
+            <div class="result-actions">
+                <button class="btn-share" id="shareResult" type="button">[share result]</button>
+                <button class="btn-retry" onclick="setupGame()">Play Again</button>
+            </div>
         </div>
     </section>
 
-    <script src="../../script.js"></script>
+    <script src="../../script.js?v=5"></script>
     <script>
         const TEXTS = [
             "reverse engineering video games requires patience memory analysis and a deep understanding of how software works at the lowest level of abstraction that you can imagine when you strip away all the graphical layers",
@@ -333,11 +340,13 @@
         
         let pixelWpm = 85;
         let pixelEffWpm = 85;
+        let lastResult = null;
 
         function setupGame() {
             const resSection = document.getElementById('results');
             resSection.classList.remove('visible');
             resSection.querySelectorAll('.glass-result-card').forEach(c => c.classList.remove('show', 'winner'));
+            resSection.querySelectorAll('.btn-retry, .btn-share').forEach(button => button.classList.remove('show'));
             window.scrollTo(0, 0);
             text = TEXTS[Math.floor(Math.random() * TEXTS.length)];
             typed = '';
@@ -389,11 +398,16 @@
             document.getElementById('pctPixel').textContent = Math.round(clamp(pixelPct)) + '%';
         }
 
-        function calcWpm() {
-            if (!startTime) return 0;
+        function calcStats() {
+            if (!startTime) return { grossWpm: 0, accuracy: 100, netWpm: 0 };
             const mins = (Date.now() - startTime) / 60000;
-            const words = alignedLen / 5;
-            return mins > 0 ? Math.round(words / mins) : 0;
+            const grossWpm = mins > 0 ? (typed.length / 5) / mins : 0;
+            const accuracy = typed.length ? (alignedLen / typed.length) * 100 : 100;
+            return {
+                grossWpm: Math.round(grossWpm),
+                accuracy: Math.max(0, Math.min(100, Math.round(accuracy))),
+                netWpm: Math.max(0, Math.round(grossWpm * (accuracy / 100)))
+            };
         }
 
         function startGame() {
@@ -413,8 +427,13 @@
             
             pixelInterval = setInterval(() => {
                 if (!gameRunning) return;
-                const target = pixelChars < cursorPos ? 90 : pixelWpm;
-                pixelEffWpm += (target - pixelEffWpm) * 0.09;
+                const gap = (cursorPos - pixelChars) / text.length;
+                let target = pixelWpm;
+                if (gap > 0.10) target = 100;
+                else if (gap > 0.03) target = 94;
+                else if (gap < -0.10) target = 80;
+                target = Math.max(80, Math.min(100, target));
+                pixelEffWpm += (target - pixelEffWpm) * 0.08;
                 pixelChars = Math.min(text.length, pixelChars + (pixelEffWpm * 5 / 60) * 0.1);
                 document.getElementById('pixelWpmLabel').textContent = Math.round(pixelEffWpm);
                 updateTracksNow();
@@ -427,7 +446,7 @@
             const humanPct = (humanChars  / text.length) * 100;
             const pixelPct = (pixelChars  / text.length) * 100;
             updateTracks(yourPct, humanPct, pixelPct);
-            document.getElementById('yourWpm').textContent = calcWpm();
+            document.getElementById('yourWpm').textContent = calcStats().netWpm;
         }
 
         function endGame() {
@@ -435,12 +454,14 @@
             document.getElementById('hiddenInput').blur();
             document.getElementById('hiddenInput').disabled = true;
             clearInterval(pixelInterval); clearInterval(humanInterval);
-            const wpm = calcWpm();
-            const acc = typed.length > 0 ? Math.round((alignedLen / typed.length) * 100) : 0;
+            const stats = calcStats();
+            const wpm = stats.netWpm;
+            const acc = stats.accuracy;
             const finalPixelWpm = Math.round(pixelEffWpm);
+            lastResult = { wpm, grossWpm: stats.grossWpm, accuracy: acc, pixelWpm: finalPixelWpm, won: wpm > finalPixelWpm };
 
             document.getElementById('resYouWpm').textContent = wpm + ' WPM';
-            document.getElementById('resYouAcc').textContent = acc + '% accuracy';
+            document.getElementById('resYouAcc').textContent = acc + '% accuracy · ' + stats.grossWpm + ' gross WPM';
             document.getElementById('resPixelWpm').textContent = finalPixelWpm;
 
             const scores = [
@@ -458,11 +479,59 @@
                 document.querySelectorAll('.glass-result-card, .results-inner h2').forEach((card, i) => {
                     setTimeout(() => card.classList.add('show'), i * 140);
                 });
-                document.querySelector('#results .btn-retry').classList.add('show');
+                document.querySelectorAll('#results .btn-retry, #results .btn-share').forEach(button => button.classList.add('show'));
             }, 250);
 
             
             drawWpmGraph(wpm, finalPixelWpm);
+            if (wpm > finalPixelWpm) window.dispatchEvent(new CustomEvent('pixelis:achievement', { detail: { id: 'beat-pixel', title: 'faster than Pixel' } }));
+        }
+
+        function buildResultCard(result) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1200;
+            canvas.height = 630;
+            const g = canvas.getContext('2d');
+            const gradient = g.createLinearGradient(0, 0, 1200, 630);
+            gradient.addColorStop(0, '#101417');
+            gradient.addColorStop(1, '#1c2b31');
+            g.fillStyle = gradient;
+            g.fillRect(0, 0, 1200, 630);
+            g.strokeStyle = '#3ca7cb';
+            g.lineWidth = 4;
+            g.strokeRect(38, 38, 1124, 554);
+            g.fillStyle = '#3ca7cb';
+            g.font = '30px monospace';
+            g.fillText('[pixelis.dev typing race]', 82, 105);
+            g.fillStyle = '#ffffff';
+            g.font = 'bold 128px sans-serif';
+            g.fillText(result.wpm + ' WPM', 78, 285);
+            g.fillStyle = '#aeb7bc';
+            g.font = '34px monospace';
+            g.fillText(result.accuracy + '% accuracy  ·  ' + result.grossWpm + ' gross WPM', 84, 355);
+            g.fillStyle = result.won ? '#3d9970' : '#e67e22';
+            g.font = 'bold 42px sans-serif';
+            g.fillText(result.won ? 'I BEAT PIXEL.' : 'PIXEL WON THIS ONE.', 82, 458);
+            g.fillStyle = '#8f9ba1';
+            g.font = '27px monospace';
+            g.fillText('Pixel: ' + result.pixelWpm + ' WPM  ·  think you can beat it?', 84, 520);
+            return canvas;
+        }
+
+        async function shareResult() {
+            if (!lastResult) return;
+            const canvas = buildResultCard(lastResult);
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            const file = new File([blob], 'pixelis-typing-result.png', { type: 'image/png' });
+            const text = 'I got ' + lastResult.wpm + ' WPM at ' + lastResult.accuracy + '% accuracy on pixelis.dev.';
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                try { await navigator.share({ title: 'pixelis.dev typing result', text, files: [file] }); return; } catch (error) { if (error.name === 'AbortError') return; }
+            }
+            const link = document.createElement('a');
+            link.download = file.name;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(link.href), 1000);
         }
 
         
@@ -645,8 +714,15 @@
             document.getElementById('hiddenInput').focus();
         });
 
+        document.getElementById('hiddenInput').addEventListener('paste', (event) => {
+            event.preventDefault();
+            document.getElementById('hintText').textContent = 'nice try. typing means typing.';
+        });
+
+        document.getElementById('shareResult').addEventListener('click', shareResult);
+
         setupGame();
     </script>
-    <script src="../../music-player.js"></script>
+    <script src="../../music-player.js?v=3"></script>
 </body>
 </html>
