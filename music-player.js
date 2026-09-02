@@ -73,6 +73,19 @@
         var frequencyData;
         var visualFrame;
         var lastSavedSecond = -1;
+        var interactionEvents = ['pointerup', 'touchend', 'click', 'keydown'];
+
+        function stopWaitingForInteraction() {
+            interactionEvents.forEach(function (name) {
+                document.removeEventListener(name, startOnInteraction, true);
+            });
+        }
+        function startOnInteraction(event) {
+            if (userPaused || event.repeat) return;
+            // Let the play/pause button handle its own gesture exactly once.
+            if (event.target.closest && event.target.closest('#musicToggle')) return;
+            if (audio.paused || (audioContext && audioContext.state === 'suspended')) tryStart();
+        }
 
         function loadState() {
             try { var raw = sessionStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
@@ -108,7 +121,7 @@
                     audio.currentTime = Math.min(savedTime, Math.max(0, audio.duration - .5));
                 }
                 saveState();
-                if (wasPlaying) tryStart();
+                if (wasPlaying && !userPaused) tryStart();
             }, { once: true });
             audio.src = prefix + 'assets/music/' + encodeURIComponent(track.file).replace(/%2F/g, '/');
             audio.load();
@@ -155,10 +168,32 @@
             userPaused = false;
             shouldResume = true;
             var token = ++playToken;
+            // Unlock both the audio element and its visualizer during the user gesture.
+            ensureAnalyser();
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume().then(function () {
+                    if (!audio.paused && !userPaused) stopWaitingForInteraction();
+                }).catch(function () {});
+            }
             var promise = audio.play();
-            if (promise && promise.then) promise.then(function () { if (token !== playToken) audio.pause(); }).catch(function () { shouldResume = false; saveState(); });
+            if (promise && promise.then) promise.then(function () {
+                if (userPaused) { audio.pause(); return; }
+                if (token !== playToken) return;
+                if (!audioContext || audioContext.state === 'running') stopWaitingForInteraction();
+                saveState();
+            }).catch(function () {
+                // Browser autoplay blocking isn't a deliberate pause: retry on interaction.
+                if (token === playToken) saveState();
+            });
         }
-        function stopPlayback() { userPaused = true; shouldResume = false; playToken++; audio.pause(); }
+        function stopPlayback() {
+            userPaused = true;
+            shouldResume = false;
+            playToken++;
+            stopWaitingForInteraction();
+            audio.pause();
+            saveState();
+        }
 
         document.getElementById('musicToggle').addEventListener('click', function () { if (audio.paused) tryStart(); else stopPlayback(); });
         document.getElementById('musicPrev').addEventListener('click', function () { setTrack(currentRare ? currentIndex : currentIndex - 1, false); });
@@ -200,14 +235,11 @@
         setTrack(currentIndex, currentRare, !!(saved && saved.playing && !saved.paused), saved ? saved.time : 0);
 
         requestAnimationFrame(function () { requestAnimationFrame(function () { player.classList.add('visible'); }); });
-        if (!saved && autoplay) {
-            var events = ['pointerdown', 'keydown', 'touchstart'];
-            var startOnInteraction = function (event) {
-                events.forEach(function (name) { document.removeEventListener(name, startOnInteraction); });
-                if (!player.contains(event.target) && !userPaused && audio.paused) tryStart();
-            };
-            tryStart();
-            events.forEach(function (name) { document.addEventListener(name, startOnInteraction, { passive: true }); });
+        if (!userPaused) {
+            interactionEvents.forEach(function (name) {
+                document.addEventListener(name, startOnInteraction, { passive: true, capture: true });
+            });
+            if (!saved && autoplay) tryStart();
         }
     }
 

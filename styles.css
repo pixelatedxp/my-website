@@ -384,6 +384,66 @@ body::before {
 .side-sticky-note + .side-sticky-note {
     top: 250px;
 }
+.side-note-stack {
+    position: absolute;
+    top: 20px;
+    right: -220px;
+    width: 200px;
+    z-index: 9999;
+}
+.side-note-stack > .side-sticky-note {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 100%;
+}
+.signature-doodle {
+    width: 164px;
+    max-width: 100%;
+    margin: 10px auto 0;
+    transform: rotate(-7deg);
+    pointer-events: none;
+}
+.signature-doodle svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+.signature-line {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+}
+.signature-ink { stroke: #090909; stroke-width: 5.2; }
+.signature-pending .signature-line { stroke-dashoffset: 1; }
+.signature-doodle.is-drawn .signature-line {
+    animation: signatureWrite 2.2s ease-in-out .2s forwards;
+}
+.signature-doodle.is-drawn .signature-underline {
+    animation-duration: .55s;
+    animation-delay: 2.3s;
+}
+@keyframes signatureWrite { to { stroke-dashoffset: 0; } }
+@media (max-width: 1200px) {
+    .side-note-stack {
+        position: relative;
+        top: auto;
+        right: auto;
+        width: min(240px, 100%);
+        margin: 0 0 25px auto;
+    }
+}
+@media (max-width: 600px) {
+    .side-note-stack { width: 100%; }
+    .signature-doodle { margin-right: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .signature-pending .signature-line { stroke-dashoffset: 0; }
+    .signature-doodle.is-drawn .signature-line { animation: none; }
+}
 @media (max-width: 600px) {
     #sticky, #sticky-new { position: static !important; width: 100% !important; max-width: none !important; margin-top: 12px; right: auto !important; }
     .navbar {

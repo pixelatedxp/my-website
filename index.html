@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="assets/favicon.png">
-    <link rel="stylesheet" href="styles.css?v=4">
+    <link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body class="dark-mode">
     <!-- if you are reading this, try typing "pixel" -->
@@ -47,8 +47,21 @@
                     <p class="bio-text">Hey, I'm Pixel, not much to say, but ever felt like when you’re lowk chilling in your room creating imaginary scenarios in your head but then you catch yourself smiling so you gotta remind yourself you’re a loser and also ask yourself what level of chud is this</p>
                 </div>
             </section>
-            <div id="sticky-new" class="side-sticky-note">
-                <div class="note-body">nothing much tbh lol</div>
+            <div class="side-note-stack">
+                <div id="sticky-new" class="side-sticky-note">
+                    <div class="note-body">nothing much tbh lol</div>
+                    <div class="signature-doodle" id="masSignature">
+                        <svg viewBox="0 0 280 170" role="img" aria-labelledby="masSignatureTitle">
+                            <title id="masSignatureTitle">Masood's handwritten mas signature</title>
+                            <defs>
+                                <path id="masSignatureWriting" pathLength="1" d="M27 100 Q36 87 46 67 C47 38 53 26 57 36 C62 46 46 77 47 95 C57 59 69 47 73 56 C78 67 65 88 69 93 C79 58 96 54 100 62 C106 73 92 91 100 96 C125 102 140 63 119 39 C101 16 60 13 37 31 C12 51 9 96 34 111 C59 127 96 122 116 102 C128 85 142 62 153 68 C139 56 118 68 121 88 C124 105 142 89 151 72 C149 80 142 95 150 98 C159 100 175 84 184 74 C199 52 202 56 196 66 C191 74 172 79 172 88 C172 97 187 95 192 102 C201 117 178 126 169 119 C160 112 182 104 201 97 C218 91 228 90 239 88"/>
+                                <path id="masSignatureUnderline" pathLength="1" d="M230 119 C179 120 123 136 72 140 C117 135 194 131 255 132"/>
+                            </defs>
+                            <use href="#masSignatureWriting" class="signature-line signature-ink"/>
+                            <use href="#masSignatureUnderline" class="signature-line signature-ink signature-underline"/>
+                        </svg>
+                    </div>
+                </div>
             </div>
         </div>
         <section class="card section fade-up" id="games">
@@ -213,7 +226,24 @@
             observer.observe(target);
         })();
     </script>
-    <script src="music-player.js?v=5" data-autoplay="true"></script>
+    <script>
+        (function () {
+            var signature = document.getElementById('masSignature');
+            if (!signature || !('IntersectionObserver' in window) ||
+                window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            signature.classList.add('signature-pending');
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        signature.classList.add('is-drawn');
+                        observer.disconnect();
+                    }
+                });
+            }, { threshold: 0.25 });
+            observer.observe(signature);
+        })();
+    </script>
+    <script src="music-player.js?v=6" data-autoplay="true"></script>
     <script src="script.js?v=6"></script>
 </body>
 </html>
