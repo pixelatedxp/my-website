@@ -363,7 +363,7 @@ bindImageZoom();
     if (!current || !current.src || document.querySelector('script[data-pixelis-eggs]')) return;
     var eggs = document.createElement('script');
     var eggsUrl = new URL('easter-eggs.js', current.src);
-    eggsUrl.searchParams.set('v', '3');
+    eggsUrl.searchParams.set('v', '4');
     eggs.src = eggsUrl.href;
     eggs.dataset.pixelisEggs = 'true';
     document.head.appendChild(eggs);

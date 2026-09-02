@@ -459,52 +459,6 @@ body::before {
         display: none;
     }
 }
-.simp-doodle {
-    position: absolute;
-    right: calc(100% + 12px);
-    left: auto;
-    width: 340px;
-    height: 159px;
-    transform: translateY(-50%) rotate(-4deg);
-    pointer-events: none;
-    z-index: 9999;
-}
-.simp-doodle svg {
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-}
-.simp-crayon {
-    fill: none;
-    stroke: var(--doodle-color);
-    stroke-width: 6;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    filter: url(#simpRough);
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-}
-.simp-doodle.animate .simp-S { animation: simpDraw .16s linear forwards; }
-.simp-doodle.animate .simp-I { animation: simpDraw .12s linear .13s forwards; }
-.simp-doodle.animate .simp-M { animation: simpDraw .18s linear .23s forwards; }
-.simp-doodle.animate .simp-P { animation: simpDraw .16s linear .38s forwards; }
-.simp-doodle.animate .simp-line { animation: simpDraw .78s ease-out .52s forwards; }
-.simp-doodle.animate .simp-arrow { animation: simpDraw .12s linear 1.24s forwards; }
-@keyframes simpDraw {
-    to { stroke-dashoffset: 0; }
-}
-@media (max-width: 1000px) {
-    .simp-doodle {
-        display: none;
-    }
-}
-
-.bio-simp-doodle {
-    top: 121px;
-}
-.bio-simp-doodle .simp-crayon {
-    filter: url(#bioSimpRough);
-}
 
 /* Optional discoveries: isolated from the core layout and controls. */
 .egg-toast-stack { position: fixed; left: 20px; bottom: 20px; z-index: 1000001; display: grid; gap: 8px; pointer-events: none; }
@@ -520,7 +474,7 @@ body::before {
 .egg-terminal-form span { color: var(--accent-teal); }
 .egg-terminal-input { flex: 1; border: 0; outline: 0; background: transparent; color: #fff; font: inherit; }
 .egg-terminal-form button { border: 0; background: none; color: var(--accent-teal); cursor: pointer; font: inherit; }
-.goat-doodle.egg-ready, .simp-doodle.egg-ready { pointer-events: auto; cursor: pointer; }
+.goat-doodle.egg-ready { pointer-events: auto; cursor: pointer; }
 .goat-doodle.egg-certified .crayon { stroke: #f5c542; filter: drop-shadow(0 0 6px #f5c542); }
 .egg-doodle-label { position: absolute; left: 50%; bottom: 8%; transform: translateX(-50%); color: #f5c542; font: .8rem var(--font-mono); white-space: nowrap; }
 .egg-heart { position: fixed; z-index: 1000002; pointer-events: none; color: #ff5c9a; font-size: 24px; animation: eggHeart 1.4s ease-out forwards; }
@@ -541,7 +495,5 @@ body::before {
 @keyframes loreWhistle { to { transform: rotate(3deg) scale(1.03); filter: brightness(1.18); } }
 .lore-particle { position: fixed; z-index: 1000003; pointer-events: none; font-size: 24px; animation: loreScatter 1.6s ease-out forwards; }
 @keyframes loreScatter { to { opacity: 0; transform: translate(var(--lore-x), var(--lore-y)) rotate(220deg) scale(1.4); } }
-.simp-confession { position: absolute; left: 36px; top: 72%; width: 300px; color: var(--doodle-color); font: .72rem/1.25 var(--font-mono); text-align: center; opacity: 0; transform: rotate(2deg) translateY(8px); transition: opacity .5s ease, transform .5s ease; }
-.simp-confession.show { opacity: .92; transform: rotate(2deg) translateY(0); }
 @media (prefers-reduced-motion: reduce) { .egg-toast, .egg-heart { animation: none; } }
 

@@ -5,11 +5,11 @@
     var ACHIEVEMENTS = {
         terminal: 'there is no terminal', auditor: 'checked the receipts', whoami: 'identity crisis resolved',
         sudo: 'not in the sudoers file', secrets: 'asked the obvious question', goat: 'certified goat',
-        simp: 'professional simp', snowstorm: 'weather warning', 'secret-track': 'the B-side',
+        snowstorm: 'weather warning', 'secret-track': 'the B-side',
         'rare-note': 'two percent club', 'hall-secret': 'the portrait speaks', explorer: 'scrolled the whole thing',
         'arcade-tourist': 'arcade regular', fivehours: 'five minutes later', biscuits: 'hands off the biscuits',
         blackmail: 'nothing to blackmail', lockin: 'locked all the way in',
-        'simp-defense': 'honestly understandable', 'beat-pixel': 'faster than Pixel'
+        'beat-pixel': 'faster than Pixel'
     };
     var unlocked = loadJson(ACHIEVEMENT_KEY, {});
     var toastStack;
@@ -142,7 +142,6 @@
 
     function initDoodles() {
         var goat = document.getElementById('goatDoodle');
-        var simp = document.getElementById('simpDoodle');
         if (goat) {
             goat.classList.add('egg-ready');
             var goatClicks = 0;
@@ -156,15 +155,6 @@
                     goat.appendChild(label);
                     unlock('goat', 'certified goat');
                 }
-            });
-        }
-        if (simp) {
-            simp.classList.add('egg-ready');
-            var simpClicks = 0;
-            simp.addEventListener('click', function (event) {
-                simpClicks++;
-                spawnHeart(event.clientX, event.clientY);
-                if (simpClicks === 5) unlock('simp', 'professional simp');
             });
         }
     }
@@ -265,7 +255,6 @@
                 try { localStorage.setItem('pixelisLoreSeen', JSON.stringify(seen)); } catch (e) {}
                 unlock('hall-secret');
             }
-            if (id === 'simp-defense') unlock('simp-defense');
         }
 
         function reveal(card) {
@@ -277,28 +266,13 @@
             } else if (id === 'pookie') {
                 bubble(card, 'poookie </3', 0, true);
                 mark(card);
-            } else if (id === 'simp-defense') {
-                bubble(card, 'I don\'t blame him for simping. that girl is pretty ash.');
-                var doodle = document.getElementById('simpDoodle');
-                if (doodle) {
-                    var caption = doodle.querySelector('.simp-confession');
-                    if (!caption) {
-                        caption = document.createElement('span');
-                        caption.className = 'simp-confession';
-                        caption.textContent = '(you can\'t blame him, she\'s pretty ash)';
-                        doodle.appendChild(caption);
-                    }
-                    caption.classList.add('show');
-                }
-                scatter(card, ['♥', '♡']);
-                mark(card);
             }
         }
 
         cards.forEach(function (card) {
             var id = card.dataset.loreId;
             card.addEventListener('keydown', function (event) { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); reveal(card); } });
-            if (id === 'biscuits-tea' || id === 'simp-defense') {
+            if (id === 'biscuits-tea') {
                 card.addEventListener('dblclick', function () { reveal(card); });
             } else {
                 card.addEventListener('click', function () { reveal(card); });

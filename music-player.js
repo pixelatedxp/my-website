@@ -9,6 +9,8 @@
     for (var i = 0; i < segs.length; i++) prefix += '../';
 
     var tracks = [
+        // Release artwork: https://open.spotify.com/track/2VKJotTHpawDXLAKYt2UV2
+        { title: '180db_ [130] (Super Slowed)', file: '180db-130-super-slowed.mp3', cover: '180db-cover.jpg', loop: true },
         { title: 's0rrow - unhappy', file: 's0rrow-unhappy.mp3' },
         { title: 'close my eyes', file: 'close my eyes.mp3' },
         { title: 'fake ur face', file: 'fake ur face.mp3' },
@@ -36,7 +38,7 @@
         player.className = 'music-player';
         player.id = 'musicPlayer';
         player.innerHTML =
-            '<img src="' + prefix + 'assets/music/thumb.jpg" alt="Album art" class="music-thumb" draggable="false">' +
+            '<img alt="Album art" class="music-thumb" draggable="false">' +
             '<div class="music-info"><span class="music-label">[now playing]</span><div class="music-track-window"><span class="music-track music-track-inner"></span></div><div class="music-visualizer" aria-hidden="true">' +
                 '<span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>' +
             '</div></div>' +
@@ -54,6 +56,7 @@
         document.body.appendChild(audio);
 
         var title = player.querySelector('.music-track');
+        var thumbnail = player.querySelector('.music-thumb');
         var titleWindow = player.querySelector('.music-track-window');
         var playIcon = document.getElementById('musicPlayIcon');
         var pauseIcon = document.getElementById('musicPauseIcon');
@@ -76,13 +79,15 @@
         }
         function saveState() {
             try {
-                sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ index: currentIndex, rare: currentRare, time: audio.currentTime || 0, playing: shouldResume, paused: userPaused, volume: audio.volume }));
+                sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ index: currentIndex, file: tracks[currentIndex].file, rare: currentRare, time: audio.currentTime || 0, playing: shouldResume, paused: userPaused, volume: audio.volume }));
             } catch (e) {}
         }
         function activeTrack() { return currentRare ? rareTrack : tracks[currentIndex]; }
         function updateTitle() {
             var track = activeTrack();
             title.textContent = track.title;
+            thumbnail.src = prefix + 'assets/music/' + (track.cover || 'thumb.jpg');
+            thumbnail.alt = 'Cover art for ' + track.title;
             player.classList.toggle('rare', !!track.rare);
             player.querySelector('.music-label').textContent = track.rare ? '[rare transmission]' : '[now playing]';
             requestAnimationFrame(function () {
@@ -97,6 +102,7 @@
             if (!currentRare) currentIndex = (index + tracks.length) % tracks.length;
             var track = activeTrack();
             var savedTime = Math.max(0, Number(resumeAt) || 0);
+            audio.loop = !!track.loop;
             audio.addEventListener('loadedmetadata', function restoreTrackState() {
                 if (savedTime > 0 && Number.isFinite(audio.duration)) {
                     audio.currentTime = Math.min(savedTime, Math.max(0, audio.duration - .5));
@@ -167,14 +173,24 @@
                 saveState();
             }
         });
-        audio.addEventListener('ended', function () { setTrack(currentIndex + 1, false, true); });
+        audio.addEventListener('ended', function () { if (!audio.loop) setTrack(currentIndex + 1, false, true); });
         window.addEventListener('pixelis:rare-track', function () { setTrack(currentIndex, !currentRare, !audio.paused); });
         window.addEventListener('pagehide', saveState);
         document.addEventListener('visibilitychange', function () { if (document.hidden) saveState(); });
 
         var saved = loadState();
         if (saved) {
-            currentIndex = Math.max(0, Math.min(tracks.length - 1, Number(saved.index) || 0));
+            // Save filenames so adding a new default never shifts a visitor's selected song.
+            var savedIndex = tracks.findIndex(function (track) { return track.file === saved.file; });
+            if (savedIndex >= 0) {
+                currentIndex = savedIndex;
+            } else if (!saved.file && (saved.rare || Number(saved.index) > 0)) {
+                // Legacy saves used the old playlist's numeric index.
+                currentIndex = Math.max(1, Math.min(tracks.length - 1, (Number(saved.index) || 0) + 1));
+            } else {
+                currentIndex = 0;
+                saved.time = 0;
+            }
             currentRare = !!saved.rare;
             audio.volume = typeof saved.volume === 'number' ? saved.volume : .65;
             volume.value = audio.volume;
