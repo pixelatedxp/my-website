@@ -9,6 +9,8 @@
     for (var i = 0; i < segs.length; i++) prefix += '../';
 
     var tracks = [
+        // Official single artwork: https://www.eminem.com/releases/without-me/
+        { title: 'Eminem - Without Me', file: 'eminem-without-me.mp3', cover: 'eminem-without-me-cover.jpg', loop: true },
         // Release artwork: https://open.spotify.com/track/2VKJotTHpawDXLAKYt2UV2
         { title: '180db_ [130] (Super Slowed)', file: '180db-130-super-slowed.mp3', cover: '180db-cover.jpg', loop: true },
         { title: 's0rrow - unhappy', file: 's0rrow-unhappy.mp3' },
@@ -92,7 +94,7 @@
         }
         function saveState() {
             try {
-                sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ index: currentIndex, file: tracks[currentIndex].file, rare: currentRare, time: audio.currentTime || 0, playing: shouldResume, paused: userPaused, volume: audio.volume }));
+                sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ defaultFile: tracks[0].file, index: currentIndex, file: tracks[currentIndex].file, rare: currentRare, time: audio.currentTime || 0, playing: shouldResume, paused: userPaused, volume: audio.volume }));
             } catch (e) {}
         }
         function activeTrack() { return currentRare ? rareTrack : tracks[currentIndex]; }
@@ -215,13 +217,19 @@
 
         var saved = loadState();
         if (saved) {
-            // Save filenames so adding a new default never shifts a visitor's selected song.
+            // Move sessions on the previous default to the new main song once.
+            // Later selections (including 180db) still resume normally by filename.
+            var previousDefault = saved.defaultFile || '180db-130-super-slowed.mp3';
+            if (!saved.rare && previousDefault !== tracks[0].file && saved.file === previousDefault) {
+                saved.file = tracks[0].file;
+                saved.time = 0;
+            }
             var savedIndex = tracks.findIndex(function (track) { return track.file === saved.file; });
             if (savedIndex >= 0) {
                 currentIndex = savedIndex;
             } else if (!saved.file && (saved.rare || Number(saved.index) > 0)) {
                 // Legacy saves used the old playlist's numeric index.
-                currentIndex = Math.max(1, Math.min(tracks.length - 1, (Number(saved.index) || 0) + 1));
+                currentIndex = Math.max(2, Math.min(tracks.length - 1, (Number(saved.index) || 0) + 2));
             } else {
                 currentIndex = 0;
                 saved.time = 0;

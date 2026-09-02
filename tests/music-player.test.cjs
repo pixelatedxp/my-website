@@ -95,9 +95,11 @@ function createPlayer(saved, autoplay = true) {
         requestAnimationFrame: () => 1, cancelAnimationFrame() {}
     });
     return {
-        policy, document, window, audio: ids.get('siteAudio'),
+        policy, document, window, audio: ids.get('siteAudio'), player: ids.get('musicPlayer'),
         state: () => JSON.parse(stored),
         interact: type => document.emit(type),
+        next() { ids.get('musicNext').emit('click'); },
+        previous() { ids.get('musicPrev').emit('click'); },
         toggle() {
             const button = ids.get('musicToggle');
             document.emit('click', { target: button });
@@ -144,7 +146,7 @@ for (const gesture of ['touchend', 'keydown']) {
 }
 
 test('blocked page-to-page resumption keeps the selected track and position', async () => {
-    const p = createPlayer({ file: '180db-130-super-slowed.mp3', paused: false, playing: true, time: 42 });
+    const p = createPlayer({ file: 'eminem-without-me.mp3', paused: false, playing: true, time: 42 });
     await settle();
     assert.equal(p.audio.currentTime, 42);
     p.policy.allowed = true;
@@ -152,7 +154,7 @@ test('blocked page-to-page resumption keeps the selected track and position', as
     await settle();
     assert.equal(p.audio.paused, false);
     assert.equal(p.audio.currentTime, 42);
-    assert.match(p.audio.src, /180db-130-super-slowed/);
+    assert.match(p.audio.src, /eminem-without-me/);
 });
 
 test('a deliberate saved pause is respected on ordinary interactions', async () => {
@@ -180,4 +182,59 @@ test('the play button handles its own click once and pausing prevents later auto
     assert.equal(p.audio.paused, true);
     assert.equal(p.state().paused, true);
     assert.equal(p.state().playing, false);
+});
+
+test('Without Me is the default looping song with its official single cover', async () => {
+    const p = createPlayer(null, false);
+    await settle();
+    assert.match(p.audio.src, /eminem-without-me\.mp3$/);
+    assert.equal(p.audio.loop, true);
+    assert.equal(p.player.querySelector('.music-track').textContent, 'Eminem - Without Me');
+    assert.match(p.player.querySelector('.music-thumb').src, /eminem-without-me-cover\.jpg$/);
+});
+
+test('sessions on the previous default move to Without Me without carrying over its time', async () => {
+    const p = createPlayer({ file: '180db-130-super-slowed.mp3', time: 42, playing: true, volume: .4 });
+    await settle();
+    assert.match(p.audio.src, /eminem-without-me\.mp3$/);
+    assert.equal(p.audio.currentTime, 0);
+    assert.equal(p.audio.volume, .4);
+    assert.equal(p.state().defaultFile, 'eminem-without-me.mp3');
+    p.policy.allowed = true;
+    p.interact('click');
+    await settle();
+    assert.equal(p.audio.paused, false);
+});
+
+test('180db remains selectable and resumes after the one-time default migration', async () => {
+    const p = createPlayer(null, false);
+    await settle();
+    p.next();
+    await settle();
+    assert.match(p.audio.src, /180db-130-super-slowed\.mp3$/);
+    const resumed = createPlayer({ ...p.state(), time: 42 }, false);
+    await settle();
+    assert.match(resumed.audio.src, /180db-130-super-slowed\.mp3$/);
+    assert.equal(resumed.audio.currentTime, 42);
+    p.previous();
+    await settle();
+    assert.match(p.audio.src, /eminem-without-me\.mp3$/);
+    assert.equal(p.audio.loop, true);
+});
+
+test('other selected songs and the secret track keep their position across the update', async () => {
+    const p = createPlayer({ file: 'close my eyes.mp3', time: 42 }, false);
+    const rare = createPlayer({ file: '180db-130-super-slowed.mp3', rare: true, time: 64 }, false);
+    await settle();
+    assert.match(p.audio.src, /close%20my%20eyes\.mp3$/);
+    assert.equal(p.audio.currentTime, 42);
+    assert.match(rare.audio.src, /i%20have%20no%20friends\.mp3$/);
+    assert.equal(rare.audio.currentTime, 64);
+});
+
+test('legacy numeric playlist saves still map to the same non-default song', async () => {
+    const p = createPlayer({ index: 1, time: 42 }, false);
+    await settle();
+    assert.match(p.audio.src, /close%20my%20eyes\.mp3$/);
+    assert.equal(p.audio.currentTime, 42);
 });
