@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="assets/favicon.png">
-    <link rel="stylesheet" href="styles.css?v=6">
+    <link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body class="dark-mode">
     <!-- if you are reading this, try typing "pixel" -->
@@ -43,7 +43,25 @@
             <section class="card section fade-up-initial" id="about">
                 <div class="card-content">
                     <h2 class="mono-label glitch-text" data-text="[about]">[about]</h2>
-                    <h1 class="main-heading">Hi, I'm Pixel.</h1>
+                    <div class="intro-heading">
+                        <div class="goat-doodle" id="goatDoodle">
+                            <svg viewBox="0 0 600 280" role="img" aria-label="GOAT, with a looping arrow pointing to Hi, I'm Pixel">
+                                <defs>
+                                    <filter id="rough" x="-20%" y="-20%" width="140%" height="140%">
+                                        <feTurbulence type="fractalNoise" baseFrequency=".025" numOctaves="2" seed="8" result="noise"></feTurbulence>
+                                        <feDisplacementMap in="SourceGraphic" in2="noise" scale="2"></feDisplacementMap>
+                                    </filter>
+                                </defs>
+                                <path pathLength="1" class="crayon G" d="M68 82 C50 65 23 69 20 101 C18 133 43 147 65 130 C73 123 75 113 71 104 L54 104 L70 104 L70 126"></path>
+                                <path pathLength="1" class="crayon O" d="M99 77 C76 76 73 135 98 138 C125 140 130 82 104 77 C102 77 100 77 99 77"></path>
+                                <path pathLength="1" class="crayon A" d="M132 138 L153 76 L176 138 M141 113 L168 113"></path>
+                                <path pathLength="1" class="crayon T" d="M183 78 L226 78 M204 78 L204 138"></path>
+                                <path pathLength="1" class="crayon line" d="M220 139 C252 150 278 196 250 219 C219 244 211 196 251 175 C294 152 349 171 348 209 C347 245 293 235 300 197 C307 156 373 152 400 110 C430 62 369 47 361 84 C353 123 424 159 480 146 C522 137 544 134 580 140"></path>
+                                <path pathLength="1" class="crayon arrow" d="M558 123 L580 140 L555 154"></path>
+                            </svg>
+                        </div>
+                        <h1 class="main-heading">Hi, I'm Pixel.</h1>
+                    </div>
                     <p class="bio-text">Hey, I'm Pixel, not much to say, but ever felt like when you’re lowk chilling in your room creating imaginary scenarios in your head but then you catch yourself smiling so you gotta remind yourself you’re a loser and also ask yourself what level of chud is this</p>
                 </div>
             </section>
@@ -82,22 +100,6 @@
             </div>
         </section>
         <section class="card section fade-up" id="hall-of-fame" style="position: relative;">
-            <div class="goat-doodle" id="goatDoodle">
-                <svg viewBox="0 0 600 280">
-                    <defs>
-                        <filter id="rough" x="-20%" y="-20%" width="140%" height="140%">
-                            <feTurbulence type="fractalNoise" baseFrequency=".025" numOctaves="2" seed="8" result="noise"></feTurbulence>
-                            <feDisplacementMap in="SourceGraphic" in2="noise" scale="2"></feDisplacementMap>
-                        </filter>
-                    </defs>
-                    <path pathLength="1" class="crayon G" d="M68 82 C50 65 23 69 20 101 C18 133 43 147 65 130 C73 123 75 113 71 104 L54 104 L70 104 L70 126"></path>
-                    <path pathLength="1" class="crayon O" d="M99 77 C76 76 73 135 98 138 C125 140 130 82 104 77 C102 77 100 77 99 77"></path>
-                    <path pathLength="1" class="crayon A" d="M132 138 L153 76 L176 138 M141 113 L168 113"></path>
-                    <path pathLength="1" class="crayon T" d="M183 78 L226 78 M204 78 L204 138"></path>
-                    <path pathLength="1" class="crayon line" d="M220 139 C250 90 300 65 325 105 C350 150 305 205 260 175 C215 145 260 80 340 85 C420 90 470 120 520 145 C565 165 610 155 650 145"></path>
-                    <path pathLength="1" class="crayon arrow" d="M620 128 L650 145 L623 166"></path>
-                </svg>
-            </div>
             <div class="card-content">
                 <div class="section-header">
                     <h2 class="mono-label glitch-text" data-text="[hall of fame]">[hall of fame]</h2>
@@ -117,11 +119,6 @@
                     <div class="glow-card tiltable">
                         <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
                             <img src="assets/hall_of_fame/hof_aug22_3.png" style="max-width: 100%; border-radius: 8px;" alt="Friend">
-                        </div>
-                    </div>
-                    <div class="glow-card tiltable">
-                        <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
-                            <img src="assets/hall_of_fame/hof_aug22_4.png" style="max-width: 100%; border-radius: 8px;" alt="Friend">
                         </div>
                     </div>
                     <div class="glow-card tiltable lore-card" data-lore-id="biscuits-tea" tabindex="0" role="button" aria-label="Friend portrait with a hidden interaction">
@@ -199,31 +196,17 @@
     </main>
     <script>
         (function () {
-            var section = document.getElementById('hall-of-fame');
             var doodle = document.getElementById('goatDoodle');
-            if (!section || !doodle) return;
-            var image = section.querySelector('img[src="assets/hall_of_fame/hof_aug22_4.png"]');
-            if (!image) return;
-            var target = image.closest('.glow-card');
-            if (!target) return;
-            function positionDoodle() {
-                var sectionRect = section.getBoundingClientRect();
-                var targetRect = target.getBoundingClientRect();
-                var targetCenter = targetRect.top - sectionRect.top + (targetRect.height / 2);
-                doodle.style.top = targetCenter + 'px';
-                doodle.style.transform = 'translateY(-50%)';
-            }
-            positionDoodle();
-            window.addEventListener('resize', positionDoodle);
+            if (!doodle || !('IntersectionObserver' in window)) return;
             var observer = new IntersectionObserver(function (entries) {
                 entries.forEach(function (entry) {
                     if (entry.isIntersecting) {
                         doodle.classList.add('animate');
-                        observer.unobserve(target);
+                        observer.disconnect();
                     }
                 });
-            }, { threshold: 0.2 });
-            observer.observe(target);
+            }, { threshold: 0.5 });
+            observer.observe(doodle);
         })();
     </script>
     <script>
