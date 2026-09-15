@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="assets/favicon.png">
-    <link rel="stylesheet" href="styles.css?v=7">
+    <link rel="stylesheet" href="styles.css?v=12">
 </head>
 <body class="dark-mode">
     <!-- if you are reading this, try typing "pixel" -->
@@ -62,12 +62,24 @@
                         </div>
                         <h1 class="main-heading">Hi, I'm Pixel.</h1>
                     </div>
-                    <p class="bio-text">Hey, I'm Pixel, not much to say, but ever felt like when you’re lowk chilling in your room creating imaginary scenarios in your head but then you catch yourself smiling so you gotta remind yourself you’re a loser and also ask yourself what level of chud is this</p>
+                    <p class="bio-text">Hey, I'm Pixel. Not much to say, but ever felt like you’re lowk chilling in your room creating imaginary scenarios in your head, then you catch yourself smiling so you gotta remind yourself you’re a loser and ask yourself what level of chud this is?</p>
+                    <p class="bio-text">I make random stuff on the internet and occasionally convince myself it was a good idea.</p>
+                    <p class="bio-text bio-signoff">unfortunately still online.</p>
+                    <aside class="currently-card" id="currentlyCard" data-discord-id="1009828837141528696" data-status="unavailable" aria-labelledby="currentlyHeading">
+                        <div class="currently-header">
+                            <h2 class="mono-label" id="currentlyHeading">[currently]</h2>
+                            <span class="currently-status"><span class="currently-dot" aria-hidden="true"></span><span id="currentlyStatus">status: unavailable</span></span>
+                        </div>
+                        <p class="currently-custom" id="currentlyCustomStatus" hidden></p>
+                        <div id="currentlyActivity" aria-live="polite" aria-atomic="true">
+                            <p class="currently-empty">activity unavailable right now</p>
+                        </div>
+                    </aside>
                 </div>
             </section>
             <div class="side-note-stack">
                 <div id="sticky-new" class="side-sticky-note">
-                    <div class="note-body">nothing much tbh lol</div>
+                    <div class="note-body">site passed quality control (i checked it myself)</div>
                     <div class="signature-doodle" id="masSignature">
                         <svg viewBox="0 0 280 170" role="img" aria-labelledby="masSignatureTitle">
                             <title id="masSignatureTitle">Masood's handwritten mas signature</title>
@@ -90,11 +102,11 @@
                 </div>
                 <div class="glow-card tiltable" onclick="window.location.href='games/index.html'" style="cursor: pointer;">
                     <div class="glow-content">
-                        <div class="section-header" style="margin-bottom: 5px;">
-                            <h3 style="margin-bottom: 0;">The Arcade is Open</h3>
+                        <div class="section-header games-heading" style="margin-bottom: 5px;">
+                            <h3 style="margin-bottom: 0;">things i made instead of being productive</h3>
                             <span class="mono-label">7 games</span>
                         </div>
-                        <p>A collection of browser-based mini-games and interactive tools I've built, from Chess vs Stockfish AI to Wordle, Typing Speed races, Snake, Reaction Time tests and more. Click to visit.</p>
+                        <p>chess, wordle, typing tests and several other excellent uses of electricity.</p>
                     </div>
                 </div>
             </div>
@@ -104,36 +116,48 @@
                 <div class="section-header">
                     <h2 class="mono-label glitch-text" data-text="[hall of fame]">[hall of fame]</h2>
                 </div>
-                <p class="bio-text" style="margin-bottom: 30px;">these are my closest friends + besties &lt;3333 i love them alottt</p>
+                <p class="bio-text" style="margin-bottom: 30px;">somehow these people still talk to me</p>
                 <div class="projects-grid hall-of-fame-grid">
-                    <div class="glow-card tiltable">
-                        <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
+                    <div class="glow-card tiltable friend-card" tabindex="0">
+                        <div class="glow-content friend-content">
                             <img src="assets/hall_of_fame/hof_aug22_1.png" style="max-width: 100%; border-radius: 8px;" alt="Friend">
+                            <p class="friend-caption">cs2 buddy</p>
                         </div>
                     </div>
-                    <div class="glow-card tiltable">
-                        <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
+                    <div class="glow-card tiltable friend-card" tabindex="0">
+                        <div class="glow-content friend-content">
                             <img src="assets/hall_of_fame/hof_aug22_2.png" style="max-width: 100%; border-radius: 8px;" alt="Friend">
+                            <p class="friend-caption">has witnessed too much</p>
                         </div>
                     </div>
-                    <div class="glow-card tiltable">
-                        <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
+                    <div class="glow-card tiltable friend-card" tabindex="0">
+                        <div class="glow-content friend-content">
                             <img src="assets/hall_of_fame/hof_aug22_3.png" style="max-width: 100%; border-radius: 8px;" alt="Friend">
+                            <p class="friend-caption">OG homie ong</p>
                         </div>
                     </div>
-                    <div class="glow-card tiltable lore-card" data-lore-id="biscuits-tea" tabindex="0" role="button" aria-label="Friend portrait with a hidden interaction">
-                        <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
-                            <img src="assets/hall_of_fame/hof_aug23_1.png" style="max-width: 100%; border-radius: 8px;" alt="Friend">
+                    <div class="glow-card tiltable friend-card lore-card vault-card" data-lore-id="biscuits-tea" tabindex="0" role="button" aria-expanded="false" aria-label="Evrin — cookies and tea addict. Click five times to open the biscuit vault.">
+                        <div class="vault-room" aria-hidden="true">
+                            <span class="vault-label">biscuit reserves</span>
+                            <div class="vault-biscuits"><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span></div>
+                            <span class="vault-label">hands off.</span>
+                        </div>
+                        <div class="glow-content friend-content">
+                            <img src="assets/hall_of_fame/hof_aug23_1.png" style="max-width: 100%; border-radius: 8px;" alt="Evrin">
+                            <p class="friend-caption">cookies and tea addict</p>
+                            <span class="vault-wheel" aria-hidden="true"></span>
                         </div>
                     </div>
-                    <div class="glow-card tiltable">
-                        <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
+                    <div class="glow-card tiltable friend-card" tabindex="0">
+                        <div class="glow-content friend-content">
                             <img src="assets/hall_of_fame/hof_aug23_2.png" style="max-width: 100%; border-radius: 8px;" alt="Friend">
+                            <p class="friend-caption">DO NOT think he's innocent</p>
                         </div>
                     </div>
-                    <div class="glow-card tiltable lore-card" data-lore-id="pookie" tabindex="0" role="button" aria-label="Friend portrait with a hidden interaction">
-                        <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
+                    <div class="glow-card tiltable friend-card" tabindex="0">
+                        <div class="glow-content friend-content">
                             <img src="assets/hall_of_fame/hof_aug23_3.png" style="max-width: 100%; border-radius: 8px;" alt="Friend">
+                            <p class="friend-caption">top tier dirty jokes</p>
                         </div>
                     </div>
                 </div>
@@ -146,9 +170,10 @@
                 </div>
                 <p class="bio-text" style="margin-bottom: 30px;">The hall of fame's sister wing. Same rules apply: you earn your spot here, but for completely different reasons.</p>
                 <div class="projects-grid hall-of-fame-grid">
-                    <div class="glow-card tiltable">
-                        <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
+                    <div class="glow-card tiltable friend-card" tabindex="0">
+                        <div class="glow-content friend-content">
                             <img src="assets/hall_of_fame/hall_of_gay_1.png" style="max-width: 100%; border-radius: 8px;" alt="Hall of gay entry 1">
+                            <p class="friend-caption">once this guy held me at knifepoint and told me to drop my pants, extremely normal individual</p>
                         </div>
                     </div>
                 </div>
@@ -157,7 +182,7 @@
         <section class="card section fade-up" id="contact">
             <div class="card-content">
                 <div class="section-header">
-                    <h2 class="mono-label glitch-text" data-text="[contact]">[contact]</h2>
+                    <h2 class="mono-label glitch-text" data-text="[ways to bother me]">[ways to bother me]</h2>
                 </div>
                 <div class="projects-grid">
                     <div class="glow-card tiltable contact-flex" onclick="copyEmail(this)" style="cursor: pointer; grid-column: 1 / -1;">
@@ -194,6 +219,7 @@
             </div>
         </section>
     </main>
+    <footer class="site-footer">built with poor judgment</footer>
     <script>
         (function () {
             var doodle = document.getElementById('goatDoodle');
@@ -227,7 +253,8 @@
         })();
     </script>
     <script src="music-player.js?v=7" data-autoplay="true"></script>
-    <script src="script.js?v=6"></script>
+    <script src="currently.js?v=5"></script>
+    <script src="script.js?v=9"></script>
 </body>
 </html>
 
