@@ -219,18 +219,16 @@
         if (!cards.length) return;
         var seen = loadJson('pixelisLoreSeen', {});
 
-        function bubble(card, message, duration, inside) {
+        function bubble(card, message) {
             var old = card.querySelector('.lore-bubble');
             if (old) old.remove();
             var item = document.createElement('div');
             item.className = 'lore-bubble';
-            if (inside) item.classList.add('lore-bubble-inside');
+            item.setAttribute('role', 'status');
             item.textContent = message;
             card.appendChild(item);
             requestAnimationFrame(function () { item.classList.add('show'); });
-            if (duration !== 0) {
-                window.setTimeout(function () { item.classList.remove('show'); window.setTimeout(function () { item.remove(); }, 250); }, duration || 5200);
-            }
+            window.setTimeout(function () { item.classList.remove('show'); window.setTimeout(function () { item.remove(); }, 250); }, 5200);
         }
 
         function scatter(card, symbols) {
@@ -263,20 +261,12 @@
                 bubble(card, 'she loves biscuits and tea. do NOT take her biscuits if you value your life.');
                 scatter(card, ['🍪', '☕']);
                 mark(card);
-            } else if (id === 'pookie') {
-                bubble(card, 'poookie </3', 0, true);
-                mark(card);
             }
         }
 
         cards.forEach(function (card) {
-            var id = card.dataset.loreId;
             card.addEventListener('keydown', function (event) { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); reveal(card); } });
-            if (id === 'biscuits-tea') {
-                card.addEventListener('dblclick', function () { reveal(card); });
-            } else {
-                card.addEventListener('click', function () { reveal(card); });
-            }
+            card.addEventListener('click', function () { reveal(card); });
         });
     }
 
