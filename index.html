@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="assets/favicon.png">
-    <link rel="stylesheet" href="styles.css?v=8">
+    <link rel="stylesheet" href="styles.css?v=12">
 </head>
 <body class="dark-mode">
     <!-- if you are reading this, try typing "pixel" -->
@@ -62,9 +62,19 @@
                         </div>
                         <h1 class="main-heading">Hi, I'm Pixel.</h1>
                     </div>
-                    <p class="bio-text">Hey, I'm Pixel. Not much to say, but ever felt like you’re lowk chilling in your room creating imaginary scenarios in your head, then you catch yourself smiling so you gotta remind yourself you’re a loser and ask yourself <strong>what level of chud this is?</strong></p>
+                    <p class="bio-text">Hey, I'm Pixel. Not much to say, but ever felt like you’re lowk chilling in your room creating imaginary scenarios in your head, then you catch yourself smiling so you gotta remind yourself you’re a loser and ask yourself what level of chud this is?</p>
                     <p class="bio-text">I make random stuff on the internet and occasionally convince myself it was a good idea.</p>
                     <p class="bio-text bio-signoff">unfortunately still online.</p>
+                    <aside class="currently-card" id="currentlyCard" data-discord-id="1009828837141528696" data-status="unavailable" aria-labelledby="currentlyHeading">
+                        <div class="currently-header">
+                            <h2 class="mono-label" id="currentlyHeading">[currently]</h2>
+                            <span class="currently-status"><span class="currently-dot" aria-hidden="true"></span><span id="currentlyStatus">status: unavailable</span></span>
+                        </div>
+                        <p class="currently-custom" id="currentlyCustomStatus" hidden></p>
+                        <div id="currentlyActivity" aria-live="polite" aria-atomic="true">
+                            <p class="currently-empty">activity unavailable right now</p>
+                        </div>
+                    </aside>
                 </div>
             </section>
             <div class="side-note-stack">
@@ -126,10 +136,16 @@
                             <p class="friend-caption">OG homie ong</p>
                         </div>
                     </div>
-                    <div class="glow-card tiltable friend-card lore-card" data-lore-id="biscuits-tea" tabindex="0" role="button" aria-label="Evrin — cookies and tea addict. Show biscuits and tea.">
+                    <div class="glow-card tiltable friend-card lore-card vault-card" data-lore-id="biscuits-tea" tabindex="0" role="button" aria-expanded="false" aria-label="Evrin — cookies and tea addict. Click five times to open the biscuit vault.">
+                        <div class="vault-room" aria-hidden="true">
+                            <span class="vault-label">biscuit reserves</span>
+                            <div class="vault-biscuits"><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span></div>
+                            <span class="vault-label">hands off.</span>
+                        </div>
                         <div class="glow-content friend-content">
                             <img src="assets/hall_of_fame/hof_aug23_1.png" style="max-width: 100%; border-radius: 8px;" alt="Evrin">
                             <p class="friend-caption">cookies and tea addict</p>
+                            <span class="vault-wheel" aria-hidden="true"></span>
                         </div>
                     </div>
                     <div class="glow-card tiltable friend-card" tabindex="0">
@@ -154,9 +170,10 @@
                 </div>
                 <p class="bio-text" style="margin-bottom: 30px;">The hall of fame's sister wing. Same rules apply: you earn your spot here, but for completely different reasons.</p>
                 <div class="projects-grid hall-of-fame-grid">
-                    <div class="glow-card tiltable">
-                        <div class="glow-content" style="padding: 15px; display: flex; align-items: center; justify-content: center; height: 100%;">
+                    <div class="glow-card tiltable friend-card" tabindex="0">
+                        <div class="glow-content friend-content">
                             <img src="assets/hall_of_fame/hall_of_gay_1.png" style="max-width: 100%; border-radius: 8px;" alt="Hall of gay entry 1">
+                            <p class="friend-caption">once this guy held me at knifepoint and told me to drop my pants, extremely normal individual</p>
                         </div>
                     </div>
                 </div>
@@ -202,6 +219,7 @@
             </div>
         </section>
     </main>
+    <footer class="site-footer">built with poor judgment</footer>
     <script>
         (function () {
             var doodle = document.getElementById('goatDoodle');
@@ -235,7 +253,8 @@
         })();
     </script>
     <script src="music-player.js?v=7" data-autoplay="true"></script>
-    <script src="script.js?v=7"></script>
+    <script src="currently.js?v=5"></script>
+    <script src="script.js?v=9"></script>
 </body>
 </html>
 

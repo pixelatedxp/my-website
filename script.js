@@ -52,6 +52,7 @@
     const tiltables = document.querySelectorAll('.tiltable');
     tiltables.forEach(tiltable => {
         tiltable.addEventListener('mousemove', (e) => {
+            if (tiltable.classList.contains('vault-busy')) return;
             const rect = tiltable.getBoundingClientRect();
             const x = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
             const y = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
@@ -363,7 +364,7 @@ bindImageZoom();
     if (!current || !current.src || document.querySelector('script[data-pixelis-eggs]')) return;
     var eggs = document.createElement('script');
     var eggsUrl = new URL('easter-eggs.js', current.src);
-    eggsUrl.searchParams.set('v', '5');
+    eggsUrl.searchParams.set('v', '7');
     eggs.src = eggsUrl.href;
     eggs.dataset.pixelisEggs = 'true';
     document.head.appendChild(eggs);

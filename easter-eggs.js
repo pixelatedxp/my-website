@@ -7,20 +7,35 @@
         sudo: 'not in the sudoers file', secrets: 'asked the obvious question', goat: 'certified goat',
         snowstorm: 'weather warning', 'secret-track': 'the B-side',
         'rare-note': 'two percent club', 'hall-secret': 'the portrait speaks', explorer: 'scrolled the whole thing',
-        'arcade-tourist': 'arcade regular', fivehours: 'five minutes later', biscuits: 'hands off the biscuits',
-        blackmail: 'nothing to blackmail', lockin: 'locked all the way in',
-        'beat-pixel': 'faster than Pixel'
+        'arcade-tourist': 'arcade regular', 'beat-pixel': 'faster than Pixel',
+        nosy: 'nosy', 'touch-grass': 'touch grass', completionist: 'completionist',
+        audiophile: 'audiophile', lost: 'lost', 'why-like-this': 'why are you like this'
     };
+    var DESCRIPTIONS = {
+        nosy: 'somehow managed to inspect everybody',
+        lost: "found a page that doesn't exist",
+        'why-like-this': 'triggered five different hidden interactions',
+        completionist: 'there was genuinely no reason to visit all of this',
+        'touch-grass': '30 minutes of active browsing. the outside world misses you.',
+        audiophile: 'played five different songs'
+    };
+    var HIDDEN_INTERACTIONS = ['terminal', 'goat', 'snowstorm', 'secret-track', 'rare-note', 'hall-secret', 'biscuit-vault'];
+    var MAIN_PAGES = ['/', '/games/', '/changelog.html', '/games/chess/', '/games/typing/',
+        '/games/sequence-memory/', '/games/reaction-time/', '/games/wordle/'];
     var unlocked = loadJson(ACHIEVEMENT_KEY, {});
     var toastStack;
+    // Preserve current awards while retiring removed commands and their saved awards.
+    Object.keys(unlocked).forEach(function (id) { if (!ACHIEVEMENTS[id]) delete unlocked[id]; });
+    saveAchievements();
 
     function loadJson(key, fallback) {
         try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch (e) { return fallback; }
     }
     function saveAchievements() {
+        Object.keys(unlocked).forEach(function (id) { if (!ACHIEVEMENTS[id]) delete unlocked[id]; });
         try { localStorage.setItem(ACHIEVEMENT_KEY, JSON.stringify(unlocked)); } catch (e) {}
     }
-    function toast(message) {
+    function toast(message, description) {
         if (!toastStack) {
             toastStack = document.createElement('div');
             toastStack.className = 'egg-toast-stack';
@@ -29,16 +44,32 @@
         var item = document.createElement('div');
         item.className = 'egg-toast';
         item.textContent = message;
+        if (description) {
+            var detail = document.createElement('span');
+            detail.className = 'egg-toast-description';
+            detail.textContent = description;
+            item.appendChild(detail);
+        }
         toastStack.appendChild(item);
         window.setTimeout(function () { item.remove(); }, 4200);
     }
     function unlock(id, title) {
+        if (!ACHIEVEMENTS[id]) return false;
+        unlocked = Object.assign({}, unlocked, loadJson(ACHIEVEMENT_KEY, {}));
+        if (HIDDEN_INTERACTIONS.indexOf(id) !== -1) recordHiddenInteraction(id);
         if (unlocked[id]) return false;
         title = title || ACHIEVEMENTS[id] || id;
         unlocked[id] = { title: title, unlockedAt: new Date().toISOString() };
         saveAchievements();
-        toast('[achievement unlocked] ' + title);
+        toast('[achievement unlocked] ' + title, DESCRIPTIONS[id]);
         return true;
+    }
+    function recordHiddenInteraction(id) {
+        var discoveries = loadJson('pixelisDiscoveries', {});
+        HIDDEN_INTERACTIONS.forEach(function (key) { if (unlocked[key]) discoveries[key] = true; });
+        if (HIDDEN_INTERACTIONS.indexOf(id) !== -1) discoveries[id] = true;
+        try { localStorage.setItem('pixelisDiscoveries', JSON.stringify(discoveries)); } catch (e) {}
+        if (HIDDEN_INTERACTIONS.filter(function (key) { return discoveries[key]; }).length >= 5) unlock('why-like-this');
     }
     function spawnHeart(x, y) {
         var heart = document.createElement('span');
@@ -78,11 +109,11 @@
         }
         function achievementsText() {
             var names = Object.keys(ACHIEVEMENTS).filter(function (key) { return unlocked[key]; }).map(function (key) {
-                return '[x] ' + ACHIEVEMENTS[key];
+                return '[x] ' + ACHIEVEMENTS[key] + (DESCRIPTIONS[key] ? '\n    ' + DESCRIPTIONS[key] : '');
             });
             var remaining = Object.keys(ACHIEVEMENTS).filter(function (key) { return !unlocked[key]; }).length;
             return (names.length ? names.join('\n') : '[ ] none yet. suspicious.') +
-                '\n\n[ ' + remaining + ' hidden achievement' + (remaining === 1 ? '' : 's') + ' remaining ]';
+                '\n\n[ ' + names.length + '/' + Object.keys(ACHIEVEMENTS).length + ' unlocked · ' + remaining + ' remaining ]';
         }
         function run(command) {
             var cmd = command.trim().toLowerCase();
@@ -91,23 +122,11 @@
                 help: 'commands: help, whoami, sudo, secrets, achievements, clear, exit',
                 whoami: 'pixel. allegedly a developer. definitely avoiding homework.',
                 sudo: 'permission denied. nice try though.',
-                secrets: 'the good secrets are not listed in the help menu.',
-                pixel: 'you found me twice. that feels intentional.'
-            };
-            var secretCommands = {
-                fivehours: ['context: the first guy always says, "bro I\'m hopping on CS2 in five minutes," then finally appears about five hours later asking if everyone is still on.', 'fivehours'],
-                biscuits: ['context: she loves biscuits and tea. taking one of her biscuits is treated like a serious personal betrayal, so keep your hands off them.', 'biscuits'],
-                blackmail: ['context: the GOAT will blackmail you with absolutely anything you send him, so give him no material whatsoever. he is still the GOAT though.', 'blackmail'],
-                lockin: ['context: this guy went through a dark-psychology phase, a religious phase, and finally a delete-Discord, block-everyone, fully-locked-in phase.', 'lockin']
+                secrets: 'poke around. some things respond when you least expect it.'
             };
             if (cmd === 'clear') { output.textContent = ''; return; }
             if (cmd === 'exit') { close(); return; }
             if (cmd === 'achievements') { unlock('auditor', 'checked the receipts'); print(achievementsText()); return; }
-            if (secretCommands[cmd]) {
-                print(secretCommands[cmd][0]);
-                unlock(secretCommands[cmd][1]);
-                return;
-            }
             print(replies[cmd] || 'command not found: ' + (cmd || '[silence]'));
             if (cmd === 'whoami') unlock('whoami', 'identity crisis resolved');
             if (cmd === 'sudo') unlock('sudo', 'not in the sudoers file');
@@ -251,8 +270,8 @@
             if (!seen[id]) {
                 seen[id] = true;
                 try { localStorage.setItem('pixelisLoreSeen', JSON.stringify(seen)); } catch (e) {}
-                unlock('hall-secret');
             }
+            unlock('hall-secret');
         }
 
         function reveal(card) {
@@ -265,9 +284,138 @@
         }
 
         cards.forEach(function (card) {
-            card.addEventListener('keydown', function (event) { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); reveal(card); } });
-            card.addEventListener('click', function () { reveal(card); });
+            var clicks = 0;
+            var busy = false;
+            function activate() {
+                if (busy) return;
+                clicks++;
+                if (card.dataset.loreId !== 'biscuits-tea' || clicks < 5) {
+                    reveal(card);
+                    return;
+                }
+                busy = true;
+                clicks = 0;
+                var oldBubble = card.querySelector('.lore-bubble');
+                if (oldBubble) oldBubble.remove();
+                var room = card.querySelector('.vault-room');
+                var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                card.classList.add('vault-busy');
+                card.setAttribute('aria-disabled', 'true');
+                card.setAttribute('aria-expanded', 'true');
+                room.setAttribute('aria-hidden', 'false');
+                // Establish the closed door before starting its outward swing.
+                void card.offsetWidth;
+                card.classList.add('vault-open');
+                mark(card);
+                recordHiddenInteraction('biscuit-vault');
+                window.setTimeout(function () {
+                    card.classList.remove('vault-open');
+                    card.setAttribute('aria-expanded', 'false');
+                    window.setTimeout(function () {
+                        card.classList.remove('vault-busy');
+                        card.removeAttribute('aria-disabled');
+                        room.setAttribute('aria-hidden', 'true');
+                        busy = false;
+                    }, reducedMotion ? 0 : 850);
+                }, (reducedMotion ? 0 : 1100) + 2400);
+            }
+            card.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    if (!event.repeat) activate();
+                }
+            });
+            card.addEventListener('click', activate);
         });
+    }
+
+    function initNosy() {
+        var portraits = Array.prototype.slice.call(document.querySelectorAll('#hall-of-fame .friend-card'));
+        var ids = portraits.map(function (card) { return card.querySelector('img').getAttribute('src'); });
+        portraits.forEach(function (card, index) {
+            function inspect() {
+                var seen = loadJson('pixelisPortraitsSeen', {});
+                seen[ids[index]] = true;
+                try { localStorage.setItem('pixelisPortraitsSeen', JSON.stringify(seen)); } catch (e) {}
+                if (ids.every(function (id) { return seen[id]; })) unlock('nosy');
+            }
+            card.addEventListener('click', inspect);
+            card.addEventListener('keydown', function (event) {
+                if ((event.key === 'Enter' || event.key === ' ') && !event.repeat) {
+                    event.preventDefault();
+                    inspect();
+                }
+            });
+        });
+    }
+
+    function initPageAchievements() {
+        document.querySelectorAll('[data-achievement-count]').forEach(function (node) {
+            node.textContent = Object.keys(ACHIEVEMENTS).length;
+        });
+        if (document.body.dataset.page === '404') {
+            unlock('lost');
+            return;
+        }
+        var path = window.location.pathname.replace(/\/index\.html$/, '/');
+        if (path !== '/' && !/\.[^/]+$/.test(path)) path = path.replace(/\/?$/, '/');
+        if (MAIN_PAGES.indexOf(path) === -1) return;
+        var visited = loadJson('pixelisMainPagesSeen', {});
+        visited[path] = true;
+        try { localStorage.setItem('pixelisMainPagesSeen', JSON.stringify(visited)); } catch (e) {}
+        if (MAIN_PAGES.every(function (page) { return visited[page]; })) unlock('completionist');
+    }
+
+    function initActiveTime() {
+        var lastInput = Date.now();
+        var lastTick = lastInput;
+        var idleAfter = 60000;
+        var target = 30 * 60 * 1000;
+        function tick() {
+            var now = Date.now();
+            // Ignore background tabs, inactivity, and long gaps caused by sleep or throttling.
+            var elapsed = Math.max(0, Math.min(now, lastInput + idleAfter) - lastTick);
+            if (!document.hidden && document.hasFocus() && now - lastTick <= 5000 && elapsed > 0) {
+                var saved = Number(loadJson('pixelisActiveTimeMs', 0));
+                var total = Math.min(target, (Number.isFinite(saved) ? Math.max(0, saved) : 0) + elapsed);
+                try { localStorage.setItem('pixelisActiveTimeMs', JSON.stringify(total)); } catch (e) {}
+                if (total >= target) unlock('touch-grass');
+            }
+            lastTick = now;
+        }
+        function activity() {
+            if (Date.now() - lastInput < 1000) return;
+            tick();
+            if (!document.hidden && document.hasFocus()) lastInput = Date.now();
+        }
+        ['pointerdown', 'pointermove', 'keydown', 'scroll', 'touchstart'].forEach(function (name) {
+            document.addEventListener(name, activity, { passive: true });
+        });
+        window.addEventListener('focus', function () { lastInput = lastTick = Date.now(); });
+        window.addEventListener('blur', tick);
+        window.addEventListener('pagehide', tick);
+        document.addEventListener('visibilitychange', function () { lastTick = Date.now(); });
+        window.setInterval(tick, 1000);
+    }
+
+    function initAudiophile() {
+        var previous = null;
+        document.addEventListener('timeupdate', function (event) {
+            var audio = event.target;
+            if (audio.id !== 'siteAudio') return;
+            var file = audio.currentSrc || audio.src;
+            var position = audio.currentTime;
+            if (audio.paused || audio.seeking || !file) { previous = null; return; }
+            var delta = previous && previous.file === file ? position - previous.position : 0;
+            previous = { file: file, position: position };
+            // Credit real playback, not selections, pauses, or jumps through a track.
+            if (delta <= 0 || delta > 2) return;
+            var id = new URL(file, window.location.href).pathname.split('/').pop();
+            var listened = loadJson('pixelisSongsPlayed', {});
+            listened[id] = Math.min(5, (Number(listened[id]) || 0) + delta);
+            try { localStorage.setItem('pixelisSongsPlayed', JSON.stringify(listened)); } catch (e) {}
+            if (Object.keys(listened).filter(function (key) { return listened[key] >= 5; }).length >= 5) unlock('audiophile');
+        }, true);
     }
 
     function initExplorer() {
@@ -304,6 +452,11 @@
         initRareNote();
         initCursorHeart();
         initHallSecret();
+        initNosy();
+        initPageAchievements();
+        initActiveTime();
+        initAudiophile();
+        recordHiddenInteraction();
         initExplorer();
         initArcadeVisits();
         window.addEventListener('pixelis:achievement', function (event) {
