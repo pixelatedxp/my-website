@@ -23,12 +23,13 @@ async function preview(payload, { hidden = false } = {}) {
     document.getElementById = id => ({ currentlyCard: card, currentlyStatus: status, currentlyActivity: content, currentlyCustomStatus: custom })[id];
     document.createElement = () => new Element();
     const window = new Element();
-    let now = 0, serial = 0, nextPayload = payload, failure = false;
+    let now = 0, serial = 0, nextPayload = payload, failure = false, applicationPayload = null;
     const timers = new Map(), calls = [];
     window.setTimeout = (fn, delay) => { const id = ++serial; timers.set(id, { fn, due: now + delay }); return id; };
     window.clearTimeout = id => timers.delete(id);
     const fetch = (url, options) => {
         calls.push({ url, options });
+        if (url.includes('/api/v10/applications/')) return Promise.resolve({ ok: !!applicationPayload, json: async () => applicationPayload });
         if (failure === 'timeout') return new Promise((resolve, reject) => options.signal.addEventListener('abort', () => reject(new Error('aborted'))));
         if (failure) return Promise.reject(new Error('network unavailable'));
         return Promise.resolve({ ok: true, json: async () => nextPayload });
@@ -37,6 +38,7 @@ async function preview(payload, { hidden = false } = {}) {
     await settle();
     return {
         card, status, content, custom, document, window, calls,
+        setApplication: value => { applicationPayload = value; },
         setPayload: value => { nextPayload = value; failure = false; },
         fail: value => { failure = value; },
         async advance(ms) {
@@ -131,6 +133,35 @@ test('album and game covers use Spotify and Discord image URLs with fallbacks', 
     page.setPayload(data); await page.advance(30000);
     assert.equal(page.content.children[0].children[0].children.length, 0);
     assert.equal(page.content.children[1].children[0].children[0].src, 'https://media.discordapp.net/external/example/image.png');
+});
+
+test('known games use local artwork after Discord assets and before the gamepad', async () => {
+    const data = structuredClone(activity);
+    data.data.activities[0].name = 'Counter-Strike 2';
+    const page = await preview(data);
+    let image = page.content.children[1].children[0].children[0];
+    assert.equal(image.src, '/assets/games/counter-strike-2.png');
+
+    data.data.activities[0].application_id = '123456789';
+    data.data.activities[0].assets = { large_image: '987654321' };
+    page.setPayload(data); await page.advance(30000);
+    image = page.content.children[1].children[0].children[0];
+    assert.equal(image.src, 'https://cdn.discordapp.com/app-assets/123456789/987654321.png?size=128');
+    image.emit('error');
+    assert.equal(image.src, '/assets/games/counter-strike-2.png');
+    image.emit('error');
+    assert.match(page.content.children[1].children[0].innerHTML, /<svg/);
+});
+
+test('uses the Discord application icon when an activity omits rich-presence artwork', async () => {
+    const data = structuredClone(activity);
+    data.data.activities[0].application_id = '1158877933042143272';
+    const page = await preview(data);
+    page.setApplication({ id: '1158877933042143272', icon: '558f5a26ecb3b17c3dea3d15c1df537a' });
+    page.setPayload(data); await page.advance(30000);
+    const image = page.content.children[1].children[0].children[0];
+    assert.equal(image.src, 'https://cdn.discordapp.com/app-icons/1158877933042143272/558f5a26ecb3b17c3dea3d15c1df537a.png?size=128');
+    assert.ok(page.calls.some(call => call.url === 'https://discord.com/api/v10/applications/1158877933042143272/rpc'));
 });
 
 test('song progress advances from Discord timestamps, clamps at the end, and stops the listening animation', async () => {

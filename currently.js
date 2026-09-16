@@ -13,9 +13,14 @@
     var lastView;
     var playback = [];
     var progressTimer;
+    var applicationIconCache = {};
     var icons = {
         listening: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13M9 9l11-2"/><ellipse cx="6" cy="18" rx="3" ry="2"/><ellipse cx="17" cy="16" rx="3" ry="2"/></svg>',
         playing: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7h8c3 0 4 3 5 8s-2 6-5 1H8c-3 5-6 4-5-1s2-8 5-8Z"/><path d="M7 10v4m-2-2h4m6-1h.01m3 2h.01"/></svg>'
+    };
+    var gameArtwork = {
+        'counter-strike 2': '/assets/games/counter-strike-2.png',
+        'cs2': '/assets/games/counter-strike-2.png'
     };
     function text(value) { return typeof value === 'string' ? value.trim().slice(0, 200) : ''; }
     function imageUrl(value) {
@@ -36,6 +41,40 @@
         }
         return imageUrl(asset);
     }
+    function gameFallback(name) {
+        return gameArtwork[text(name).toLowerCase()] || '';
+    }
+    async function applicationIcon(activity, signal) {
+        if (activityImage(activity) || !/^\d+$/.test(activity.application_id)) return '';
+        var id = activity.application_id;
+        if (!applicationIconCache[id]) {
+            applicationIconCache[id] = fetch('https://discord.com/api/v10/applications/' + id + '/rpc', {
+                signal: signal,
+                credentials: 'omit',
+                cache: 'force-cache'
+            }).then(async function (response) {
+                if (!response.ok) return '';
+                var application = await response.json();
+                if (!application || application.id !== id || !/^(?:a_)?[a-f0-9]{32}$/.test(application.icon)) return '';
+                return imageUrl('https://cdn.discordapp.com/app-icons/' + id + '/' + application.icon + '.png?size=128');
+            }).then(function (url) {
+                if (!url) delete applicationIconCache[id];
+                return url;
+            }).catch(function () {
+                delete applicationIconCache[id];
+                return '';
+            });
+        }
+        return applicationIconCache[id];
+    }
+    async function addApplicationIcons(data, signal) {
+        if (!data || !Array.isArray(data.activities)) return data;
+        await Promise.all(data.activities.map(async function (activity) {
+            if (!activity || activity.type !== 0) return;
+            activity.discord_application_icon = await applicationIcon(activity, signal);
+        }));
+        return data;
+    }
     function clockLabel(seconds) {
         seconds = Math.max(0, Math.floor(seconds));
         return Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0');
@@ -53,7 +92,7 @@
         });
         if (playback.length) progressTimer = window.setTimeout(updateProgress, 1000);
     }
-    function row(kind, title, detail, cover, timestamps) {
+    function row(kind, title, detail, cover, timestamps, fallbackCover) {
         var item = document.createElement('div');
         item.className = 'currently-row';
         var icon = document.createElement('span');
@@ -61,10 +100,18 @@
         icon.innerHTML = icons[kind];
         if (cover) {
             var image = document.createElement('img');
+            var usingFallback = cover === fallbackCover;
             image.alt = title + (kind === 'listening' ? ' album art' : ' artwork');
             image.decoding = 'async';
             image.referrerPolicy = 'no-referrer';
-            image.addEventListener('error', function () { icon.innerHTML = icons[kind]; });
+            image.addEventListener('error', function () {
+                if (fallbackCover && !usingFallback) {
+                    usingFallback = true;
+                    image.src = fallbackCover;
+                    return;
+                }
+                icon.innerHTML = icons[kind];
+            });
             image.src = cover;
             icon.replaceChildren(image);
         }
@@ -129,7 +176,12 @@
             var game = activities.find(function (activity) { return activity && activity.type === 0 && text(activity.name); });
             if (spotify && text(spotify.song)) rows.push(['listening', text(spotify.song), text(spotify.artist), imageUrl(spotify.album_art_url), spotify.timestamps]);
             else if (listening) rows.push(['listening', text(listening.details) || text(listening.name), text(listening.state), activityImage(listening), listening.timestamps]);
-            if (game) rows.push(['playing', text(game.name), [text(game.details), text(game.state)].filter(Boolean).join(' · '), activityImage(game)]);
+            if (game) {
+                var discordArtwork = activityImage(game);
+                var localArtwork = gameFallback(game.name);
+                var applicationArtwork = imageUrl(game.discord_application_icon);
+                rows.push(['playing', text(game.name), [text(game.details), text(game.state)].filter(Boolean).join(' · '), discordArtwork || applicationArtwork || localArtwork, undefined, localArtwork]);
+            }
         }
         var view = JSON.stringify([status, customText, rows]);
         if (view === lastView) return;
@@ -159,7 +211,11 @@
             var response = await fetch('https://api.lanyard.rest/v1/users/' + userId, { signal: controller.signal, credentials: 'omit', cache: 'no-store' });
             if (!response.ok) throw new Error('Presence unavailable');
             var payload = await response.json();
-            if (!document.hidden) render(payload.success === true && payload.data && typeof payload.data === 'object' ? payload.data : null);
+            var data = payload.success === true && payload.data && typeof payload.data === 'object' ? payload.data : null;
+            if (!document.hidden) {
+                data = await addApplicationIcons(data, controller.signal);
+                if (!document.hidden) render(data);
+            }
         } catch (error) {
             if (!document.hidden) render(null);
         } finally {
