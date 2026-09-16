@@ -164,6 +164,22 @@ test('uses the Discord application icon when an activity omits rich-presence art
     assert.ok(page.calls.some(call => call.url === 'https://discord.com/api/v10/applications/1158877933042143272/rpc'));
 });
 
+test('shows and updates elapsed play time from the game activity timestamp', async () => {
+    const data = structuredClone(activity);
+    data.data.activities[0].timestamps = { start: -3723000 };
+    const page = await preview(data);
+    const elapsed = page.content.children[1].children[1].children.at(-1);
+    assert.equal(elapsed.className, 'currently-detail currently-game-elapsed');
+    assert.equal(elapsed.textContent, '1:02:03 elapsed');
+    await page.advance(2000);
+    assert.equal(elapsed.textContent, '1:02:05 elapsed');
+});
+
+test('games without a start timestamp do not invent elapsed time', async () => {
+    const page = await preview(activity);
+    assert.equal(page.content.children[1].children[1].children.some(child => child.className === 'currently-detail currently-game-elapsed'), false);
+});
+
 test('song progress advances from Discord timestamps, clamps at the end, and stops the listening animation', async () => {
     const data = structuredClone(activity);
     data.data.spotify.timestamps = { start: 0, end: 10000 };

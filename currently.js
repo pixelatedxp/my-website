@@ -12,6 +12,7 @@
     var controller;
     var lastView;
     var playback = [];
+    var gameSessions = [];
     var progressTimer;
     var applicationIconCache = {};
     var icons = {
@@ -79,6 +80,13 @@
         seconds = Math.max(0, Math.floor(seconds));
         return Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0');
     }
+    function elapsedLabel(seconds) {
+        seconds = Math.max(0, Math.floor(seconds));
+        var hours = Math.floor(seconds / 3600);
+        var minutes = Math.floor(seconds % 3600 / 60);
+        var time = hours ? hours + ':' + String(minutes).padStart(2, '0') : String(minutes);
+        return time + ':' + String(seconds % 60).padStart(2, '0') + ' elapsed';
+    }
     function updateProgress() {
         window.clearTimeout(progressTimer);
         if (document.hidden) return;
@@ -90,7 +98,10 @@
             song.bar.setAttribute('aria-valuetext', clockLabel(elapsed) + ' of ' + clockLabel(duration));
             song.elapsed.textContent = clockLabel(elapsed);
         });
-        if (playback.length) progressTimer = window.setTimeout(updateProgress, 1000);
+        gameSessions.forEach(function (session) {
+            session.node.textContent = elapsedLabel((Date.now() - session.start) / 1000);
+        });
+        if (playback.length || gameSessions.length) progressTimer = window.setTimeout(updateProgress, 1000);
     }
     function row(kind, title, detail, cover, timestamps, fallbackCover) {
         var item = document.createElement('div');
@@ -159,6 +170,11 @@
                 copy.appendChild(progress);
                 playback.push({ item: item, start: timestamps.start, end: timestamps.end, bar: bar, elapsed: elapsed });
             }
+        } else if (timestamps && Number.isFinite(timestamps.start)) {
+            var gameElapsed = document.createElement('p');
+            gameElapsed.className = 'currently-detail currently-game-elapsed';
+            copy.appendChild(gameElapsed);
+            gameSessions.push({ start: timestamps.start, node: gameElapsed });
         }
         item.appendChild(icon);
         item.appendChild(copy);
@@ -180,7 +196,7 @@
                 var discordArtwork = activityImage(game);
                 var localArtwork = gameFallback(game.name);
                 var applicationArtwork = imageUrl(game.discord_application_icon);
-                rows.push(['playing', text(game.name), [text(game.details), text(game.state)].filter(Boolean).join(' · '), discordArtwork || applicationArtwork || localArtwork, undefined, localArtwork]);
+                rows.push(['playing', text(game.name), [text(game.details), text(game.state)].filter(Boolean).join(' · '), discordArtwork || applicationArtwork || localArtwork, game.timestamps, localArtwork]);
             }
         }
         var view = JSON.stringify([status, customText, rows]);
@@ -191,6 +207,7 @@
         customStatus.textContent = customText ? 'custom status: ' + customText : '';
         customStatus.hidden = !customText;
         playback = [];
+        gameSessions = [];
         window.clearTimeout(progressTimer);
         content.replaceChildren();
         rows.forEach(function (entry) { content.appendChild(row.apply(null, entry)); });
