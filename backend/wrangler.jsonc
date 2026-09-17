@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "pixelis-notes",
+  "main": "src/worker.mjs",
+  "compatibility_date": "2026-09-17",
+  "workers_dev": true,
+  "vars": {
+    "ALLOWED_ORIGINS": "https://pixelis.dev,https://www.pixelis.dev",
+    "TURNSTILE_HOSTNAMES": "pixelis.dev,www.pixelis.dev",
+    "DISCORD_APPLICATION_ID": "1550119515860242432",
+    "DISCORD_PUBLIC_KEY": "b38ff7c1eb32e375d1fb7d10cd1871628be532910469d2d4c6813415f09c0668",
+    "DISCORD_GUILD_ID": "1474813852523954238",
+    "DISCORD_CHANNEL_ID": "1550119331470512198",
+    "MODERATOR_USER_ID": "1009828837141528696"
+  },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "pixelis-notes",
+    "database_id": "d463f17b-47c1-4172-b3d7-b23e2aa2d4c4",
+    "migrations_dir": "migrations"
+  }],
+  "triggers": { "crons": ["*/5 * * * *"] }
+}

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave a note - pixelis.dev</title>
+    <meta name="description" content="A little wall of notes, doodles, and people who stopped by.">
+    <meta property="og:title" content="Leave a note - pixelis.dev">
+    <meta property="og:description" content="A little wall of notes, doodles, and people who stopped by.">
+    <meta property="og:image" content="https://pixelis.dev/assets/social-preview.png">
+    <meta property="og:url" content="https://pixelis.dev/notes.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="stylesheet" href="styles.css?v=12">
+    <link rel="stylesheet" href="notes.css?v=1">
+</head>
+<body class="dark-mode notes-page">
+    <div class="vignette"></div>
+    <canvas id="snowfall"></canvas>
+    <header class="navbar">
+        <a href="index.html" class="brand">pixelis.dev</a>
+        <nav class="nav-links" aria-label="Main navigation">
+            <a href="games/index.html" class="nav-item">Games</a>
+            <a href="notes.html" class="nav-item active" aria-current="page">Notes</a>
+            <a href="changelog.html" class="nav-item">Changelog</a>
+            <button class="snow-toggle" id="snowToggle" aria-label="Toggle snowfall"><svg viewBox="0 0 24 24" fill="none" class="snow-icon" id="snowIcon"><path d="M12 2v4m0 12v4M4 12H2m20 0h-2M5.64 5.64l2.83 2.83m7.07 7.07l2.83 2.83M5.64 18.36l2.83-2.83m7.07-7.07l2.83-2.83M12 8a4 4 0 100 8 4 4 0 000-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><svg viewBox="0 0 24 24" fill="none" class="theme-icon" id="themeIcon"></svg></button>
+        </nav>
+    </header>
+    <main class="notes-container">
+        <hr class="nav-divider">
+        <div class="notes-heading">
+            <div><p class="mono-label">[you were here]</p><h1>leave a little note.</h1><p class="notes-muted">a thought, a doodle, a tiny piece of internet history.</p></div>
+            <a href="#write-note" class="notes-button">Write yours <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="notes-layout">
+            <section class="notes-wall-section" aria-labelledby="wall-title">
+                <div class="notes-section-label"><h2 id="wall-title">[the wall]</h2><span>approved notes only</span></div>
+                <div id="notesWall" class="notes-wall" aria-busy="true"></div>
+                <p id="wallStatus" class="wall-status" role="status">Loading the wall…</p>
+                <button id="wallRetry" class="notes-button secondary" hidden>Try again</button>
+                <button id="loadMore" class="notes-button secondary" hidden>More notes</button>
+            </section>
+            <section id="write-note" class="note-composer" aria-labelledby="write-title">
+                <div id="composerContents">
+                    <div class="notes-section-label"><h2 id="write-title">[your note]</h2><span>make yourself at home</span></div>
+                    <form id="noteForm">
+                        <div class="name-row"><label for="noteName">Name <span class="notes-muted">/ nickname</span></label><label class="check-label"><input type="checkbox" id="anonymous"> Anonymous</label></div>
+                        <input id="noteName" name="name" class="notes-input" maxlength="64" placeholder="what should we call you?" autocomplete="nickname" required>
+                        <div class="editor-top"><label id="messageLabel">Your message</label><span id="characterCount">0 / 250</span></div>
+                        <div class="format-toolbar" role="group" aria-label="Text formatting">
+                            <button type="button" data-format="bold" aria-label="Bold" aria-pressed="false"><b>B</b></button>
+                            <button type="button" data-format="italic" aria-label="Italic" aria-pressed="false"><i>I</i></button>
+                            <button type="button" data-format="underline" aria-label="Underline" aria-pressed="false"><u>U</u></button>
+                            <span>select text to style it</span>
+                        </div>
+                        <div id="noteEditor" class="note-editor" contenteditable="true" role="textbox" aria-labelledby="messageLabel" aria-multiline="true" aria-describedby="characterCount" data-placeholder="something worth sticking around for…" spellcheck="true"></div>
+                        <fieldset class="note-colours"><legend>Paper colour</legend>
+                            <label style="--swatch:#fff0b3"><input type="radio" name="colour" value="yellow" checked><span>Yellow</span></label>
+                            <label style="--swatch:#f9d6e2"><input type="radio" name="colour" value="pink"><span>Pink</span></label>
+                            <label style="--swatch:#d4eaf5"><input type="radio" name="colour" value="blue"><span>Blue</span></label>
+                            <label style="--swatch:#daebcd"><input type="radio" name="colour" value="green"><span>Green</span></label>
+                        </fieldset>
+                        <details class="doodle-section" id="doodleSection"><summary>Add a doodle <span>optional</span></summary>
+                            <p class="doodle-hint" id="doodleHint">a heart, a signature, whatever. draw with your finger or mouse.</p>
+                            <div class="drawing-tools"><label>Ink <select id="penColour"><option value="#252126">Black</option><option value="#147b83">Teal</option><option value="#bc365e">Rose</option><option value="#375daa">Blue</option></select></label><label>Pen <select id="penSize"><option value="2">Fine</option><option value="4" selected>Medium</option><option value="6">Thick</option></select></label><button type="button" id="undoDoodle">Undo</button><button type="button" id="clearDoodle">Clear</button></div>
+                            <canvas id="doodleCanvas" width="480" height="240" aria-label="Optional drawing pad" aria-describedby="doodleHint">You can leave a text note without drawing.</canvas>
+                        </details>
+                        <details class="preview-section"><summary>Preview your note</summary><div id="notePreview" class="note-preview"></div></details>
+                        <p class="note-rules" id="noteRules">Keep it decent. Nothing sexual or explicit, mean, hateful, or illegal—in the message or the doodle.</p>
+                        <label class="check-label rules-check"><input type="checkbox" id="rulesAccepted" required><span>I confirm my note and doodle follow these rules.</span></label>
+                        <p class="notes-muted review-explainer">Pixel reviews each submission in Discord before it appears here. Anonymous notes are sent as “Anonymous.”</p>
+                        <div id="turnstileWidget"></div>
+                        <p id="formStatus" class="form-status" role="status"></p>
+                        <button type="submit" id="submitNote" class="notes-button submit-note"><span class="submit-spinner" hidden aria-hidden="true"></span><span id="submitLabel">Send for approval</span><span aria-hidden="true">↗</span></button>
+                    </form>
+                </div>
+                <div id="submissionSuccess" class="submission-success" hidden tabindex="-1">
+                    <span class="success-mark" aria-hidden="true">✓</span><p class="mono-label">[note received]</p><h2>waiting for approval.</h2><p>This can take a few hours. You can close this page—your note is saved.</p><a href="index.html" class="notes-button">Back to homepage <span aria-hidden="true">↗</span></a>
+                </div>
+            </section>
+        </div>
+    </main>
+    <footer class="site-footer">thanks for leaving a little bit of yourself here.</footer>
+    <noscript><p class="notes-noscript">Please enable JavaScript to view and submit notes.</p></noscript>
+    <script src="notes-config.js?v=1"></script>
+    <script src="notes.js?v=1"></script>
+    <script src="script.js?v=9"></script>
+    <script src="music-player.js?v=7"></script>
+</body>
+</html>
