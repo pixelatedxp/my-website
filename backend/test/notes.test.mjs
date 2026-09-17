@@ -81,6 +81,8 @@ test('submission remains private until owner approval; repeated retries do not d
   const first = await worker.fetch(f.request(input), f.env, f.ctx); assert.equal(first.status, 202); await f.drain();
   assert.equal(f.sent.length, 1);
   const payload = JSON.parse(f.sent[0].body.get('payload_json'));
+  assert.equal(payload.content, '<@400>');
+  assert.deepEqual(payload.allowed_mentions, { parse: [], users: ['400'] });
   assert.equal(payload.embeds[0].fields[0].value, 'Anonymous');
   assert.equal(payload.components[0].components[0].style, 3); assert.equal(payload.components[0].components[1].style, 4);
   assert.equal(payload.embeds[0].image.url, 'attachment://doodle.png');

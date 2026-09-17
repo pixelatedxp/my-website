@@ -39,6 +39,10 @@ async function sendNote(env, id) {
   if (!note) return;
   try {
     const payload = moderationMessage(note);
+    // Notify only the configured moderator. Visitor text stays in the embed and
+    // cannot create mentions because its allowed_mentions list remains empty.
+    payload.content = `<@${env.MODERATOR_USER_ID}>`;
+    payload.allowed_mentions = { parse: [], users: [env.MODERATOR_USER_ID] };
     payload.nonce = note.id.replaceAll('-', '').slice(0, 25); payload.enforce_nonce = true;
     const form = new FormData();
     if (note.doodle) {
