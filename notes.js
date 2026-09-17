@@ -69,7 +69,10 @@
         card.append(time, copy);
         if (note.doodleUrl) {
             const image = document.createElement('img'); image.src = note.doodleUrl; image.alt = `Doodle from ${note.name}`; image.width = 480; image.height = 240;
-            image.loading = 'lazy'; image.addEventListener('error', () => { image.hidden = true; }); card.appendChild(image);
+            image.loading = 'lazy';
+            image.addEventListener('load', layoutWall);
+            image.addEventListener('error', () => { image.hidden = true; layoutWall(); });
+            card.appendChild(image);
         }
         const signature = document.createElement('p'); signature.className = 'note-signature'; signature.textContent = '— ' + note.name;
         card.appendChild(signature); return card;
@@ -199,6 +202,18 @@
     });
 
     let loading = false;
+    function layoutWall() {
+        const wall = $('notesWall');
+        if (!wall.children.length) return;
+        const style = getComputedStyle(wall), rowHeight = Number.parseFloat(style.gridAutoRows), rowGap = Number.parseFloat(style.rowGap);
+        if (!rowHeight || !Number.isFinite(rowGap)) return;
+        for (const card of wall.children) {
+            // Give each card enough tiny grid rows to fit its own height. This makes
+            // the next card fill the open space below a shorter neighbour.
+            const rows = Math.ceil((card.getBoundingClientRect().height + rowGap) / (rowHeight + rowGap));
+            card.style.gridRowEnd = `span ${Math.max(1, rows)}`;
+        }
+    }
     async function loadWall(more = false) {
         if (loading) return;
         if (!base) { $('wallStatus').textContent = 'The wall opens soon. Your note could be the first one here.'; $('notesWall').setAttribute('aria-busy', 'false'); return; }
@@ -220,11 +235,13 @@
             cursor = result.nextCursor; $('loadMore').hidden = !cursor;
             $('wallStatus').hidden = $('notesWall').children.length > 0;
             $('wallStatus').textContent = 'No notes on the wall yet. Leave the first little piece of history.';
+            requestAnimationFrame(layoutWall);
         } catch (_) {
             $('wallStatus').hidden = false; $('wallStatus').textContent = 'The wall could not load right now. Your draft is still here.'; $('wallRetry').hidden = false;
         } finally { loading = false; $('loadMore').disabled = false; $('notesWall').setAttribute('aria-busy', 'false'); }
     }
     $('loadMore').addEventListener('click', () => loadWall(true)); $('wallRetry').addEventListener('click', () => loadWall(false));
+    window.addEventListener('resize', layoutWall);
 
     try {
         const draft = JSON.parse(localStorage.getItem(draftKey));
