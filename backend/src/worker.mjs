@@ -159,19 +159,24 @@ async function submit(request, env, ctx) {
 
 async function publicNotes(url, env) {
   const cursor = url.searchParams.get('before');
-  let timestamp = Number.MAX_SAFE_INTEGER, id = 'ffffffff-ffff-4fff-bfff-ffffffffffff';
+  let group = 0, rank = -1, timestamp = Number.MAX_SAFE_INTEGER, id = 'ffffffff-ffff-4fff-bfff-ffffffffffff';
   if (cursor) {
-    const parts = cursor.split('_'); timestamp = Number(parts[0]); id = parts[1];
-    if (!Number.isSafeInteger(timestamp) || timestamp < 0 || !UUID.test(id || '')) throw new HttpError(400, 'Invalid page.');
+    const parts = cursor.split('_'); group = Number(parts[0]); rank = Number(parts[1]); timestamp = Number(parts[2]); id = parts[3];
+    if (![0, 1].includes(group) || !Number.isInteger(rank) || !Number.isSafeInteger(timestamp) || timestamp < 0 || !UUID.test(id || '')) throw new HttpError(400, 'Invalid page.');
   }
-  const { results } = await env.DB.prepare(`SELECT id,name,anonymous,content,colour,created_at,doodle IS NOT NULL AS has_doodle
-    FROM notes WHERE status='approved' AND (created_at < ? OR (created_at = ? AND id < ?))
-    ORDER BY created_at DESC,id DESC LIMIT 25`).bind(timestamp, timestamp, id).all();
+  const { results } = await env.DB.prepare(`SELECT id,name,anonymous,content,colour,created_at,pinned_rank,doodle IS NOT NULL AS has_doodle,
+    CASE WHEN pinned_rank IS NULL THEN 1 ELSE 0 END AS sort_group
+    FROM notes WHERE status='approved' AND (
+      CASE WHEN pinned_rank IS NULL THEN 1 ELSE 0 END > ? OR
+      (CASE WHEN pinned_rank IS NULL THEN 1 ELSE 0 END = ? AND (COALESCE(pinned_rank, -1) > ? OR
+        (COALESCE(pinned_rank, -1) = ? AND (created_at < ? OR (created_at = ? AND id < ?)))))
+    ) ORDER BY sort_group ASC, pinned_rank ASC, created_at DESC, id DESC LIMIT 25`)
+    .bind(group, group, rank, rank, timestamp, timestamp, id).all();
   const rows = results.slice(0, 24);
   return json({ notes: rows.map(n => ({ id: n.id, name: n.anonymous ? 'Anonymous' : n.name, anonymous: !!n.anonymous,
     content: JSON.parse(n.content), colour: n.colour, createdAt: new Date(n.created_at).toISOString(),
-    doodleUrl: n.has_doodle ? `/api/notes/${n.id}/doodle` : null })),
-    nextCursor: results.length > 24 ? `${rows.at(-1).created_at}_${rows.at(-1).id}` : null });
+    pinned: n.pinned_rank !== null, doodleUrl: n.has_doodle ? `/api/notes/${n.id}/doodle` : null })),
+    nextCursor: results.length > 24 ? `${rows.at(-1).sort_group}_${rows.at(-1).pinned_rank ?? -1}_${rows.at(-1).created_at}_${rows.at(-1).id}` : null });
 }
 
 export default {

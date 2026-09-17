@@ -67,6 +67,10 @@
         }
         const copy = document.createElement('div'); copy.className = 'note-copy'; renderContent(copy, note.content);
         card.append(time, copy);
+        if (note.pinned) {
+            card.classList.add('pinned-note');
+            const pin = document.createElement('span'); pin.className = 'note-pin'; pin.textContent = '📌'; pin.setAttribute('aria-label', 'Pinned note'); pin.title = 'Pinned note'; card.appendChild(pin);
+        }
         if (note.doodleUrl) {
             const image = document.createElement('img'); image.src = note.doodleUrl; image.alt = `Doodle from ${note.name}`; image.width = 480; image.height = 240;
             image.loading = 'lazy';

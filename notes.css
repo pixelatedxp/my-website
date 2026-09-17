@@ -14,6 +14,8 @@
 .sticky-card:nth-child(even) { transform: rotate(1deg); }
 .sticky-card::before { content: ''; position: absolute; width: 64px; height: 18px; top: -8px; left: calc(50% - 32px); background: #ffffff70; border: 1px solid #ffffff20; transform: rotate(-3deg); }
 .sticky-card time { display: block; color: #655b55; font: .68rem/1.6 var(--font-mono); margin-bottom: 16px; }
+.sticky-card.pinned-note time { padding-right: 34px; }
+.note-pin { position: absolute; top: -12px; right: 16px; width: 27px; height: 27px; display: grid; place-items: center; border-radius: 50%; background: #b9425b; color: #fff8; border: 2px solid #ffffff80; box-shadow: 0 2px 5px #0004; font-size: .83rem; transform: rotate(12deg); }
 .sticky-card .note-copy { font-size: .97rem; line-height: 1.7; white-space: pre-wrap; min-height: 32px; }
 .sticky-card .note-signature { font: .78rem/1.5 var(--font-mono); margin-top: 22px; border-top: 1px solid #302a2920; padding-top: 12px; }
 .sticky-card img { display: block; width: 100%; height: auto; border-radius: 3px; margin-top: 16px; }

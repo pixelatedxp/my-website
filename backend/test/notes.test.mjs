@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import { deflateSync } from 'node:zlib';
 import worker, { applyDecision, moderationMessage, verifyDiscord } from '../src/worker.mjs';
@@ -9,7 +9,8 @@ import { validateNote, validateDoodle, crc32, discordText } from '../src/validat
 const valid = () => ({ id: crypto.randomUUID(), name: 'Visitor', anonymous: false, content: [{ text: 'Glad I stopped by.', bold: true }], colour: 'yellow', rulesAccepted: true, turnstileToken: 'test-token' });
 function database() {
   const sqlite = new DatabaseSync(':memory:');
-  sqlite.exec(readFileSync(new URL('../migrations/0001_notes.sql', import.meta.url), 'utf8'));
+  const migrations = new URL('../migrations/', import.meta.url);
+  for (const file of readdirSync(migrations).sort()) sqlite.exec(readFileSync(new URL(file, migrations), 'utf8'));
   return { sqlite, prepare(sql) {
     let args = [];
     return { bind(...values) { args = values.map(v => v instanceof ArrayBuffer ? new Uint8Array(v) : v); return this; },
