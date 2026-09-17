@@ -97,9 +97,11 @@ export async function validateDoodle(value) {
       if (size || !sawData || end !== bytes.length) return fail();
       ended = true; break;
     } else {
-      // Browsers may include these colour metadata chunks; arbitrary payloads,
-      // external references, APNG animation, and uploaded SVGs are not accepted.
-      if (!['sRGB', 'gAMA', 'cHRM', 'pHYs', 'tIME'].includes(type) || size > 32) return fail();
+      // WebKit may add a colour profile or other ancillary PNG metadata. Permit
+      // small ancillary chunks, but reject unknown critical chunks and APNG.
+      // The file, dimensions, CRCs, filter stream, and decompressed size remain bounded.
+      const ancillary = (bytes[offset + 4] & 0x20) !== 0;
+      if (!ancillary || size > 32768 || ['acTL', 'fcTL', 'fdAT'].includes(type)) return fail();
       if (sawData) endedData = true;
     }
     offset = end;
