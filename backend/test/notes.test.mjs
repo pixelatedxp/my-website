@@ -108,7 +108,7 @@ test('untrusted origins, missing Turnstile, wrong hostname/action, and submissio
   f.setVerification({ success: true, hostname: 'pixelis.dev', action: 'wrong' });
   assert.equal((await worker.fetch(f.request(valid()), f.env, f.ctx)).status, 400);
   f.setVerification({ success: true, hostname: 'pixelis.dev', action: 'leave-note' });
-  for (let i = 0; i < 3; i++) { assert.equal((await worker.fetch(f.request(valid()), f.env, f.ctx)).status, 202); await f.drain(); }
+  for (let i = 0; i < 5; i++) { assert.equal((await worker.fetch(f.request(valid()), f.env, f.ctx)).status, 202); await f.drain(); }
   assert.equal((await worker.fetch(f.request(valid()), f.env, f.ctx)).status, 429);
 });
 

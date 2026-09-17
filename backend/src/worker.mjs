@@ -107,12 +107,14 @@ async function interactions(request, env, ctx) {
   return json({ type: 6 });
 }
 
-async function rateLimit(request, env, verified = false) {
+async function rateLimit(request, env) {
   const time = now(); const day = Math.floor(time / 86400000); const hour = Math.floor(time / 3600000);
   const ip = request.headers.get('CF-Connecting-IP') || 'local';
   const key = await crypto.subtle.importKey('raw', encoder.encode(env.RATE_LIMIT_SALT || env.DISCORD_BOT_TOKEN), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
   const privateId = hex(await crypto.subtle.sign('HMAC', key, encoder.encode(`${day}:${ip}`)));
-  const buckets = verified ? [[`global:${day}`, 250]] : [[`hour:${hour}:${privateId}`, 5], [`day:${day}:${privateId}`, 20]];
+  // Count only after Turnstile accepts the request. A visitor must be able to
+  // retry a bad doodle without failed validation locking them out.
+  const buckets = [[`hour:${hour}:${privateId}`, 5], [`day:${day}:${privateId}`, 20], [`global:${day}`, 250]];
   for (const [bucket, limit] of buckets) {
     const row = await env.DB.prepare(`INSERT INTO submission_limits(bucket,count,expires_at) VALUES (?,1,?)
       ON CONFLICT(bucket) DO UPDATE SET count=count+1 RETURNING count`).bind(bucket, time + 172800000).first();
@@ -134,7 +136,6 @@ async function submit(request, env, ctx) {
     return json({ accepted: true, id: note.id }, 202);
   }
   if (typeof input.turnstileToken !== 'string' || !input.turnstileToken || input.turnstileToken.length > 2048) throw new HttpError(400, 'Please complete the spam check.');
-  await rateLimit(request, env);
   const verification = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ secret: env.TURNSTILE_SECRET_KEY, response: input.turnstileToken, remoteip: request.headers.get('CF-Connecting-IP') || undefined }),
@@ -144,8 +145,8 @@ async function submit(request, env, ctx) {
   if (!result.success || !list(env.TURNSTILE_HOSTNAMES).includes(result.hostname) || result.action !== 'leave-note') {
     throw new HttpError(400, 'The spam check expired or failed. Please try it again.');
   }
-  await rateLimit(request, env, true);
   const doodle = await validateDoodle(input.doodle);
+  await rateLimit(request, env);
   const createdAt = now();
   await env.DB.prepare(`INSERT INTO notes(id,request_hash,name,anonymous,content,doodle,colour,created_at)
     VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING`)
