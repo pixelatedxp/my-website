@@ -23,11 +23,11 @@ export function moderationMessage(note) {
     timestamp: new Date(note.created_at).toISOString()
   };
   if (note.doodle) embed.image = { url: 'attachment://doodle.png' };
-  const buttons = [
-    { type: 2, style: 3, label: 'Approve', custom_id: `note:approve:${note.id}`, disabled: !pending },
-    { type: 2, style: 4, label: 'Reject', custom_id: `note:reject:${note.id}`, disabled: !pending }
-  ];
-  if (note.status === 'approved') buttons.push({ type: 2, style: 2, label: 'Unpublish', custom_id: `note:unpublish:${note.id}` });
+  const buttons = pending
+    ? [{ type: 2, style: 3, label: 'Approve', custom_id: `note:approve:${note.id}` }, { type: 2, style: 4, label: 'Reject', custom_id: `note:reject:${note.id}` }]
+    : note.status === 'approved'
+      ? [{ type: 2, style: 2, label: 'Unpublish', custom_id: `note:unpublish:${note.id}` }]
+      : [{ type: 2, style: 3, label: 'Approve anyway', custom_id: `note:approve:${note.id}` }];
   return { embeds: [embed], components: [{ type: 1, components: buttons }], allowed_mentions: { parse: [] } };
 }
 
@@ -70,11 +70,11 @@ async function syncNote(env, id) {
 }
 
 export async function applyDecision(env, id, action, messageId) {
-  const before = action === 'unpublish' ? 'approved' : 'pending';
   const after = action === 'approve' ? 'approved' : 'rejected';
+  const allowed = action === 'approve' ? "('pending','rejected')" : action === 'unpublish' ? "('approved')" : "('pending')";
   await env.DB.prepare(`UPDATE notes SET status=?, reviewed_at=?, reviewed_by=?, sync_needed=1
-    WHERE id=? AND status=? AND discord_message_id=?`)
-    .bind(after, now(), env.MODERATOR_USER_ID, id, before, messageId).run();
+    WHERE id=? AND status IN ${allowed} AND discord_message_id=?`)
+    .bind(after, now(), env.MODERATOR_USER_ID, id, messageId).run();
   await syncNote(env, id);
 }
 

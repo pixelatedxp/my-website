@@ -97,6 +97,16 @@ test('submission remains private until owner approval; repeated retries do not d
   await applyDecision(f.env, input.id, 'reject', '999'); assert.equal(f.DB.sqlite.prepare('SELECT status FROM notes').get().status, 'approved');
   await applyDecision(f.env, input.id, 'unpublish', '999');
   assert.equal((await worker.fetch(new Request(`https://notes.example/api/notes/${input.id}/doodle`), f.env, f.ctx)).status, 404);
+  f.DB.sqlite.prepare("UPDATE notes SET status='rejected'").run();
+  await applyDecision(f.env, input.id, 'approve', '999');
+  assert.equal(f.DB.sqlite.prepare('SELECT status FROM notes').get().status, 'approved');
+  assert.equal(moderationMessage({ ...f.DB.sqlite.prepare('SELECT * FROM notes').get(), doodle: null }).components[0].components[0].label, 'Unpublish');
+});
+
+test('rejected notes have an approve-anyway button', () => {
+  const message = moderationMessage({ id: crypto.randomUUID(), status: 'rejected', content: JSON.stringify([{ text: 'Second thoughts.' }]), anonymous: 1, name: 'Anonymous', created_at: Date.now(), doodle: null });
+  assert.equal(message.components[0].components[0].label, 'Approve anyway');
+  assert.equal(message.components[0].components[0].style, 3);
 });
 
 test('untrusted origins, missing Turnstile, wrong hostname/action, and submission floods fail closed', async t => {
