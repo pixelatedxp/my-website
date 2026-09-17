@@ -66,7 +66,7 @@ export async function validateDoodle(value) {
   try { bytes = Uint8Array.from(atob(value.slice(22)), c => c.charCodeAt(0)); } catch { return fail(); }
   if (bytes.length < 45 || bytes.length > 128000 || [137,80,78,71,13,10,26,10].some((v, i) => bytes[i] !== v)) return fail();
   const view = new DataView(bytes.buffer); const decoder = new TextDecoder();
-  let offset = 8, width, height, channels, sawData = false, endedData = false, ended = false;
+  let offset = 8, width, height, colourType, bitsPerPixel, paletteEntries = 0, sawData = false, endedData = false, ended = false;
   const chunks = [];
   while (offset + 12 <= bytes.length) {
     const size = view.getUint32(offset); const end = offset + 12 + size;
@@ -76,9 +76,20 @@ export async function validateDoodle(value) {
     if (type === 'IHDR') {
       if (offset !== 8 || size !== 13) return fail();
       width = view.getUint32(offset + 8); height = view.getUint32(offset + 12);
-      channels = bytes[offset + 17] === 6 ? 4 : bytes[offset + 17] === 2 ? 3 : 0;
-      if (width !== 480 || height !== 240 || bytes[offset + 16] !== 8 || !channels || bytes[offset + 18] || bytes[offset + 19] || bytes[offset + 20]) return fail();
+      const bitDepth = bytes[offset + 16]; colourType = bytes[offset + 17];
+      // WebKit can palette-encode a canvas PNG on iPad. It is still a normal,
+      // non-animated PNG, so accept it as well as the RGB/RGBA output from other browsers.
+      const componentCount = colourType === 6 ? 4 : colourType === 2 ? 3 : colourType === 4 ? 2 : colourType === 0 ? 1 : colourType === 3 ? 1 : 0;
+      const validDepth = colourType === 3 ? [1, 2, 4, 8].includes(bitDepth) : bitDepth === 8;
+      bitsPerPixel = componentCount * bitDepth;
+      if (width !== 480 || height !== 240 || !componentCount || !validDepth || bytes[offset + 18] || bytes[offset + 19] || bytes[offset + 20]) return fail();
     } else if (!width) return fail();
+    else if (type === 'PLTE') {
+      if (sawData || size < 3 || size > 768 || size % 3 || paletteEntries) return fail();
+      paletteEntries = size / 3;
+    } else if (type === 'tRNS') {
+      if (sawData || !paletteEntries || size > paletteEntries) return fail();
+    }
     else if (type === 'IDAT') {
       if (endedData) return fail();
       sawData = true; chunks.push(bytes.slice(offset + 8, end - 4));
@@ -88,17 +99,19 @@ export async function validateDoodle(value) {
     } else {
       // Browsers may include these colour metadata chunks; arbitrary payloads,
       // external references, APNG animation, and uploaded SVGs are not accepted.
-      if (!['sRGB', 'gAMA', 'cHRM', 'pHYs'].includes(type) || size > 32) return fail();
+      if (!['sRGB', 'gAMA', 'cHRM', 'pHYs', 'tIME'].includes(type) || size > 32) return fail();
       if (sawData) endedData = true;
     }
     offset = end;
   }
   if (!ended) return fail();
-  const expected = height * (1 + width * channels);
+  if ((colourType === 3 && !paletteEntries) || (bitsPerPixel < 8 && !paletteEntries)) return fail();
+  const rowSize = 1 + Math.ceil(width * bitsPerPixel / 8);
+  const expected = height * rowSize;
   try {
     const raw = await readLimited(new Blob(chunks).stream().pipeThrough(new DecompressionStream('deflate')), expected);
     if (raw.length !== expected) return fail();
-    for (let row = 0; row < height; row++) if (raw[row * (1 + width * channels)] > 4) return fail();
+    for (let row = 0; row < height; row++) if (raw[row * rowSize] > 4) return fail();
   } catch { return fail(); }
   return bytes;
 }

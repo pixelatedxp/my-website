@@ -42,6 +42,17 @@ function png(width = 480, height = 240, expandedExtra = 0) {
   return 'data:image/png;base64,' + Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]), chunk('IHDR', ihdr), chunk('IDAT', deflateSync(data)), chunk('IEND', Buffer.alloc(0))]).toString('base64');
 }
 
+function palettePng() {
+  const chunk = (type, data) => {
+    const label = Buffer.from(type); const length = Buffer.alloc(4); length.writeUInt32BE(data.length);
+    const crc = Buffer.alloc(4); crc.writeUInt32BE(crc32(Buffer.concat([label, data])));
+    return Buffer.concat([length, label, data, crc]);
+  };
+  const ihdr = Buffer.alloc(13); ihdr.writeUInt32BE(480); ihdr.writeUInt32BE(240, 4); ihdr[8] = 8; ihdr[9] = 3;
+  const pixels = Buffer.alloc(240 * 481); // one filter byte plus 480 palette indexes per row
+  return 'data:image/png;base64,' + Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]), chunk('IHDR', ihdr), chunk('PLTE', Buffer.from([255, 245, 173])), chunk('IDAT', deflateSync(pixels)), chunk('IEND', Buffer.alloc(0))]).toString('base64');
+}
+
 test('250 visible characters, safe formatting, rules, and anonymous names are enforced server-side', () => {
   assert.equal(validateNote({ ...valid(), content: [{ text: '💚'.repeat(250) }] }).content[0].text.length, 500);
   assert.throws(() => validateNote({ ...valid(), content: [{ text: 'a'.repeat(251) }] }), /250/);
@@ -54,6 +65,7 @@ test('250 visible characters, safe formatting, rules, and anonymous names are en
 
 test('doodles accept bounded PNGs and reject wrong dimensions, SVGs, corrupted CRCs, and decompression overflow', async () => {
   assert.ok(await validateDoodle(png()) instanceof Uint8Array);
+  assert.ok(await validateDoodle(palettePng()) instanceof Uint8Array);
   assert.equal(await validateDoodle(null), null);
   await assert.rejects(validateDoodle(png(4096, 240)), /doodle/);
   await assert.rejects(validateDoodle('data:image/svg+xml;base64,PHN2Zz4='), /doodle/);
