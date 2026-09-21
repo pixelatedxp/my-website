@@ -86,9 +86,8 @@
         terminal.className = 'egg-terminal';
         terminal.setAttribute('aria-hidden', 'true');
         terminal.innerHTML = '<div class="egg-terminal-window" role="dialog" aria-modal="true" aria-label="Secret terminal">' +
-            '<div class="egg-terminal-bar"><span>pixelis://hidden-terminal</span><button class="egg-terminal-close" type="button" aria-label="Close terminal">[x]</button></div>' +
             '<div class="egg-terminal-output"></div>' +
-            '<form class="egg-terminal-form"><span>&gt;</span><input class="egg-terminal-input" autocomplete="off" spellcheck="false" aria-label="Terminal command"><button type="submit">[run]</button></form></div>';
+            '<form class="egg-terminal-form"><span>C:\\pixelis&gt;</span><input class="egg-terminal-input" autocomplete="off" spellcheck="false" aria-label="Terminal command"></form></div>';
         document.body.appendChild(terminal);
         var output = terminal.querySelector('.egg-terminal-output');
         var input = terminal.querySelector('.egg-terminal-input');
@@ -99,6 +98,7 @@
         function open(message) {
             terminal.classList.add('open');
             terminal.setAttribute('aria-hidden', 'false');
+            output.textContent = 'Pixelis [Version 1.0.0]\n(c) pixelis.dev. All rights reserved.\n';
             if (message) print(message);
             input.focus();
             unlock('terminal', 'there is no terminal');
@@ -117,14 +117,14 @@
         }
         function run(command) {
             var cmd = command.trim().toLowerCase();
-            print('> ' + command);
+            print('C:\\pixelis> ' + command);
             var replies = {
                 help: 'commands: help, whoami, sudo, secrets, achievements, clear, exit',
                 whoami: 'pixel. allegedly a developer. definitely avoiding homework.',
                 sudo: 'permission denied. nice try though.',
                 secrets: 'poke around. some things respond when you least expect it.'
             };
-            if (cmd === 'clear') { output.textContent = ''; return; }
+            if (cmd === 'clear' || cmd === 'cls') { output.textContent = ''; return; }
             if (cmd === 'exit') { close(); return; }
             if (cmd === 'achievements') { unlock('auditor', 'checked the receipts'); print(achievementsText()); return; }
             print(replies[cmd] || 'command not found: ' + (cmd || '[silence]'));
@@ -132,7 +132,6 @@
             if (cmd === 'sudo') unlock('sudo', 'not in the sudoers file');
             if (cmd === 'secrets') unlock('secrets', 'asked the obvious question');
         }
-        terminal.querySelector('.egg-terminal-close').addEventListener('click', close);
         terminal.addEventListener('click', function (event) { if (event.target === terminal) close(); });
         terminal.querySelector('form').addEventListener('submit', function (event) {
             event.preventDefault();
@@ -154,7 +153,7 @@
             if (key.length === 1) typed = (typed + key).slice(-5);
             if (typed === 'pixel') {
                 typed = '';
-                openTerminal('[signal found] type "help" if you are lost.');
+                openTerminal();
             }
         });
     }
