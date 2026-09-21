@@ -331,7 +331,7 @@
 
     function initNosy() {
         var portraits = Array.prototype.slice.call(document.querySelectorAll('#hall-of-fame .friend-card'));
-        var ids = portraits.map(function (card) { return card.querySelector('img').getAttribute('src'); });
+        var ids = portraits.map(function (card) { return card.getAttribute('data-portrait-id') || card.querySelector('img').getAttribute('src'); });
         portraits.forEach(function (card, index) {
             function inspect() {
                 var seen = loadJson('pixelisPortraitsSeen', {});
