@@ -644,7 +644,6 @@ body::before {
 .peak-doodle .website-word { font-size: 24px; }
 .peak-doodle.animate .peak-word { animation: peakDraw .7s ease-out both; }
 .peak-doodle.animate .website-word { animation: peakDraw .9s ease-out .55s both; }
-.peak-doodle.animate .underline { animation: peakDraw .55s ease-out 1.35s both; }
 @keyframes peakDraw { to { stroke-dashoffset: 0; } }
 .peak-doodle.egg-ready { pointer-events: auto; cursor: pointer; }
 .peak-doodle.egg-certified .peak-ink { stroke: #f6b6cd; filter: drop-shadow(0 0 5px rgba(246, 182, 205, .65)); }
