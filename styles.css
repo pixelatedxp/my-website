@@ -631,7 +631,7 @@ body::before {
 @keyframes eggToast { 0% { opacity: 0; transform: translateY(12px); } 12%, 82% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-8px); } }
 .egg-terminal { position: fixed; inset: 0; z-index: 1000000; display: none; place-items: center; padding: 20px; background: rgba(0, 0, 0, .72); backdrop-filter: blur(8px); }
 .egg-terminal.open { display: grid; }
-.egg-terminal-window { display: flex; flex-direction: column; width: min(680px, 100%); min-height: 360px; max-height: min(520px, 78vh); overflow: hidden; background: #0c0c0c; box-shadow: 0 18px 70px rgba(0, 0, 0, .55); color: #f2f2f2; font: 16px/1.22 "Cascadia Mono", "Consolas", var(--font-mono), monospace; }
+.egg-terminal-window { display: flex; flex-direction: column; width: min(680px, 100%); min-height: 360px; max-height: min(520px, 78vh); overflow: hidden; border: 1px solid #f2f2f2; background: #0c0c0c; box-shadow: 0 18px 70px rgba(0, 0, 0, .55); color: #f2f2f2; font: 16px/1.22 "Cascadia Mono", "Consolas", var(--font-mono), monospace; }
 .egg-terminal-output { overflow-y: auto; padding: 10px 7px 0; white-space: pre-wrap; }
 .egg-terminal-form { display: flex; gap: 0; padding: 0 7px 10px; min-height: 28px; align-items: center; }
 .egg-terminal-form span { white-space: pre; }
