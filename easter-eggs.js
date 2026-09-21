@@ -98,7 +98,7 @@
         function open(message) {
             terminal.classList.add('open');
             terminal.setAttribute('aria-hidden', 'false');
-            output.textContent = 'Pixelis [Version 1.0.0]\n(c) pixelis.dev. All rights reserved.\n';
+            output.textContent = 'Pixelis [Version 1.0.0]\n(c) pixelis.dev. All rights reserved.\n\ntype "help" if you\'re lost.\n';
             if (message) print(message);
             input.focus();
             unlock('terminal', 'there is no terminal');
@@ -153,6 +153,7 @@
             if (key.length === 1) typed = (typed + key).slice(-5);
             if (typed === 'pixel') {
                 typed = '';
+                event.preventDefault();
                 openTerminal();
             }
         });
