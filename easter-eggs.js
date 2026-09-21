@@ -21,7 +21,7 @@
         'peak-website': 'clicked the evidence twenty times'
     };
     var HIDDEN_INTERACTIONS = ['terminal', 'goat', 'snowstorm', 'secret-track', 'rare-note', 'hall-secret', 'biscuit-vault', 'peak-website'];
-    var MAIN_PAGES = ['/', '/games/', '/changelog.html', '/games/chess/', '/games/typing/',
+    var MAIN_PAGES = ['/', '/games/', '/games/chess/', '/games/typing/',
         '/games/sequence-memory/', '/games/reaction-time/', '/games/wordle/'];
     var unlocked = loadJson(ACHIEVEMENT_KEY, {});
     var toastStack;

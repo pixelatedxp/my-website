@@ -115,9 +115,9 @@ test('lost detects the error-page marker even at an unknown nested URL', () => {
     assert.equal(site({ pathname: '/404.html' }).awards().lost, undefined);
 });
 
-test('completionist requires the eight main pages, canonicalizes URLs, and excludes maintenance pages', () => {
+test('completionist requires the seven main pages, canonicalizes URLs, and excludes maintenance pages', () => {
     const storage = new Map();
-    for (const pathname of ['/index.html', '/games', '/changelog.html', '/games/chess/index.html', '/games/typing/', '/games/sequence-memory/', '/games/reaction-time/', '/games/snake/', '/games/aim-trainer/']) {
+    for (const pathname of ['/index.html', '/games', '/games/chess/index.html', '/games/typing/', '/games/sequence-memory/', '/games/reaction-time/', '/games/snake/', '/games/aim-trainer/']) {
         assert.equal(site({ pathname, storage }).awards().completionist, undefined);
     }
     const page = site({ pathname: '/games/wordle/', storage });
