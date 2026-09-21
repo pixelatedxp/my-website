@@ -90,8 +90,8 @@ test('retired awards migrate away, commands fail, and current awards remain', ()
         page.award(cmd);
     }
     assert.deepEqual(Object.keys(page.awards()), ['goat']);
-    assert.match(page.command('achievements'), /2\/19 unlocked/);
-    assert.equal(Number(page.count.textContent), 19);
+    assert.match(page.command('achievements'), /2\/20 unlocked/);
+    assert.equal(Number(page.count.textContent), 20);
 });
 
 test('nosy requires all seven distinct Hall of Fame portraits and persists between visits', () => {

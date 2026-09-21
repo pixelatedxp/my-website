@@ -638,6 +638,18 @@ body::before {
 .egg-terminal-input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: inherit; font: inherit; caret-color: #f2f2f2; padding: 0; }
 .goat-doodle.egg-ready { pointer-events: auto; cursor: pointer; }
 .goat-doodle.egg-certified .crayon { stroke: #f5c542; filter: drop-shadow(0 0 6px #f5c542); }
+.peak-doodle { width: clamp(140px, 24vw, 205px); margin: -10px 0 -14px auto; pointer-events: none; }
+.peak-doodle svg { display: block; width: 100%; height: auto; overflow: visible; }
+.peak-doodle .peak-ink { fill: none; stroke: var(--doodle-color); stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 300; stroke-dashoffset: 300; font: 700 30px/1 "Comic Sans MS", cursive; letter-spacing: .5px; }
+.peak-doodle .website-word { font-size: 24px; }
+.peak-doodle.animate .peak-word { animation: peakDraw .7s ease-out both; }
+.peak-doodle.animate .website-word { animation: peakDraw .9s ease-out .55s both; }
+.peak-doodle.animate .underline { animation: peakDraw .55s ease-out 1.35s both; }
+@keyframes peakDraw { to { stroke-dashoffset: 0; } }
+.peak-doodle.egg-ready { pointer-events: auto; cursor: pointer; }
+.peak-doodle.egg-certified .peak-ink { stroke: #f6b6cd; filter: drop-shadow(0 0 5px rgba(246, 182, 205, .65)); }
+@media (max-width: 430px) { .peak-doodle { width: 118px; margin-right: -5px; } }
+@media (prefers-reduced-motion: reduce) { .peak-doodle .peak-ink { animation: none !important; stroke-dashoffset: 0; } }
 .egg-doodle-label { position: absolute; left: 50%; bottom: 8%; transform: translateX(-50%); color: #f5c542; font: .8rem var(--font-mono); white-space: nowrap; }
 .egg-heart { position: fixed; z-index: 1000002; pointer-events: none; color: #ff5c9a; font-size: 24px; animation: eggHeart 1.4s ease-out forwards; }
 @keyframes eggHeart { to { opacity: 0; transform: translateY(-90px) rotate(20deg) scale(1.5); } }

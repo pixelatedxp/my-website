@@ -6,7 +6,7 @@
         terminal: 'there is no terminal', auditor: 'checked the receipts', whoami: 'identity crisis resolved',
         sudo: 'not in the sudoers file', secrets: 'asked the obvious question', goat: 'certified goat',
         snowstorm: 'weather warning', 'secret-track': 'the B-side',
-        'rare-note': 'two percent club', 'hall-secret': 'the portrait speaks', explorer: 'scrolled the whole thing',
+        'rare-note': 'two percent club', 'hall-secret': 'the portrait speaks', 'peak-website': 'peak website', explorer: 'scrolled the whole thing',
         'arcade-tourist': 'arcade regular', 'beat-pixel': 'faster than Pixel',
         nosy: 'nosy', 'touch-grass': 'touch grass', completionist: 'completionist',
         audiophile: 'audiophile', lost: 'lost', 'why-like-this': 'why are you like this'
@@ -17,9 +17,10 @@
         'why-like-this': 'triggered five different hidden interactions',
         completionist: 'there was genuinely no reason to visit all of this',
         'touch-grass': '30 minutes of active browsing. the outside world misses you.',
-        audiophile: 'played five different songs'
+        audiophile: 'played five different songs',
+        'peak-website': 'clicked the evidence twenty times'
     };
-    var HIDDEN_INTERACTIONS = ['terminal', 'goat', 'snowstorm', 'secret-track', 'rare-note', 'hall-secret', 'biscuit-vault'];
+    var HIDDEN_INTERACTIONS = ['terminal', 'goat', 'snowstorm', 'secret-track', 'rare-note', 'hall-secret', 'biscuit-vault', 'peak-website'];
     var MAIN_PAGES = ['/', '/games/', '/changelog.html', '/games/chess/', '/games/typing/',
         '/games/sequence-memory/', '/games/reaction-time/', '/games/wordle/'];
     var unlocked = loadJson(ACHIEVEMENT_KEY, {});
@@ -173,6 +174,32 @@
                     label.textContent = '[certified goat]';
                     goat.appendChild(label);
                     unlock('goat', 'certified goat');
+                }
+            });
+        }
+        var peak = document.getElementById('peakDoodle');
+        if (peak) {
+            function drawPeak() { peak.classList.add('animate'); }
+            if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                var observer = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        if (entry.isIntersecting) {
+                            drawPeak();
+                            observer.disconnect();
+                        }
+                    });
+                }, { threshold: 0.5 });
+                observer.observe(peak);
+            } else {
+                drawPeak();
+            }
+            peak.classList.add('egg-ready');
+            var peakClicks = 0;
+            peak.addEventListener('click', function () {
+                peakClicks++;
+                if (peakClicks === 20) {
+                    peak.classList.add('egg-certified');
+                    unlock('peak-website', 'peak website');
                 }
             });
         }
