@@ -28,7 +28,7 @@ function site({ pathname = '/', storage = new Map(), errorPage = false, portrait
         remove() {}
     }
     const body = new Element(); body.dataset.page = errorPage ? '404' : '';
-    const cards = portraits ? Array.from({ length: 6 }, (_, i) => {
+    const cards = portraits ? Array.from({ length: 7 }, (_, i) => {
         const card = new Element(); card.querySelector('img').setAttribute('src', `friend-${i}.png`); return card;
     }) : [];
     const count = new Element();
@@ -94,16 +94,16 @@ test('retired awards migrate away, commands fail, and current awards remain', ()
     assert.equal(Number(page.count.textContent), 19);
 });
 
-test('nosy requires all six distinct Hall of Fame portraits and persists between visits', () => {
+test('nosy requires all seven distinct Hall of Fame portraits and persists between visits', () => {
     let page = site({ portraits: true });
     for (let i = 0; i < 8; i++) page.cards[0].emit('click');
     assert.equal(page.awards().nosy, undefined);
-    for (let i = 1; i < 5; i++) page.cards[i].emit('click');
+    for (let i = 1; i < 6; i++) page.cards[i].emit('click');
     assert.equal(page.awards().nosy, undefined);
     page = site({ storage: page.storage, portraits: true });
-    page.cards[5].emit('keydown', { key: 'Enter', repeat: true });
+    page.cards[6].emit('keydown', { key: 'Enter', repeat: true });
     assert.equal(page.awards().nosy, undefined);
-    page.cards[5].emit('keydown', { key: 'Enter' });
+    page.cards[6].emit('keydown', { key: 'Enter' });
     assert.ok(page.awards().nosy);
     assert.match(page.command('achievements'), /somehow managed to inspect everybody/);
 });

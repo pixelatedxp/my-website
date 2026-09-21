@@ -335,6 +335,11 @@ body::before {
     gap: 10px;
 }
 .friend-content img { max-width: 100%; border-radius: 8px; }
+.friend-content .friend-name {
+    font: .82rem/1.25 var(--font-heading);
+    font-weight: 600;
+    text-align: center;
+}
 .friend-content .friend-caption {
     font: .72rem/1.45 var(--font-mono);
     text-align: center;
