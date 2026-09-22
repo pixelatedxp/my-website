@@ -78,6 +78,28 @@
             card.style.setProperty('--mouse-y', `${y}px`);
         });
     });
+    const auraCard = document.querySelector('.aura-card');
+    if (auraCard) {
+        const popAura = (event) => {
+            const bounds = auraCard.getBoundingClientRect();
+            const x = event && event.clientX ? event.clientX - bounds.left : bounds.width / 2;
+            const y = event && event.clientY ? event.clientY - bounds.top : bounds.height / 2;
+            const text = document.createElement('span');
+            text.className = 'aura-pop';
+            text.textContent = '+1 aura';
+            text.style.left = `${Math.max(20, Math.min(bounds.width - 20, x))}px`;
+            text.style.top = `${Math.max(18, Math.min(bounds.height - 12, y))}px`;
+            auraCard.appendChild(text);
+            window.setTimeout(() => text.remove(), 900);
+        };
+        auraCard.addEventListener('click', popAura);
+        auraCard.addEventListener('keydown', (event) => {
+            if ((event.key === 'Enter' || event.key === ' ') && !event.repeat) {
+                event.preventDefault();
+                popAura();
+            }
+        });
+    }
     const fadeElements = document.querySelectorAll('.fade-up');
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
