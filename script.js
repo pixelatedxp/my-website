@@ -92,7 +92,7 @@
             text.style.left = `${Math.max(20, Math.min(bounds.width - 20, x))}px`;
             text.style.top = `${Math.max(18, Math.min(bounds.height - 12, y))}px`;
             auraCard.appendChild(text);
-            window.setTimeout(() => text.remove(), 900);
+            window.setTimeout(() => text.remove(), 1750);
         };
         auraCard.addEventListener('click', popAura);
         auraCard.addEventListener('keydown', (event) => {

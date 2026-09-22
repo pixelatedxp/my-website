@@ -361,12 +361,12 @@ body::before {
     text-shadow: 0 0 12px rgba(190, 157, 255, .95), 0 2px 6px rgba(0, 0, 0, .85);
     pointer-events: none;
     transform: translate(-50%, -50%);
-    animation: aura-float .85s ease-out forwards;
+    animation: aura-float 1.7s ease-out forwards;
 }
 @keyframes aura-float {
     0% { opacity: 0; transform: translate(-50%, -10%) scale(.75); }
     14% { opacity: 1; }
-    100% { opacity: 0; transform: translate(-50%, -190%) scale(1.08); }
+    100% { opacity: 0; transform: translate(-50%, -370%) scale(1.12); }
 }
 @media (hover: none), (pointer: coarse) {
     .friend-content .friend-caption { opacity: 1; transform: none; }
