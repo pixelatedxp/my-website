@@ -366,7 +366,7 @@ body::before {
 @keyframes aura-float {
     0% { opacity: 0; transform: translate(-50%, -10%) scale(.75); }
     14% { opacity: 1; }
-    100% { opacity: 0; transform: translate(-50%, -370%) scale(1.12); }
+    100% { opacity: 0; transform: translate(-50%, -600%) scale(1.15); }
 }
 @media (hover: none), (pointer: coarse) {
     .friend-content .friend-caption { opacity: 1; transform: none; }
