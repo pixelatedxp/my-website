@@ -376,6 +376,30 @@
         });
     }
 
+    function initAuraCard() {
+        var card = document.querySelector('.aura-card');
+        if (!card) return;
+        function pop(event) {
+            var bounds = card.getBoundingClientRect();
+            var x = event && event.clientX ? event.clientX - bounds.left : bounds.width / 2;
+            var y = event && event.clientY ? event.clientY - bounds.top : bounds.height / 2;
+            var text = document.createElement('span');
+            text.className = 'aura-pop';
+            text.textContent = '+1 aura';
+            text.style.left = Math.max(20, Math.min(bounds.width - 20, x)) + 'px';
+            text.style.top = Math.max(18, Math.min(bounds.height - 12, y)) + 'px';
+            card.appendChild(text);
+            window.setTimeout(function () { text.remove(); }, reducedMotion ? 30 : 900);
+        }
+        card.addEventListener('click', pop);
+        card.addEventListener('keydown', function (event) {
+            if ((event.key === 'Enter' || event.key === ' ') && !event.repeat) {
+                event.preventDefault();
+                pop();
+            }
+        });
+    }
+
     function initPageAchievements() {
         document.querySelectorAll('[data-achievement-count]').forEach(function (node) {
             node.textContent = Object.keys(ACHIEVEMENTS).length;
@@ -480,6 +504,7 @@
         initCursorHeart();
         initHallSecret();
         initNosy();
+        initAuraCard();
         initPageAchievements();
         initActiveTime();
         initAudiophile();

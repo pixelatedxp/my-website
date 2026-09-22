@@ -351,11 +351,29 @@ body::before {
     outline: 2px solid var(--accent-teal);
     outline-offset: 4px;
 }
+.glow-card.aura-card { overflow: visible; }
+.aura-pop {
+    position: absolute;
+    z-index: 8;
+    color: #f4efff;
+    font: 700 .78rem/1 var(--font-mono);
+    letter-spacing: .03em;
+    text-shadow: 0 0 12px rgba(190, 157, 255, .95), 0 2px 6px rgba(0, 0, 0, .85);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    animation: aura-float .85s ease-out forwards;
+}
+@keyframes aura-float {
+    0% { opacity: 0; transform: translate(-50%, -10%) scale(.75); }
+    14% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, -190%) scale(1.08); }
+}
 @media (hover: none), (pointer: coarse) {
     .friend-content .friend-caption { opacity: 1; transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
     .friend-content .friend-caption { transition: none; transform: none; }
+    .aura-pop { animation-duration: .01ms; }
 }
 .glow-card {
     position: relative;
