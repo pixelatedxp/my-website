@@ -80,13 +80,15 @@
     });
     const auraCard = document.querySelector('.aura-card');
     if (auraCard) {
+        let auraClicks = 0;
         const popAura = (event) => {
+            auraClicks += 1;
             const bounds = auraCard.getBoundingClientRect();
             const x = event && event.clientX ? event.clientX - bounds.left : bounds.width / 2;
             const y = event && event.clientY ? event.clientY - bounds.top : bounds.height / 2;
             const text = document.createElement('span');
             text.className = 'aura-pop';
-            text.textContent = '+1 aura';
+            text.textContent = auraClicks % 3 === 0 ? '+BITUMEN' : '+1 aura';
             text.style.left = `${Math.max(20, Math.min(bounds.width - 20, x))}px`;
             text.style.top = `${Math.max(18, Math.min(bounds.height - 12, y))}px`;
             auraCard.appendChild(text);
