@@ -37,8 +37,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 30px 40px;
-            gap: 28px;
+            padding: 20px 40px;
+            gap: 18px;
             overflow: hidden;
             min-height: calc(100vh - 130px);
         }
@@ -101,6 +101,14 @@
         .char.correct { color: #3d9970; }
         .char.wrong   { color: #c0392b; background: rgba(192,57,43,0.2); }
         .char.cursor  { border-left: 2px solid #fff; }
+
+        .typing-keyboard { width: min(620px, 100%); display: grid; gap: 5px; user-select: none; }
+        .keyboard-row { display: flex; justify-content: center; gap: 5px; }
+        .keyboard-key { flex: 1; max-width: 46px; height: 31px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.12); border-radius: 5px; background: linear-gradient(180deg, #292a2e, #191a1d); color: rgba(255,255,255,.62); font:  .72rem 'Share Tech Mono', monospace; box-shadow: 0 2px 0 rgba(255,255,255,.09); transition: background .08s, color .08s, border-color .08s, transform .08s; }
+        .keyboard-key.next { color: #fff; background: rgba(61,153,112,.42); border-color: #3d9970; box-shadow: 0 0 14px rgba(61,153,112,.25); }
+        .keyboard-key.pressed { transform: translateY(2px); background: #3d9970; color: #fff; }
+        .keyboard-key.space { max-width: 250px; flex: 5; }
+        .keyboard-caption { font: .64rem 'Share Tech Mono', monospace; text-align: center; color: rgba(255,255,255,.26); }
 
         
         #hiddenInput {
@@ -208,6 +216,13 @@
         .btn-share { align-self: center; padding: 12px 24px; border: 1px solid rgba(255,255,255,.15); border-radius: 8px; background: rgba(255,255,255,.06); color: #fff; font: .85rem 'Share Tech Mono', monospace; opacity: 0; transform: translateY(18px); }
         .btn-share.show { opacity: 1; transform: translateY(0); }
         .btn-share:hover { border-color: #3ca7cb; color: #3ca7cb; }
+        @media (max-width: 700px) {
+            .game-area { padding: 12px 16px; gap: 14px; min-height: calc(100vh - 80px); }
+            .text-display { font-size: 1rem; line-height: 1.55; }
+            .typing-keyboard { gap: 4px; }
+            .keyboard-row { gap: 3px; }
+            .keyboard-key { height: 26px; border-radius: 4px; font-size: .62rem; }
+        }
     </style>
 </head>
 <body class="dark-mode">
@@ -277,6 +292,13 @@
 
         <div class="text-display" id="textDisplay"></div>
         <input type="text" id="hiddenInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <div class="typing-keyboard" id="typingKeyboard" aria-label="On-screen QWERTY keyboard">
+            <div class="keyboard-row"><span class="keyboard-key" data-key="q">Q</span><span class="keyboard-key" data-key="w">W</span><span class="keyboard-key" data-key="e">E</span><span class="keyboard-key" data-key="r">R</span><span class="keyboard-key" data-key="t">T</span><span class="keyboard-key" data-key="y">Y</span><span class="keyboard-key" data-key="u">U</span><span class="keyboard-key" data-key="i">I</span><span class="keyboard-key" data-key="o">O</span><span class="keyboard-key" data-key="p">P</span></div>
+            <div class="keyboard-row"><span class="keyboard-key" data-key="a">A</span><span class="keyboard-key" data-key="s">S</span><span class="keyboard-key" data-key="d">D</span><span class="keyboard-key" data-key="f">F</span><span class="keyboard-key" data-key="g">G</span><span class="keyboard-key" data-key="h">H</span><span class="keyboard-key" data-key="j">J</span><span class="keyboard-key" data-key="k">K</span><span class="keyboard-key" data-key="l">L</span></div>
+            <div class="keyboard-row"><span class="keyboard-key" data-key="z">Z</span><span class="keyboard-key" data-key="x">X</span><span class="keyboard-key" data-key="c">C</span><span class="keyboard-key" data-key="v">V</span><span class="keyboard-key" data-key="b">B</span><span class="keyboard-key" data-key="n">N</span><span class="keyboard-key" data-key="m">M</span></div>
+            <div class="keyboard-row"><span class="keyboard-key space" data-key=" ">space</span></div>
+            <div class="keyboard-caption" id="keyboardCaption">Your next key will light up here</div>
+        </div>
         <div class="hint" id="hintText">Start typing to begin the race...</div>
     </div>
 
@@ -402,6 +424,21 @@
             alignedLen = correctCount;
             cursorPos = ti;
             el.innerHTML = html;
+            updateVirtualKeyboard();
+        }
+
+        function updateVirtualKeyboard() {
+            const target = text[cursorPos] || '';
+            document.querySelectorAll('.keyboard-key').forEach(key => key.classList.toggle('next', key.dataset.key === target));
+            const caption = document.getElementById('keyboardCaption');
+            caption.textContent = target ? (target === ' ' ? 'Next key: space' : 'Next key: ' + target.toUpperCase()) : 'Race complete';
+        }
+
+        function flashPhysicalKey(keyName) {
+            const key = Array.from(document.querySelectorAll('.keyboard-key')).find(item => item.dataset.key === keyName.toLowerCase());
+            if (!key) return;
+            key.classList.add('pressed');
+            setTimeout(() => key.classList.remove('pressed'), 110);
         }
 
         function updateTracks(yourPct, humanPct, pixelPct) {
@@ -728,6 +765,7 @@
 
         document.addEventListener('keydown', (e) => {
             document.getElementById('hiddenInput').focus();
+            if (e.key.length === 1) flashPhysicalKey(e.key);
         });
 
         document.getElementById('hiddenInput').addEventListener('paste', (event) => {
@@ -739,6 +777,6 @@
 
         setupGame();
     </script>
-    <script src="../../music-player.js?v=8"></script>
+    <script src="../../music-player.js?v=9"></script>
 </body>
 </html>

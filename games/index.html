@@ -128,20 +128,13 @@
                     </a>
                     <div class="game-card glow-card tiltable disabled">
                         <div class="glow-content">
-                            <div class="game-thumbnail" style="background:#252525; position:relative; overflow:hidden;">
-                                <svg width="100%" height="100%" viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="80" cy="60" r="28" fill="none" stroke="#c0392b" stroke-width="2"/>
-                                    <circle cx="80" cy="60" r="17" fill="none" stroke="#e74c3c" stroke-width="1.5"/>
-                                    <circle cx="80" cy="60" r="6" fill="#e74c3c"/>
-                                    <line x1="50" y1="60" x2="69" y2="60" stroke="#e74c3c" stroke-width="1.5"/>
-                                    <line x1="91" y1="60" x2="110" y2="60" stroke="#e74c3c" stroke-width="1.5"/>
-                                    <line x1="80" y1="28" x2="80" y2="50" stroke="#e74c3c" stroke-width="1.5"/>
-                                    <line x1="80" y1="70" x2="80" y2="92" stroke="#e74c3c" stroke-width="1.5"/>
-                                    <circle cx="200" cy="110" r="35" fill="none" stroke="#c0392b" stroke-width="2" opacity="0.7"/>
-                                    <circle cx="200" cy="110" r="21" fill="none" stroke="#e74c3c" stroke-width="1.5" opacity="0.7"/>
-                                    <circle cx="200" cy="110" r="7" fill="#e74c3c" opacity="0.7"/>
-                                    <circle cx="240" cy="45" r="20" fill="none" stroke="#c0392b" stroke-width="2" opacity="0.5"/>
-                                    <circle cx="240" cy="45" r="7" fill="#e74c3c" opacity="0.5"/>
+                            <div class="game-thumbnail" style="background:#fff; position:relative; overflow:hidden;">
+                                <svg width="100%" height="100%" viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg" aria-label="Black crosshair on a white background">
+                                    <g fill="none" stroke="#171719" stroke-width="4" stroke-linecap="square">
+                                        <circle cx="150" cy="90" r="29"/>
+                                        <circle cx="150" cy="90" r="4" fill="#171719"/>
+                                        <path d="M150 39v22M150 119v22M99 90h22M179 90h22"/>
+                                    </g>
                                 </svg>
                             </div>
                             <h3>Aim Trainer</h3>
@@ -161,14 +154,13 @@
                     </a>
                     <a href="sequence-memory/index.html" class="game-card glow-card tiltable">
                         <div class="glow-content">
-                            <div class="game-thumbnail" style="background:#252525; display:flex; align-items:center; justify-content:center;">
-                                <svg width="160" height="120" viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
-                                    <rect x="10" y="10" width="40" height="40" rx="8" fill="#6c5ce7" opacity="0.9"/>
-                                    <rect x="60" y="10" width="40" height="40" rx="8" fill="#1e1e1e" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-                                    <rect x="110" y="10" width="40" height="40" rx="8" fill="#1e1e1e" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-                                    <rect x="10" y="60" width="40" height="40" rx="8" fill="#1e1e1e" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-                                    <rect x="60" y="60" width="40" height="40" rx="8" fill="#6c5ce7" opacity="0.6"/>
-                                    <rect x="110" y="60" width="40" height="40" rx="8" fill="#1e1e1e" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                            <div class="game-thumbnail" style="background:#fff; display:flex; align-items:center; justify-content:center;">
+                                <svg width="160" height="120" viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg" aria-label="Sequence memory tiles on white">
+                                    <g fill="#fff" stroke="#171719" stroke-width="4">
+                                        <rect x="10" y="10" width="40" height="40" rx="5"/><rect x="60" y="10" width="40" height="40" rx="5"/><rect x="110" y="10" width="40" height="40" rx="5"/>
+                                        <rect x="10" y="60" width="40" height="40" rx="5"/><rect x="60" y="60" width="40" height="40" rx="5"/><rect x="110" y="60" width="40" height="40" rx="5"/>
+                                    </g>
+                                    <rect x="60" y="60" width="40" height="40" rx="5" fill="#171719"/>
                                 </svg>
                             </div>
                             <h3>Sequence Memory</h3>
@@ -178,8 +170,15 @@
                     </a>
                     <div class="game-card glow-card tiltable disabled">
                         <div class="glow-content">
-                            <div class="game-thumbnail">
-                                <img src="../assets/thumbnails/snake.jpg" alt="Snake Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
+                            <div class="game-thumbnail" style="background:#fff; display:flex; align-items:center; justify-content:center;">
+                                <svg width="100%" height="100%" viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg" aria-label="Snake in black pixel lettering with a small pixel snake">
+                                    <rect width="300" height="180" fill="#fff"/>
+                                    <text x="150" y="82" text-anchor="middle" fill="#111" font-family="monospace" font-size="42" font-weight="900" letter-spacing="3">snake</text>
+                                    <g fill="#111" shape-rendering="crispEdges">
+                                        <rect x="112" y="111" width="14" height="14"/><rect x="128" y="111" width="14" height="14"/><rect x="144" y="111" width="14" height="14"/><rect x="144" y="127" width="14" height="14"/><rect x="160" y="127" width="14" height="14"/><rect x="176" y="127" width="14" height="14"/>
+                                    </g>
+                                    <rect x="180" y="130" width="3" height="3" fill="#fff"/><rect x="186" y="130" width="3" height="3" fill="#fff"/>
+                                </svg>
                             </div>
                             <h3>Snake</h3>
                             <p>Split-screen Snake. Race vs Pixel at human speed.</p>
@@ -196,16 +195,16 @@
                             <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
                         </div>
                     </a>
-                    <a href="wordle/index.html" class="game-card glow-card tiltable">
+                    <div class="game-card glow-card tiltable disabled">
                         <div class="glow-content">
                             <div class="game-thumbnail">
                                 <img src="../assets/thumbnails/wordle.png" alt="Wordle Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
                             </div>
                             <h3>Wordle</h3>
                             <p>6 guesses to find the hidden 5-letter word. Flip animations, keyboard tracking, streak counter.</p>
-                            <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
+                            <span class="maintenance-badge">[ UNDER MAINTENANCE ]</span>
                         </div>
-                    </a>
+                    </div>
                     <div class="game-card glow-card tiltable" style="opacity: 0.4; pointer-events: none;">
                         <div class="glow-content">
                             <div class="game-thumbnail" style="background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 20px);">
@@ -220,7 +219,7 @@
         </section>
     </main>
     <script src="../script.js?v=9"></script>
-    <script src="../music-player.js?v=8"></script>
+    <script src="../music-player.js?v=9"></script>
 </body>
 </html>
 

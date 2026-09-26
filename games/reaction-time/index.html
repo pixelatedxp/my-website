@@ -65,6 +65,10 @@
         #clickZone.result  { background: #1a1a1a; color: #fff; }
         #clickZone.toosoon { background: #e67e22; color: #fff; }
 
+        .reaction-confetti { position: fixed; z-index: 20; width: 9px; height: 9px; border-radius: 2px; pointer-events: none; animation: reactionConfetti 900ms cubic-bezier(.15,.7,.3,1) forwards; }
+        @keyframes reactionConfetti { to { transform: translate(var(--dx), var(--dy)) rotate(var(--spin)); opacity: 0; } }
+        @media (prefers-reduced-motion: reduce) { .reaction-confetti { animation-duration: 450ms; } }
+
         .zone-big { font-size: 3.5rem; font-weight: bold; line-height: 1; }
         .zone-sub { font-size: 0.9rem; opacity: 0.7; }
 
@@ -324,7 +328,26 @@
             pixelCard.classList.toggle('winner', pixelMs < best);
         }
 
-        zone.addEventListener('click', () => {
+        function burstConfetti(event) {
+            const colors = ['#3ca7cb', '#f6d365', '#ff6b9a', '#8ee3a1', '#ffffff', '#a98bff'];
+            for (let i = 0; i < 18; i++) {
+                const piece = document.createElement('span');
+                const angle = (Math.PI * 2 * i / 18) + (Math.random() - 0.5) * 0.45;
+                const distance = 45 + Math.random() * 105;
+                piece.className = 'reaction-confetti';
+                piece.style.left = event.clientX + 'px';
+                piece.style.top = event.clientY + 'px';
+                piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.setProperty('--dx', Math.cos(angle) * distance + 'px');
+                piece.style.setProperty('--dy', Math.sin(angle) * distance + 'px');
+                piece.style.setProperty('--spin', (Math.random() * 720 - 360) + 'deg');
+                document.body.appendChild(piece);
+                setTimeout(() => piece.remove(), 950);
+            }
+        }
+
+        zone.addEventListener('click', (event) => {
+            burstConfetti(event);
             if (state === 'idle' || state === 'result' || state === 'toosoon') {
                 
                 clearTimeout(timer);
@@ -533,6 +556,6 @@
         
         setState('idle');
     </script>
-    <script src="../../music-player.js?v=8"></script>
+    <script src="../../music-player.js?v=9"></script>
 </body>
 </html>
