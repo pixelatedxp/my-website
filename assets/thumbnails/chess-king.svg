@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 180" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="24" y1="0" x2="276" y2="180" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#202b35"/>
+      <stop offset="1" stop-color="#11151d"/>
+    </linearGradient>
+    <linearGradient id="king" x1="122" y1="48" x2="179" y2="153" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff8dc"/>
+      <stop offset="1" stop-color="#c5d6df"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#bg)" d="M0 0h300v180H0z"/>
+  <circle cx="150" cy="92" r="63" fill="#3ca7cb" fill-opacity=".08"/>
+  <path fill="#b8d6e2" fill-opacity=".12" d="M0 150h300v30H0z"/>
+  <path fill="#b8d6e2" fill-opacity=".1" d="M0 150h37.5v30H0zm75 0h37.5v30H75zm75 0h37.5v30H150zm75 0h37.5v30H225z"/>
+  <ellipse cx="150" cy="153" fill="#080b10" fill-opacity=".45" rx="47" ry="6"/>
+  <path fill="url(#king)" d="M145 35a5 5 0 0 1 10 0v9h11a4 4 0 0 1 0 8h-11v10c13 1 23 7 23 17 0 6-3 13-7 20l-5 9 12 18v8h-56v-8l12-18-5-9c-4-7-7-14-7-20 0-10 10-16 23-17V52h-11a4 4 0 0 1 0-8h11v-9Z"/>
+  <path d="M127 110h46m-52 24h58m-29-73v42" stroke="#718b9a" stroke-linecap="round" stroke-width="3"/>
+  <path fill="#f5d78d" d="m85 56 2.3 6.7L94 65l-6.7 2.3L85 74l-2.3-6.7L76 65l6.7-2.3L85 56Zm130 11 1.8 5.2L222 74l-5.2 1.8L215 81l-1.8-5.2L208 74l5.2-1.8L215 67Z"/>
+</svg>
