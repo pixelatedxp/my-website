@@ -9,10 +9,11 @@
     for (var i = 0; i < segs.length; i++) prefix += '../';
 
     var tracks = [
-        // Official single artwork: https://www.eminem.com/releases/without-me/
-        { title: 'Eminem - Without Me', file: 'eminem-without-me.mp3', cover: 'eminem-without-me-cover.jpg', loop: true },
+        { title: 'Totally not feeling like shit', file: 'totally-not-feeling-like-shit.m4a', cover: 'thumb.jpg', loop: true },
         // Release artwork: https://open.spotify.com/track/2VKJotTHpawDXLAKYt2UV2
         { title: '180db_ [130] (Super Slowed)', file: '180db-130-super-slowed.mp3', cover: '180db-cover.jpg', loop: true },
+        // Official single artwork: https://www.eminem.com/releases/without-me/
+        { title: 'Eminem - Without Me', file: 'eminem-without-me.mp3', cover: 'eminem-without-me-cover.jpg', loop: true },
         { title: 's0rrow - unhappy', file: 's0rrow-unhappy.mp3' },
         { title: 'close my eyes', file: 'close my eyes.mp3' },
         { title: 'fake ur face', file: 'fake ur face.mp3' },
