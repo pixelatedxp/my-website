@@ -341,7 +341,7 @@
     }
 });
 function copyEmail(element) {
-    navigator.clipboard.writeText('pixel@pixelis.dev').then(() => {
+    navigator.clipboard.writeText('kx.zaper@gmail.com').then(() => {
         const statusEl = element.querySelector('.copy-status');
         if (statusEl) {
             statusEl.style.opacity = '1';

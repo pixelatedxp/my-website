@@ -14,14 +14,16 @@
         { title: '180db_ [130] (Super Slowed)', file: '180db-130-super-slowed.mp3', cover: '180db-cover.jpg', loop: true },
         // Official single artwork: https://www.eminem.com/releases/without-me/
         { title: 'Eminem - Without Me', file: 'eminem-without-me.mp3', cover: 'eminem-without-me-cover.jpg', loop: true },
-        { title: 's0rrow - unhappy', file: 's0rrow-unhappy.mp3' },
-        { title: 'close my eyes', file: 'close my eyes.mp3' },
-        { title: 'fake ur face', file: 'fake ur face.mp3' },
-        { title: 'give me hints', file: 'give me hints.mp3' },
-        { title: 'i can see your evil soul', file: 'i can see your evil soul.mp3' },
-        { title: 'unhappy', file: 'unhappy.mp3' }
+        // s0rrow artwork from the official Apple Music releases.
+        { title: 's0rrow - unhappy', file: 's0rrow-unhappy.mp3', cover: 's0rrow-unhappy-cover.jpg' },
+        { title: 'close my eyes', file: 'close my eyes.mp3', cover: 's0rrow-very-sorrow-days-cover.jpg' },
+        { title: 'fake ur face', file: 'fake ur face.mp3', cover: 's0rrow-fake-ur-face-cover.jpg' },
+        { title: 'give me hints', file: 'give me hints.mp3', cover: 's0rrow-very-sorrow-days-cover.jpg' },
+        // overtonight - confetti
+        { title: 'i can see your evil soul', file: 'i can see your evil soul.mp3', cover: 'overtonight-confetti-cover.jpg' },
+        { title: 'unhappy', file: 'unhappy.mp3', cover: 's0rrow-unhappy-cover.jpg' }
     ];
-    var rareTrack = { title: '??? - i have no friends', file: 'i have no friends.mp3', rare: true };
+    var rareTrack = { title: '??? - i have no friends', file: 'i have no friends.mp3', cover: 's0rrow-i-have-no-friends-cover.jpg', rare: true };
 
     function init() {
         if (document.getElementById('siteAudio')) return;
@@ -30,11 +32,11 @@
         css.textContent =
             '.music-player{position:fixed;bottom:20px;right:20px;z-index:9000;display:grid;grid-template-columns:auto minmax(0,165px) auto;align-items:center;gap:10px;width:max-content;max-width:calc(100vw - 40px);padding:10px 12px;background:var(--card-bg,rgba(30,30,35,.88));border:1px solid var(--card-border,rgba(255,255,255,.08));border-radius:16px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,.28);opacity:0;transform:translateY(16px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1),background-color .4s,border-color .4s;pointer-events:none}' +
             '.music-player.visible{opacity:1;transform:translateY(0);pointer-events:auto}.music-player.rare{border-color:#ff5c9a;box-shadow:0 8px 36px rgba(255,92,154,.16)}' +
-            '.music-thumb{width:46px;height:46px;border-radius:10px;object-fit:cover;user-select:none;-webkit-user-select:none}.music-info{min-width:0;font-family:\'Syne\',sans-serif}.music-label{display:block;color:var(--text-secondary,#98989d);font:.68rem \'Share Tech Mono\',monospace;text-transform:lowercase}.music-track-window{width:100%;overflow:hidden;white-space:nowrap}.music-track-inner{display:inline-block;font-size:.8rem;font-weight:700;color:var(--text-primary,#f5f5f7);will-change:transform}.music-track-inner.scrolling{animation:musicMarquee 6s ease-in-out 1s infinite alternate}@keyframes musicMarquee{to{transform:translateX(var(--scroll-distance,0px))}}' +
+            '.music-thumb{width:46px;height:46px;border-radius:10px;object-fit:cover;user-select:none;-webkit-user-select:none}.music-info{min-width:0;font-family:\'Syne\',sans-serif}.music-label{display:block;color:var(--text-secondary,#98989d);font:.68rem \'Share Tech Mono\',monospace;text-transform:lowercase}.music-track-window{width:100%;overflow:hidden;white-space:nowrap}.music-track-inner{display:inline-block;font-size:.8rem;font-weight:700;color:var(--text-primary,#f5f5f7);will-change:transform}' +
             '.music-visualizer{display:flex;align-items:flex-end;gap:2px;height:12px;margin-top:3px}.music-visualizer span{width:3px;height:2px;border-radius:2px;background:var(--accent-teal,#3ca7cb);opacity:.35;transition:height .09s linear,opacity .2s}.music-player.playing .music-visualizer span{opacity:.95}.music-player.rare .music-visualizer span{background:#ff5c9a}' +
             '.music-controls{display:flex;align-items:center;gap:1px}.music-btn{border:0;background:none;color:var(--text-secondary,#98989d);display:grid;place-items:center;padding:4px;transition:color .2s,transform .2s}.music-btn:hover{color:var(--accent-teal,#3ca7cb);transform:scale(1.1)}.music-btn svg{width:18px;height:18px}.music-toggle svg{width:22px;height:22px}' +
             '.music-volume{position:relative;display:flex;align-items:center}.music-volume-panel{position:absolute;right:-8px;bottom:34px;width:110px;padding:9px;border:1px solid var(--card-border,rgba(255,255,255,.08));border-radius:10px;background:var(--card-bg,#202024);box-shadow:0 8px 22px rgba(0,0,0,.3);opacity:0;transform:translateY(5px);pointer-events:none;transition:.2s}.music-volume:hover .music-volume-panel,.music-volume:focus-within .music-volume-panel{opacity:1;transform:none;pointer-events:auto}.music-volume-panel input{width:100%;accent-color:var(--accent-teal,#3ca7cb)}' +
-            '@media(max-width:600px){.music-player{bottom:14px;right:14px;grid-template-columns:auto minmax(0,125px) auto;max-width:calc(100vw - 28px);gap:7px}.music-thumb{width:40px;height:40px}.music-btn{padding:3px}}@media(prefers-reduced-motion:reduce){.music-track-inner.scrolling{animation:none}}';
+            '@media(max-width:600px){.music-player{bottom:14px;right:14px;grid-template-columns:auto minmax(0,125px) auto;max-width:calc(100vw - 28px);gap:7px}.music-thumb{width:40px;height:40px}.music-btn{padding:3px}}';
         document.head.appendChild(css);
 
         var player = document.createElement('div');
@@ -76,6 +78,7 @@
         var frequencyData;
         var visualFrame;
         var lastSavedSecond = -1;
+        var marquee = null;
         var interactionEvents = ['pointerup', 'touchend', 'click', 'keydown'];
 
         function stopWaitingForInteraction() {
@@ -106,12 +109,50 @@
             thumbnail.alt = 'Cover art for ' + track.title;
             player.classList.toggle('rare', !!track.rare);
             player.querySelector('.music-label').textContent = track.rare ? '[rare transmission]' : '[now playing]';
-            requestAnimationFrame(function () {
-                var distance = Math.min(0, titleWindow.clientWidth - title.scrollWidth);
-                title.style.setProperty('--scroll-distance', distance + 'px');
-                title.classList.toggle('scrolling', distance < -4);
-            });
+            requestAnimationFrame(startMarquee);
         }
+        // Long titles loop like a ticker: rest at the start, scroll left with the
+        // beginning following the end, rest once the start is back in place, repeat.
+        var MARQUEE_GAP = 40, MARQUEE_SPEED = 18, MARQUEE_REST = 2500;
+        var marqueeWidth = 0;
+        var marqueeObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(function (entries) {
+            var w = Math.round(entries[0].target.getBoundingClientRect().width);
+            if (w && w !== marqueeWidth) startMarquee();
+        }) : null;
+        function startMarquee() {
+            if (marquee) { marquee.cancel(); marquee = null; }
+            var text = activeTrack().title;
+            title.textContent = text;
+            if (typeof title.animate !== 'function' || !title.ownerDocument) return;
+            var copy = document.createElement('span');
+            copy.textContent = text;
+            title.textContent = '';
+            title.appendChild(copy);
+            marqueeWidth = Math.round(copy.getBoundingClientRect().width);
+            if (marqueeObserver) { marqueeObserver.disconnect(); marqueeObserver.observe(copy); }
+            var scrolling = marqueeWidth - titleWindow.clientWidth > 4;
+            title.classList.toggle('scrolling', scrolling);
+            if (!scrolling) return;
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            var gap = document.createElement('span');
+            gap.style.cssText = 'display:inline-block;width:' + MARQUEE_GAP + 'px';
+            var repeat = document.createElement('span');
+            repeat.textContent = text;
+            repeat.setAttribute('aria-hidden', 'true');
+            title.appendChild(gap);
+            title.appendChild(repeat);
+            var distance = marqueeWidth + MARQUEE_GAP;
+            var travel = distance / MARQUEE_SPEED * 1000;
+            var total = MARQUEE_REST + travel;
+            marquee = title.animate([
+                { transform: 'translateX(0)', offset: 0 },
+                { transform: 'translateX(0)', offset: MARQUEE_REST / total, easing: 'linear' },
+                { transform: 'translateX(' + (-distance) + 'px)', offset: 1 }
+            ], { duration: total, iterations: Infinity });
+        }
+        window.addEventListener('resize', function () { requestAnimationFrame(startMarquee); });
+        // Web fonts can widen the title after the first measurement, so re-measure once they load.
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { requestAnimationFrame(startMarquee); });
         function setTrack(index, rare, keepPlaying, resumeAt) {
             var wasPlaying = keepPlaying === undefined ? !audio.paused : keepPlaying;
             currentRare = !!rare;
