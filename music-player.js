@@ -9,7 +9,7 @@
     for (var i = 0; i < segs.length; i++) prefix += '../';
 
     var tracks = [
-        { title: 'Totally not feeling like shit', file: 'totally-not-feeling-like-shit.m4a', cover: 'thumb.jpg', loop: true },
+        { title: 'not feeling like shit', file: 'totally-not-feeling-like-shit.m4a', cover: 'thumb.jpg', loop: true },
         // Release artwork: https://open.spotify.com/track/2VKJotTHpawDXLAKYt2UV2
         { title: '180db_ [130] (Super Slowed)', file: '180db-130-super-slowed.mp3', cover: '180db-cover.jpg', loop: true },
         // Official single artwork: https://www.eminem.com/releases/without-me/
