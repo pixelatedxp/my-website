@@ -311,6 +311,7 @@
     function setState(name, dur, data) {
         if (name === 'sleep' && cat.state !== 'petted' && cat.state !== 'sleep' && typeof stats !== 'undefined') stats.naps++;
         if (cat.state === 'play' && name !== 'play') endToy(false);
+        if (name !== 'paw') cat.pawScreen = null;
         cat.state = name;
         cat.t = 0;
         cat.dur = dur || 0;
@@ -328,7 +329,8 @@
         var options = [
             ['walk', 26], ['sit', 16], ['groom', 12], ['sleep', 6 + Math.min(18, cat.awake / 6)],
             ['play', reducedMotion || perched ? 0 : 11], ['follow', mouseFresh ? 30 : 0], ['stretch', 4],
-            ['hopdown', perched ? 6 + Math.min(30, cat.platT / 2) : 0]
+            ['hopdown', perched ? 6 + Math.min(30, cat.platT / 2) : 0],
+            ['paw', 11]
         ];
         var total = 0, i;
         for (i = 0; i < options.length; i++) total += options[i][1];
@@ -344,6 +346,8 @@
             tx = clamp(tx, b[0], b[1]);
             if (Math.abs(tx - cat.x) < 30) setState('sit', rand(3, 6));
             else walkTo(tx, !perched && Math.random() < 0.18 ? 105 : rand(40, 58));
+        } else if (choice === 'paw') {
+            if (!startPaw()) setState('sit', rand(3, 6));
         } else if (choice === 'hopdown') {
             var bb = bounds();
             hopOff(cat.x - bb[0] < bb[1] - cat.x ? -1 : 1);
@@ -440,6 +444,58 @@
         if (toy.x > W - 30) { toy.x = W - 30; toy.vx = -Math.abs(toy.vx); }
         toy.h = clamp(toy.h, 48, 165);
         toy.el.style.transform = 'translate(' + f1(toy.x - 13) + 'px,' + f1(floorY() - toy.h - 11 + Math.sin(time * 9) * 2) + 'px)';
+    }
+
+    // ---------- pawing at stuff ----------
+    var PAW_SEL = '.glow-card, .card.section, .currently-card, .side-sticky-note, .egg-rare-note, #musicPlayer';
+    function groundScreenY() { return floorY() - groundH; }
+    function findPawTarget() {
+        var gy = groundScreenY(), lo = gy - 58 * S, hi = gy - 12 * S;
+        var b = bounds(), best = null;
+        var nodes = document.querySelectorAll(PAW_SEL);
+        for (var i = 0; i < nodes.length; i++) {
+            var n = nodes[i];
+            if (layer.contains(n) || n === cat.plat) continue;
+            var r = n.getBoundingClientRect();
+            if (r.width < 30 || r.height < 12) continue;
+            var top = Math.max(r.top, lo), bot = Math.min(r.bottom, hi);
+            if (top >= bot) continue; // nothing of it at paw height
+            [[r.left, -1], [r.right, 1]].forEach(function (edge) {
+                var ex = edge[0], outside = edge[1]; // she stands outside the element, on this side
+                var stand = ex + outside * 30 * S;
+                if (stand < b[0] || stand > b[1] || ex < 20 || ex > W - 20) return;
+                var dist = Math.abs(stand - cat.x);
+                if (dist > 460) return;
+                if (!best || dist < best.dist) best = { el: n, x: ex, y: clamp((top + bot) / 2, gy - 46 * S, gy - 16 * S), stand: stand, face: -outside, dist: dist };
+            });
+        }
+        return best;
+    }
+    function startPaw() {
+        if (!onGround()) return false;
+        if (cat.plat && Math.random() < 0.6) {
+            // pat the thing she's sitting on
+            setState('paw', rand(2, 3.2), { kind: 'perch', el: cat.plat, phase: 'bat' });
+            return true;
+        }
+        var t = findPawTarget();
+        if (!t) return false;
+        setState('paw', rand(2.2, 3.6), { kind: 'edge', el: t.el, tx: t.x, ty: t.y, stand: t.stand, face: t.face, phase: 'approach' });
+        return true;
+    }
+    function swatAtMouse() {
+        setState('paw', rand(1, 1.8), { kind: 'mouse', phase: 'bat' });
+    }
+    function bump(n, dx, dy) {
+        if (!n || typeof n.animate !== 'function') return;
+        try {
+            n.animate([
+                { transform: 'translate(0,0)' },
+                { transform: 'translate(' + dx + 'px,' + dy + 'px)' },
+                { transform: 'translate(' + (-dx * 0.4) + 'px,' + (-dy * 0.4) + 'px)' },
+                { transform: 'translate(0,0)' }
+            ], { duration: 260, easing: 'ease-out', composite: 'add' });
+        } catch (e) {}
     }
 
     // ---------- interaction ----------
@@ -786,6 +842,12 @@
     renderName();
 
     // ---------- per-state behaviour ----------
+    function cursorInReach() {
+        if (mouse.x < 0 || !onGround()) return false;
+        var h = headScreen();
+        var dx = Math.abs(mouse.x - h.x), dy = mouse.y - h.y;
+        return dx < 70 * S && dy > -70 * S && dy < 30 * S;
+    }
     function lookAtMouse(maxUp) {
         if (mouse.x < 0) return false;
         var h = headScreen();
@@ -842,6 +904,7 @@
                 if (Math.random() < 0.25) cat.dir = -cat.dir;
                 if (Math.random() < 0.07 && bubbleTimer <= 0) say(pick(['bwah', 'bwah', 'mrrp', 'mew', ':3']), 1.4);
             }
+            if (finePointer && mouse.inside && !pet.hovering && cursorInReach() && Math.random() < dt * 0.35) { swatAtMouse(); return; }
             if (!(finePointer && mouse.inside && time - mouse.t < 2 && lookAtMouse())) {
                 cat.headTgt = d.head; cat.lookX = d.lx; cat.lookY = d.ly;
             }
@@ -867,6 +930,7 @@
                 cat.dir = dx >= 0 ? 1 : -1;
                 lookAtMouse(26);
                 T.tailAmp = 9; tailSpeed = 2.4;
+                if (!pet.hovering && cursorInReach() && Math.random() < dt * 0.5) { swatAtMouse(); return; }
             }
         } else if (st === 'groom') {
             defaultsSitting();
@@ -891,6 +955,35 @@
             eyeMode = settle > 0.6 ? 'closed' : 'happy';
             if (cat.t > 2 && (!d.z || time > d.z)) { d.z = time + 1.7; zzz(); }
             if (cat.t > cat.dur) { cat.awake = 0; setState('stretch', 2.1, { wake: true }); }
+        } else if (st === 'paw') {
+            if (d.phase === 'approach') {
+                defaultsStanding();
+                walking = true;
+                if (moveToward(d.stand, 60, dt) || cat.t > 6) { d.phase = 'bat'; cat.t = 0; }
+            } else {
+                if (d.kind === 'mouse') { defaultsSitting(); lookAtMouse(26); }
+                else { defaultsStanding(); T.crouch = d.kind === 'perch' ? 0.45 : 0.2; }
+                T.tailBase = 214; T.tailCurl = 16; T.tailAmp = 9; tailSpeed = 7; T.earFlat = 0;
+                // aim
+                if (d.kind === 'edge') { cat.dir = d.face; cat.pawScreen = { x: d.tx, y: d.ty }; }
+                else if (d.kind === 'perch') { cat.pawScreen = { x: cat.x + cat.dir * 44 * S, y: groundScreenY() + 2 }; }
+                else { if (mouse.x >= 0) { cat.dir = mouse.x >= cat.x ? 1 : -1; cat.pawScreen = { x: mouse.x, y: mouse.y }; } }
+                if (d.kind !== 'mouse') { var hsp = headScreen(); cat.lookX = 1.2; cat.lookY = clamp((cat.pawScreen.y - hsp.y) / 30, -1, 1.3); cat.headTgt = d.kind === 'perch' ? 16 : 6; }
+                eyeMode = 'open';
+                // bap bap bap: quick taps
+                var ph = cat.t * 10.5;
+                T.paw = 0.3 + 0.7 * Math.max(0, Math.sin(ph));
+                var cyc = Math.floor((ph - Math.PI / 2) / (Math.PI * 2));
+                if (d.cyc === undefined) d.cyc = cyc;
+                if (cyc !== d.cyc) {
+                    d.cyc = cyc;
+                    if (d.kind === 'edge') bump(d.el, d.face * 3, 0);
+                    else if (d.kind === 'perch') bump(d.el, 0, 2);
+                    d.taps = (d.taps || 0) + 1;
+                    if (d.taps === 2 && Math.random() < 0.55) say(pick(['bap!', 'pat pat', '*bap*', 'bwah', 'boop']), 1.1);
+                }
+                if (cat.t > cat.dur) { cat.pawScreen = null; setState('sit', rand(1.5, 3)); }
+            }
         } else if (st === 'snuggle') {
             var u = cat.t;
             if (u < 1.15) {
@@ -1181,7 +1274,7 @@
 
     function render(dt) {
         // smooth params
-        var rates = { sit: 7, lie: 4, arch: 6, crouch: 10, earFlat: 12, blush: 4, puff: 9, paw: 9, mouth: 10, tongue: 18, headDrop: 4, tailBase: 5, tailCurl: 5, tailAmp: 4, tailHook: 5 };
+        var rates = { sit: 7, lie: 4, arch: 6, crouch: 10, earFlat: 12, blush: 4, puff: 9, paw: cat.state === 'paw' ? 26 : 9, mouth: 10, tongue: 18, headDrop: 4, tailBase: 5, tailCurl: 5, tailAmp: 4, tailHook: 5 };
         for (var key in P) P[key] = approach(P[key], T[key], rates[key] || 6, dt);
         cat.headRot = approach(cat.headRot, cat.headTgt, 7, dt);
         cat.flip = approach(cat.flip, cat.dir, 14, dt);
@@ -1291,10 +1384,18 @@
         // groom / swat paw
         if (P.paw > 0.02) {
             var mouthPt = add(hc, rot({ x: 4, y: 8 }, cat.headRot));
+            var goal = { x: mouthPt.x - 1, y: mouthPt.y + 2 };
+            if (cat.pawScreen && Math.abs(cat.flip) > 0.3) {
+                // screen point -> cat space, then keep it within reach of the shoulder
+                var gx = (cat.pawScreen.x - cat.x) / (cat.flip * S), gyc = (cat.pawScreen.y - (floorY() - cat.y)) / S + 3.5;
+                var vx = gx - jfn.x, vy = gyc - jfn.y, vl = Math.hypot(vx, vy) || 1, reach = 30;
+                if (vl > reach) { vx = vx / vl * reach; vy = vy / vl * reach; }
+                goal = { x: jfn.x + vx, y: jfn.y + vy };
+            }
             var p = targets.fn;
-            targets.fn = { x: lerp(p.x, mouthPt.x - 1, P.paw), y: lerp(p.y, mouthPt.y + 2, P.paw) };
+            targets.fn = { x: lerp(p.x, goal.x, P.paw), y: lerp(p.y, goal.y, P.paw) };
         }
-        var rate = cat.walkAmt > 0.3 && !airborne ? 60 : 16;
+        var rate = cat.walkAmt > 0.3 && !airborne ? 60 : cat.state === 'paw' ? 34 : 16;
         var bend = clamp(1 - P.lie - P.sit * 0.7, 0, 1);
         setLeg(legs.bf, jbf, smoothFoot(legs.bf, targets.bf, dt, rate), bend);
         setLeg(legs.ff, jff, smoothFoot(legs.ff, targets.ff, dt, rate), bend);
@@ -1416,6 +1517,7 @@
     window.mochi = {
         do: function (name) {
             if (name === 'play') startPlay();
+            else if (name === 'paw') { if (!startPaw()) return 'nothing in reach'; }
             else if (name === 'annoy') annoy();
             else setState(name, name === 'sleep' ? 25 : 6);
         },
