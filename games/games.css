@@ -6,16 +6,16 @@ body.game-page {
     --bg-color: var(--bg);
     --text-primary: var(--ink);
     --text-secondary: var(--muted);
-    --card-bg: #ffffff;
-    --card-border: var(--ink);
+    --card-bg: var(--white);
+    --card-border: var(--edge);
     --inner-card-bg: var(--card);
     --inner-card-border: var(--grid);
     --doodle-color: var(--ink);
     --accent-teal: #2a6fdb;
     --accent-teal-hover: #1f5bc0;
     --font-heading: 'Outfit', system-ui, sans-serif;
-    --glass-border: var(--ink);
-    --glass-shadow: 5px 5px 0 var(--ink);
+    --glass-border: var(--edge);
+    --glass-shadow: 5px 5px 0 var(--edge);
     --vignette: none;
     background-color: var(--bg);
     background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
@@ -45,10 +45,10 @@ body.game-page .logo-tag, body.game-page .legacy-badge { padding-left: 10px; pad
 
 /* Cards: paper with an ink outline instead of glass. */
 body.game-page .glow-card {
-    background: #ffffff;
-    border: 2px solid var(--ink);
+    background: var(--white);
+    border: 2px solid var(--edge);
     border-radius: 18px;
-    box-shadow: 5px 5px 0 var(--ink);
+    box-shadow: 5px 5px 0 var(--edge);
     padding: 0;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
@@ -82,9 +82,9 @@ body.game-page :is(.game-area, .chess-page) {
     max-width: calc(var(--max) - 48px);
     margin: 8px auto 0;
     background-color: #1a1a1e;
-    border: 3px solid var(--ink);
+    border: 3px solid var(--edge);
     border-radius: 26px;
-    box-shadow: 8px 8px 0 var(--ink);
+    box-shadow: 8px 8px 0 var(--edge);
     overflow: hidden;
 }
 body.game-page .glow-card :is(h1, h2, h3), body.game-page :is(.game-area, .chess-page) :is(h1, h2, h3) { color: inherit; }
