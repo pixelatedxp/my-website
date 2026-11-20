@@ -5,7 +5,21 @@
     const $ = id => document.getElementById(id);
     const editor = $('noteEditor'), form = $('noteForm'), canvas = $('doodleCanvas');
     const ctx = canvas.getContext('2d');
-    const paper = { yellow: '#fff0b3', pink: '#f9d6e2', blue: '#d4eaf5', green: '#daebcd' };
+    const P = window.PixelPostcards;
+    const paper = P.PAPER;
+    const postmarkKey = 'pixelisPostmark';
+    const badgeOptions = $('badgeOptions');
+    Object.keys(P.BADGES).forEach(key => {
+        const label = document.createElement('label'); label.className = 'badge-option'; label.title = P.BADGES[key].label;
+        const input = document.createElement('input'); input.type = 'radio'; input.name = 'badge'; input.value = key; input.setAttribute('aria-label', P.BADGES[key].label);
+        const face = document.createElement('span'); face.appendChild(P.icon(key));
+        label.append(input, face); badgeOptions.appendChild(label);
+    });
+    function setBadge(key) {
+        if (!P.BADGES[key]) key = 'cat';
+        form.elements.badge.value = key;
+    }
+    try { setBadge(localStorage.getItem(postmarkKey)); } catch (_) { setBadge('cat'); }
     const segmenter = typeof Intl.Segmenter === 'function' ? new Intl.Segmenter('en', { granularity: 'grapheme' }) : null;
     const count = text => segmenter ? [...segmenter.segment(text)].length : [...text].length;
     const draftKey = 'pixelisNoteDraftV1';
@@ -37,19 +51,10 @@
         return parts;
     }
 
-    function renderContent(target, content) {
-        target.replaceChildren();
-        for (const part of content || []) {
-            if (!part || typeof part.text !== 'string') continue;
-            let node = document.createTextNode(part.text);
-            for (const [flag, tag] of [['underline', 'u'], ['italic', 'em'], ['bold', 'strong']]) {
-                if (part[flag]) { const wrap = document.createElement(tag); wrap.appendChild(node); node = wrap; }
-            }
-            target.appendChild(node);
-        }
-    }
+    const renderContent = P.renderContent;
 
     function colour() { return form.elements.colour.value || 'yellow'; }
+    function badge() { return P.BADGES[form.elements.badge.value] ? form.elements.badge.value : 'cat'; }
     function doodleImage() {
         if (!strokes.length) return null;
         const output = document.createElement('canvas'); output.width = 480; output.height = 240;
@@ -57,33 +62,10 @@
         return output.toDataURL('image/png');
     }
 
-    function makeCard(note, preview = false) {
-        const card = document.createElement('article'); card.className = 'sticky-card'; card.style.setProperty('--paper', paper[note.colour] || paper.yellow);
-        const time = document.createElement('time');
-        if (preview) time.textContent = 'date & time added when you submit';
-        else {
-            time.dateTime = note.createdAt;
-            time.textContent = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }).format(new Date(note.createdAt));
-        }
-        const copy = document.createElement('div'); copy.className = 'note-copy'; renderContent(copy, note.content);
-        card.append(time, copy);
-        if (note.pinned) {
-            card.classList.add('pinned-note');
-            const pin = document.createElement('span'); pin.className = 'note-pin'; pin.textContent = '📌'; pin.setAttribute('aria-label', 'Pinned note'); pin.title = 'Pinned note'; card.appendChild(pin);
-        }
-        if (note.doodleUrl) {
-            const image = document.createElement('img'); image.src = note.doodleUrl; image.alt = `Doodle from ${note.name}`; image.width = 480; image.height = 240;
-            image.loading = 'lazy';
-            image.addEventListener('load', layoutWall);
-            image.addEventListener('error', () => { image.hidden = true; layoutWall(); });
-            card.appendChild(image);
-        }
-        const signature = document.createElement('p'); signature.className = 'note-signature'; signature.textContent = '— ' + note.name;
-        card.appendChild(signature); return card;
-    }
+    function makeCard(note, preview = false, index = 0) { return P.render(note, { preview, index }); }
 
     function saveDraft() {
-        try { localStorage.setItem(draftKey, JSON.stringify({ name: $('noteName').value, anonymous: $('anonymous').checked, content: readContent(), colour: colour(), strokes, submissionId, lastFingerprint })); } catch (_) {}
+        try { localStorage.setItem(draftKey, JSON.stringify({ name: $('noteName').value, anonymous: $('anonymous').checked, content: readContent(), colour: colour(), badge: badge(), strokes, submissionId, lastFingerprint })); } catch (_) {}
     }
     function scheduleDraft() { clearTimeout(draftTimer); draftTimer = setTimeout(saveDraft, 200); }
     function update() {
@@ -94,7 +76,7 @@
         const anonymous = $('anonymous').checked;
         $('noteName').disabled = anonymous || busy; $('noteName').required = !anonymous;
         canvas.style.backgroundColor = paper[colour()];
-        $('notePreview').replaceChildren(makeCard({ name: anonymous ? 'Anonymous' : $('noteName').value.trim() || 'your name', content: content.length ? content : [{ text: 'your note goes here.' }], colour: colour(), doodleUrl: doodleImage() }, true));
+        $('notePreview').replaceChildren(makeCard({ name: anonymous ? 'Anonymous' : $('noteName').value.trim() || 'your name', content: content.length ? content : [{ text: 'your postcard goes here.' }], colour: colour(), badge: badge(), doodleUrl: doodleImage() }, true));
         scheduleDraft();
     }
 
@@ -120,7 +102,10 @@
     editor.addEventListener('drop', event => event.preventDefault());
     editor.addEventListener('input', update);
     editor.addEventListener('blur', () => { if (!editor.textContent.trim()) { editor.replaceChildren(); update(); } });
-    form.addEventListener('change', update);
+    form.addEventListener('change', event => {
+        if (event.target.name === 'badge') { try { localStorage.setItem(postmarkKey, badge()); } catch (_) {} }
+        update();
+    });
     $('noteName').addEventListener('input', update);
 
     function point(event) { const r = canvas.getBoundingClientRect(); return { x: Math.max(0, Math.min(480, (event.clientX - r.left) / r.width * 480)), y: Math.max(0, Math.min(240, (event.clientY - r.top) / r.height * 240)) }; }
@@ -160,12 +145,12 @@
         busy = value; form.setAttribute('aria-busy', String(value));
         form.querySelectorAll('input,button,select').forEach(el => el.disabled = value);
         $('noteName').disabled = value || $('anonymous').checked;
-        editor.contentEditable = String(!value); $('submitLabel').textContent = value ? 'Sending your note…' : 'Send for approval';
+        editor.contentEditable = String(!value); $('submitLabel').textContent = value ? 'sending your postcard…' : 'send for approval';
         form.querySelector('.submit-spinner').hidden = !value;
     }
 
     function setupTurnstile() {
-        if (!base || !config.turnstileSiteKey) { setStatus('The note wall is being connected. You can write a draft; submissions will open soon.'); $('submitNote').disabled = true; return; }
+        if (!base || !config.turnstileSiteKey) { setStatus('The postcard wall is being connected. You can write a draft; sending opens soon.'); $('submitNote').disabled = true; return; }
         window.pixelNotesTurnstileReady = () => {
             widgetId = window.turnstile.render('#turnstileWidget', {
                 sitekey: config.turnstileSiteKey, action: 'leave-note', theme: 'auto', size: 'flexible',
@@ -182,12 +167,12 @@
     form.addEventListener('submit', async event => {
         event.preventDefault(); if (busy) return;
         const content = readContent(), text = content.map(p => p.text).join('');
-        if (!text.trim() || count(text) > 250) { setStatus('Write a note between 1 and 250 characters.', true); editor.focus(); return; }
+        if (!text.trim() || count(text) > 250) { setStatus('Write a message between 1 and 250 characters.', true); editor.focus(); return; }
         const anonymous = $('anonymous').checked, name = anonymous ? 'Anonymous' : $('noteName').value.trim();
         if (!name || count(name) > 32) { setStatus('Use a name between 1 and 32 characters, or choose Anonymous.', true); return; }
-        if (!$('rulesAccepted').checked) { setStatus('Please confirm your note and doodle follow the rules.', true); return; }
+        if (!$('rulesAccepted').checked) { setStatus('Please confirm your postcard and doodle follow the rules.', true); return; }
         if (!base || !token) { setStatus('Please complete the spam check before submitting.', true); return; }
-        const body = { name, anonymous, content, colour: colour(), doodle: doodleImage(), rulesAccepted: true };
+        const body = { name, anonymous, content, colour: colour(), badge: badge(), doodle: doodleImage(), rulesAccepted: true };
         const fingerprint = JSON.stringify(body);
         if (lastFingerprint && fingerprint !== lastFingerprint) submissionId = crypto.randomUUID();
         lastFingerprint = fingerprint; saveDraft();
@@ -195,7 +180,7 @@
         try {
             const response = await fetch(base + '/api/notes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, id: submissionId, turnstileToken: token }), signal: AbortSignal.timeout(20000) });
             const result = await response.json();
-            if (!response.ok || !result.accepted) throw new Error(result.error || 'Your note could not be saved. Please try again.');
+            if (!response.ok || !result.accepted) throw new Error(result.error || 'Your postcard could not be saved. Please try again.');
             clearTimeout(draftTimer); try { localStorage.removeItem(draftKey); } catch (_) {}
             $('composerContents').hidden = true; $('submissionSuccess').hidden = false; $('submissionSuccess').focus();
         } catch (error) {
@@ -206,21 +191,9 @@
     });
 
     let loading = false;
-    function layoutWall() {
-        const wall = $('notesWall');
-        if (!wall.children.length) return;
-        const style = getComputedStyle(wall), rowHeight = Number.parseFloat(style.gridAutoRows), rowGap = Number.parseFloat(style.rowGap);
-        if (!rowHeight || !Number.isFinite(rowGap)) return;
-        for (const card of wall.children) {
-            // Give each card enough tiny grid rows to fit its own height. This makes
-            // the next card fill the open space below a shorter neighbour.
-            const rows = Math.ceil((card.getBoundingClientRect().height + rowGap) / (rowHeight + rowGap));
-            card.style.gridRowEnd = `span ${Math.max(1, rows)}`;
-        }
-    }
     async function loadWall(more = false) {
         if (loading) return;
-        if (!base) { $('wallStatus').textContent = 'The wall opens soon. Your note could be the first one here.'; $('notesWall').setAttribute('aria-busy', 'false'); return; }
+        if (!base) { $('wallStatus').textContent = 'The wall opens soon. Your postcard could be the first one here.'; $('notesWall').setAttribute('aria-busy', 'false'); return; }
         loading = true; $('wallRetry').hidden = true; $('loadMore').disabled = true; $('notesWall').setAttribute('aria-busy', 'true');
         try {
             const response = await fetch(base + '/api/notes' + (more && cursor ? '?before=' + encodeURIComponent(cursor) : ''), { signal: AbortSignal.timeout(12000), cache: 'no-store' });
@@ -229,23 +202,18 @@
             if (!Array.isArray(result.notes)) throw new Error('Invalid response.');
             if (!more) $('notesWall').replaceChildren();
             for (const note of result.notes) {
-                if (note.doodleUrl) {
-                    // Only the API's approved-image endpoint may supply note images.
-                    if (!/^\/api\/notes\/[0-9a-f-]{36}\/doodle$/.test(note.doodleUrl)) note.doodleUrl = null;
-                    else note.doodleUrl = base + note.doodleUrl;
-                }
-                $('notesWall').appendChild(makeCard(note));
+                // Only the API's approved-image endpoint may supply postcard images.
+                note.doodleUrl = P.safeDoodle(base, note.doodleUrl);
+                $('notesWall').appendChild(makeCard(note, false, $('notesWall').children.length));
             }
             cursor = result.nextCursor; $('loadMore').hidden = !cursor;
             $('wallStatus').hidden = $('notesWall').children.length > 0;
-            $('wallStatus').textContent = 'No notes on the wall yet. Leave the first little piece of history.';
-            requestAnimationFrame(layoutWall);
+            $('wallStatus').textContent = 'No postcards on the wall yet. Send the first one.';
         } catch (_) {
-            $('wallStatus').hidden = false; $('wallStatus').textContent = 'The wall could not load right now. Your draft is still here.'; $('wallRetry').hidden = false;
+            $('wallStatus').hidden = false; $('wallStatus').textContent = 'The postcards are stuck in the mail right now. Your draft is still here.'; $('wallRetry').hidden = false;
         } finally { loading = false; $('loadMore').disabled = false; $('notesWall').setAttribute('aria-busy', 'false'); }
     }
     $('loadMore').addEventListener('click', () => loadWall(true)); $('wallRetry').addEventListener('click', () => loadWall(false));
-    window.addEventListener('resize', layoutWall);
 
     try {
         const draft = JSON.parse(localStorage.getItem(draftKey));
@@ -254,6 +222,7 @@
             $('anonymous').checked = draft.anonymous === true;
             if (Array.isArray(draft.content)) renderContent(editor, draft.content.slice(0, 80));
             if (paper[draft.colour]) form.elements.colour.value = draft.colour;
+            if (P.BADGES[draft.badge]) setBadge(draft.badge);
             if (Array.isArray(draft.strokes)) strokes = draft.strokes.slice(0, 100).filter(s => ['#252126', '#147b83', '#bc365e', '#375daa'].includes(s.colour) && [2, 4, 6].includes(s.size) && Array.isArray(s.points) && s.points.length > 0 && s.points.length <= 600 && s.points.every(p => Number.isFinite(p.x) && p.x >= 0 && p.x <= 480 && Number.isFinite(p.y) && p.y >= 0 && p.y <= 240));
             if (/^[0-9a-f-]{36}$/i.test(draft.submissionId || '')) submissionId = draft.submissionId;
             lastFingerprint = typeof draft.lastFingerprint === 'string' ? draft.lastFingerprint : '';

@@ -3,224 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Games - pixelis.dev</title>
-    <meta name="description" content="unfortunately still online.">
+    <title>Arcade - pixelis.dev</title>
+    <meta name="description" content="Chess, typing tests and several other excellent uses of electricity.">
+    <meta name="theme-color" content="#f3f6fa">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="pixelis.dev">
-    <meta property="og:title" content="Games - pixelis.dev">
-    <meta property="og:description" content="unfortunately still online.">
+    <meta property="og:title" content="Arcade - pixelis.dev">
+    <meta property="og:description" content="Chess, typing tests and several other excellent uses of electricity.">
     <meta property="og:url" content="https://pixelis.dev/games/">
     <meta property="og:image" content="https://pixelis.dev/assets/social-preview.png">
-    <meta property="og:image:type" content="image/png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="pixelis.dev with a small teal dot and the tagline unfortunately still online. on a dark background">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Games - pixelis.dev">
-    <meta name="twitter:description" content="unfortunately still online.">
-    <meta name="twitter:image" content="https://pixelis.dev/assets/social-preview.png">
-    <meta name="twitter:image:alt" content="pixelis.dev with a small teal dot and the tagline unfortunately still online. on a dark background">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Fredoka:wght@600;700&family=Outfit:wght@400;500;600;700;800&family=Space+Mono&family=VT323&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="../assets/favicon.png">
-    <link rel="stylesheet" href="../styles.css?v=10">
-    <style>
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            margin-top: 40px;
-        }
-        .game-card {
-            text-decoration: none;
-            display: block;
-        }
-        .game-thumbnail {
-            width: 100%;
-            height: 180px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            margin-bottom: 15px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .game-thumbnail i {
-            font-size: 3rem;
-            color: var(--accent-teal);
-            opacity: 0.5;
-        }
-        .game-card h3 {
-            margin: 0 0 10px 0;
-            color: #fff;
-        }
-        .game-card p {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin: 0;
-            line-height: 1.4;
-        }
-        .maintenance-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-family: var(--font-mono);
-            background: rgba(255, 200, 0, 0.1);
-            color: #ffc800;
-            border: 1px solid rgba(255, 200, 0, 0.2);
-            margin-top: 12px;
-            letter-spacing: 0.5px;
-        }
-        .game-card.disabled {
-            opacity: 0.5;
-            pointer-events: none;
-            cursor: default;
-        }
-    </style>
+    <link rel="stylesheet" href="../site.css?v=2">
 </head>
-<body class="dark-mode">
-    <div class="cursor-trail" id="cursorTrail">
-        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
-        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
-        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
-        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
-        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
-    </div>
-    <div class="vignette"></div>
-    <canvas id="snowfall"></canvas>
-    <header class="navbar fade-up-initial">
-        <a href="../index.html" class="brand">pixelis.dev</a>
-        <nav class="nav-links">
-            <a href="#" class="nav-item active">Games</a>
-            <a href="../notes.html" class="nav-item">Notes</a>
-            <button class="snow-toggle" id="snowToggle" aria-label="Toggle snowfall" title="Toggle snowfall">
-                <svg viewBox="0 0 24 24" fill="none" class="snow-icon" id="snowIcon">
-                    <path d="M12 2v4m0 12v4M4 12H2m20 0h-2M5.64 5.64l2.83 2.83m7.07 7.07l2.83 2.83M5.64 18.36l2.83-2.83m7.07-7.07l2.83-2.83M12 8a4 4 0 100 8 4 4 0 000-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </button>
-            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-                <svg viewBox="0 0 24 24" fill="none" class="theme-icon" id="themeIcon">
-                </svg>
-            </button>
+<body>
+    <a class="skip-link" href="#main">skip to content</a>
+    <header class="site-header wrap">
+        <div class="brand-row">
+            <a class="logo" href="../index.html" aria-label="pixelis.dev home">
+                <span class="logo-word" aria-hidden="true">pixelis</span><span class="logo-tag" aria-hidden="true">.dev</span>
+            </a>
+            <a class="legacy-badge" href="../legacy/index.html" title="the old pixelis.dev, with everything still working"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>legacy site</a>
+        </div>
+        <nav class="site-nav" aria-label="Main">
+            <a href="../games/index.html" aria-current="page">games</a>
+            <a href="../index.html#friends">friends</a>
+            <a href="https://github.com/pixelatedxp/my-website">source</a>
         </nav>
     </header>
-    <main class="container">
-        <hr class="nav-divider fade-up-initial">
-        <section class="card section fade-up-initial">
-            <div class="card-content">
-                <div class="section-header">
-                    <h2 class="mono-label glitch-text" data-text="[games_menu]">[games_menu]</h2>
-                </div>
-                <p class="bio-text">Welcome to the Lab. Here are some mini-games and interactive tools I've built.</p>
-                <div class="games-grid">
-                    <a href="chess/index.html" class="game-card glow-card tiltable">
-                        <div class="glow-content">
-                            <div class="game-thumbnail">
-                                <img src="../assets/thumbnails/chess-king-wide.png" alt="A simple illustrated chess king" style="width: 100%; height: 100%; object-fit: cover;">
-                            </div>
-                            <h3>Play me in Chess</h3>
-                            <p>Think you can beat my 1500 Elo bot? It talks back, so losing comes with commentary.</p>
-                        </div>
-                    </a>
-                    <div class="game-card glow-card tiltable disabled">
-                        <div class="glow-content">
-                            <div class="game-thumbnail" style="background:#fff; position:relative; overflow:hidden;">
-                                <svg width="100%" height="100%" viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg" aria-label="Black crosshair on a white background">
-                                    <g fill="none" stroke="#171719" stroke-width="4" stroke-linecap="square">
-                                        <circle cx="150" cy="90" r="29"/>
-                                        <circle cx="150" cy="90" r="4" fill="#171719"/>
-                                        <path d="M150 39v22M150 119v22M99 90h22M179 90h22"/>
-                                    </g>
-                                </svg>
-                            </div>
-                            <h3>Aim Trainer</h3>
-                            <p>Click targets as fast as possible. Compare your accuracy vs Pixel and Code.</p>
-                            <span class="maintenance-badge">[ UNDER MAINTENANCE ]</span>
-                        </div>
-                    </div>
-                    <a href="typing/index.html" class="game-card glow-card tiltable">
-                        <div class="glow-content">
-                            <div class="game-thumbnail">
-                                <img src="../assets/thumbnails/typing.jpg" alt="Typing Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
-                            </div>
-                            <h3>Typing Speed</h3>
-                            <p>Race in real-time vs Pixel (90 WPM). Who finishes first?</p>
-                            <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
-                        </div>
-                    </a>
-                    <a href="sequence-memory/index.html" class="game-card glow-card tiltable">
-                        <div class="glow-content">
-                            <div class="game-thumbnail" style="background:#fff; display:flex; align-items:center; justify-content:center;">
-                                <svg width="160" height="120" viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg" aria-label="Sequence memory tiles on white">
-                                    <g fill="#fff" stroke="#171719" stroke-width="4">
-                                        <rect x="10" y="10" width="40" height="40" rx="5"/><rect x="60" y="10" width="40" height="40" rx="5"/><rect x="110" y="10" width="40" height="40" rx="5"/>
-                                        <rect x="10" y="60" width="40" height="40" rx="5"/><rect x="60" y="60" width="40" height="40" rx="5"/><rect x="110" y="60" width="40" height="40" rx="5"/>
-                                    </g>
-                                    <rect x="60" y="60" width="40" height="40" rx="5" fill="#171719"/>
-                                </svg>
-                            </div>
-                            <h3>Sequence Memory</h3>
-                            <p>Remember and repeat the growing pattern. Beat Pixel's best of 12.</p>
-                            <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
-                        </div>
-                    </a>
-                    <div class="game-card glow-card tiltable disabled">
-                        <div class="glow-content">
-                            <div class="game-thumbnail" style="background:#fff; display:flex; align-items:center; justify-content:center;">
-                                <svg width="100%" height="100%" viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg" aria-label="Snake in black pixel lettering with a small pixel snake">
-                                    <rect width="300" height="180" fill="#fff"/>
-                                    <text x="150" y="82" text-anchor="middle" fill="#111" font-family="monospace" font-size="42" font-weight="900" letter-spacing="3">snake</text>
-                                    <g fill="#111" shape-rendering="crispEdges">
-                                        <rect x="112" y="111" width="14" height="14"/><rect x="128" y="111" width="14" height="14"/><rect x="144" y="111" width="14" height="14"/><rect x="144" y="127" width="14" height="14"/><rect x="160" y="127" width="14" height="14"/><rect x="176" y="127" width="14" height="14"/>
-                                    </g>
-                                    <rect x="180" y="130" width="3" height="3" fill="#fff"/><rect x="186" y="130" width="3" height="3" fill="#fff"/>
-                                </svg>
-                            </div>
-                            <h3>Snake</h3>
-                            <p>Split-screen Snake. Race vs Pixel at human speed.</p>
-                            <span class="maintenance-badge">[ UNDER MAINTENANCE ]</span>
-                        </div>
-                    </div>
-                    <a href="reaction-time/index.html" class="game-card glow-card tiltable">
-                        <div class="glow-content">
-                            <div class="game-thumbnail">
-                                <img src="../assets/thumbnails/reaction.jpg" alt="Reaction Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
-                            </div>
-                            <h3>Reaction Time</h3>
-                            <p>Click when it turns green. Beat Pixel's reaction time if you dare.</p>
-                            <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
-                        </div>
-                    </a>
-                    <div class="game-card glow-card tiltable disabled">
-                        <div class="glow-content">
-                            <div class="game-thumbnail">
-                                <img src="../assets/thumbnails/wordle.png" alt="Wordle Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
-                            </div>
-                            <h3>Wordle</h3>
-                            <p>6 guesses to find the hidden 5-letter word. Flip animations, keyboard tracking, streak counter.</p>
-                            <span class="maintenance-badge">[ UNDER MAINTENANCE ]</span>
-                        </div>
-                    </div>
-                    <div class="game-card glow-card tiltable" style="opacity: 0.4; pointer-events: none;">
-                        <div class="glow-content">
-                            <div class="game-thumbnail" style="background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 20px);">
-                                <span class="mono-label">COMING SOON</span>
-                            </div>
-                            <h3>More Games...</h3>
-                            <p>Always cooking something new in the lab.</p>
-                        </div>
-                    </div>
-                </div>
+
+    <main id="main" class="wrap page" style="gap: 48px">
+        <div class="section-head">
+            <div>
+                <span class="label">page 02 — the arcade</span>
+                <h1 class="h2" style="font-size: clamp(40px, 6vw, 60px); letter-spacing: -1.5px">things i made instead of being <span class="mark">productive.</span></h1>
+                <span class="hand muted" style="font-size: 28px">chess, typing tests and several other excellent uses of electricity.</span>
             </div>
-        </section>
+        </div>
+
+        <ul class="arcade-grid" style="list-style: none; margin: 0; padding: 0">
+            <li>
+                <a class="cartridge" href="chess/index.html" style="--tilt: -1deg">
+                    <span class="cartridge-art"><img src="../assets/thumbnails/chess-king-wide.png" alt="" loading="lazy"></span>
+                    <h2>Play me in chess</h2>
+                    <p>Think you can beat my 1500 Elo bot? It talks back, so losing comes with commentary.</p>
+                    <span class="meta"><span class="chip">play</span><span class="hand" style="font-size: 22px">good luck</span></span>
+                </a>
+            </li>
+            <li>
+                <a class="cartridge" href="typing/index.html" style="--tilt: .8deg">
+                    <span class="cartridge-art"><img src="../assets/thumbnails/typing.jpg" alt="" loading="lazy"></span>
+                    <h2>Typing speed</h2>
+                    <p>Race in real time against Pixel at 90 WPM. Who finishes first?</p>
+                    <span class="meta"><span class="chip">play</span></span>
+                </a>
+            </li>
+            <li>
+                <a class="cartridge" href="sequence-memory/index.html" style="--tilt: -.6deg">
+                    <span class="cartridge-art" style="background: #fff">
+                        <svg viewBox="0 0 160 96" aria-hidden="true"><g fill="#fff" stroke="#1f2a44" stroke-width="4"><rect x="34" y="8" width="26" height="26" rx="5"/><rect x="67" y="8" width="26" height="26" rx="5"/><rect x="100" y="8" width="26" height="26" rx="5"/><rect x="34" y="41" width="26" height="26" rx="5"/><rect x="100" y="41" width="26" height="26" rx="5"/></g><rect x="67" y="41" width="26" height="26" rx="5" fill="#ffe066" stroke="#1f2a44" stroke-width="4"/></svg>
+                    </span>
+                    <h2>Sequence memory</h2>
+                    <p>Remember and repeat the growing pattern. Pixel's best is 12.</p>
+                    <span class="meta"><span class="chip">play</span></span>
+                </a>
+            </li>
+            <li>
+                <a class="cartridge" href="reaction-time/index.html" style="--tilt: 1.2deg">
+                    <span class="cartridge-art"><img src="../assets/thumbnails/reaction.jpg" alt="" loading="lazy"></span>
+                    <h2>Reaction time</h2>
+                    <p>Click when it turns green. Beat Pixel's reaction time if you dare.</p>
+                    <span class="meta"><span class="chip">play</span></span>
+                </a>
+            </li>
+            <li>
+                <div class="cartridge is-off" style="--tilt: -1.2deg">
+                    <span class="cartridge-art" style="background: #fff">
+                        <svg viewBox="0 0 300 180" aria-hidden="true"><g fill="none" stroke="#1f2a44" stroke-width="4" stroke-linecap="square"><circle cx="150" cy="90" r="29"/><circle cx="150" cy="90" r="4" fill="#1f2a44"/><path d="M150 39v22M150 119v22M99 90h22M179 90h22"/></g></svg>
+                    </span>
+                    <h2>Aim trainer</h2>
+                    <p>Click targets as fast as possible and compare your accuracy against Pixel.</p>
+                    <span class="meta"><span class="chip off">under maintenance</span></span>
+                </div>
+            </li>
+            <li>
+                <div class="cartridge is-off" style="--tilt: .6deg">
+                    <span class="cartridge-art" style="background: #fff">
+                        <svg viewBox="0 0 300 180" aria-hidden="true"><text x="150" y="82" text-anchor="middle" fill="#1f2a44" font-family="monospace" font-size="42" font-weight="900" letter-spacing="3">snake</text><g fill="#1f2a44" shape-rendering="crispEdges"><rect x="112" y="111" width="14" height="14"/><rect x="128" y="111" width="14" height="14"/><rect x="144" y="111" width="14" height="14"/><rect x="144" y="127" width="14" height="14"/><rect x="160" y="127" width="14" height="14"/><rect x="176" y="127" width="14" height="14"/></g></svg>
+                    </span>
+                    <h2>Snake</h2>
+                    <p>Split-screen snake, racing Pixel at human speed.</p>
+                    <span class="meta"><span class="chip off">under maintenance</span></span>
+                </div>
+            </li>
+            <li>
+                <div class="cartridge is-off" style="--tilt: -.8deg">
+                    <span class="cartridge-art"><img src="../assets/thumbnails/wordle.png" alt="" loading="lazy"></span>
+                    <h2>Wordle</h2>
+                    <p>Six guesses to find the hidden five-letter word, with a streak counter.</p>
+                    <span class="meta"><span class="chip off">under maintenance</span></span>
+                </div>
+            </li>
+            <li>
+                <div class="cartridge is-off" style="--tilt: 1deg">
+                    <span class="cartridge-art"><span class="hand muted" style="font-size: 30px">coming soon</span></span>
+                    <h2>More games…</h2>
+                    <p>Always cooking something new in the lab.</p>
+                </div>
+            </li>
+        </ul>
     </main>
-    <script src="../script.js?v=9"></script>
-    <script src="../music-player.js?v=11"></script>
-    <script src="../cat.js?v=1"></script>
+
+    <footer class="site-footer wrap">
+        <span class="hand">built with poor judgment</span>
+        <a class="mono" href="#main">back to top ↑</a>
+    </footer>
 </body>
 </html>
-

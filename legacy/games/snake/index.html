@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake - pixelis.dev</title>
+    <meta name="description" content="unfortunately still online.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="pixelis.dev">
+    <meta property="og:title" content="Snake - pixelis.dev">
+    <meta property="og:description" content="unfortunately still online.">
+    <meta property="og:url" content="https://pixelis.dev/games/snake/">
+    <meta property="og:image" content="https://pixelis.dev/assets/social-preview.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="pixelis.dev with a small teal dot and the tagline unfortunately still online. on a dark background">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Snake - pixelis.dev">
+    <meta name="twitter:description" content="unfortunately still online.">
+    <meta name="twitter:image" content="https://pixelis.dev/assets/social-preview.png">
+    <meta name="twitter:image:alt" content="pixelis.dev with a small teal dot and the tagline unfortunately still online. on a dark background">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../../assets/favicon.png">
+    <link rel="stylesheet" href="../../styles.css?v=10">
+    <style>
+        * { cursor: none !important; }
+        html, body { height: 100%; overflow: hidden; }
+        body { display: flex; flex-direction: column; }
+        .navbar { display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 0 40px !important; flex-shrink: 0; width: 100%; box-sizing: border-box; }
+        .game-area { flex: 1; display: flex; align-items: center; justify-content: center; gap: 40px; padding: 20px; overflow: hidden; }
+
+        .canvas-wrap { position: relative; }
+        canvas { display: block; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: #252525; }
+        .canvas-label { font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; color: rgba(255,255,255,0.3); text-align: center; margin-top: 6px; text-transform: uppercase; }
+
+        .side-panel { width: 220px; display: flex; flex-direction: column; gap: 22px; font-family: 'Share Tech Mono', monospace; }
+        .stat-label-sm { font-size: 0.75rem; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.08em; }
+        .stat-val { font-size: 2rem; color: #fff; line-height: 1; }
+
+        .btn-start { padding: 12px 20px; background: #3d9970; border: none; color: #fff; border-radius: 8px; cursor: none; font-family: 'Share Tech Mono', monospace; font-size: 0.88rem; font-weight: bold; transition: all 0.2s; }
+        .btn-start:hover { background: #2ecc71; }
+
+        #gameMsg { font-size: 0.85rem; color: rgba(255,255,255,0.4); min-height: 1.4em; }
+
+        #results { display: none; position: fixed; inset: 0; background: rgba(8,8,12,0.72); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); flex-direction: column; align-items: center; justify-content: center; gap: 28px; font-family: 'Share Tech Mono', monospace; color: #fff; z-index: 10; }
+        #results.visible { display: flex; }
+        #results h2 { font-size: 2rem; margin: 0; opacity: 0; transform: translateY(18px); }
+        .vs-grid { display: flex; gap: 20px; justify-content: center; text-align: center; }
+        .vs-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); padding: 22px; width: 150px; opacity: 0; transform: translateY(22px) scale(0.97); }
+        .vs-card.winner { border-color: #3d9970; box-shadow: 0 0 34px rgba(61,153,112,0.2); }
+        #results.visible h2, #results.visible .vs-card, #results.visible .btn-retry { animation: cardIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        #results.visible .vs-grid .vs-card:nth-child(2) { animation-delay: 0.13s; }
+        #results.visible .btn-retry { animation-delay: 0.3s; }
+        @keyframes cardIn { to { opacity: 1; transform: translateY(0) scale(1); } }
+        .vs-card .name { font-size: 0.8rem; color: #888; margin-bottom: 8px; }
+        .vs-card .big { font-size: 2.2rem; color: #fff; }
+        .vs-card .sub { font-size: 0.75rem; color: #666; margin-top: 4px; }
+        .btn-retry { padding: 12px 32px; background: #3d9970; border: none; color: #fff; border-radius: 8px; cursor: none; font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; font-weight: bold; opacity: 0; transform: translateY(18px); }
+    </style>
+</head>
+<body class="dark-mode">
+    <a href="../../../index.html" class="legacy-return" style="position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); white-space: nowrap; z-index: 99999; display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; background: #ffe066; color: #1f2a44; border: 2px solid #1f2a44; box-shadow: 3px 3px 0 #1f2a44; font: 700 14px/1.2 system-ui, sans-serif; text-decoration: none;">you're on the legacy site · back to the new one →</a>
+    <div class="cursor-trail">
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+    </div>
+    <div class="vignette"></div>
+    <canvas id="snowfall"></canvas>
+    <header class="navbar fade-up-initial">
+        <a href="../../index.html" class="brand">pixelis.dev</a>
+        <nav class="nav-links">
+            <a href="../index.html" class="nav-item active">Games</a>
+            <a href="../../notes.html" class="nav-item">Notes</a>
+            <button class="snow-toggle" id="snowToggle" aria-label="Toggle snowfall" title="Toggle snowfall">
+                <svg viewBox="0 0 24 24" fill="none" class="snow-icon" id="snowIcon">
+                    <path d="M12 2v4m0 12v4M4 12H2m20 0h-2M5.64 5.64l2.83 2.83m7.07 7.07l2.83 2.83M5.64 18.36l2.83-2.83m7.07-7.07l2.83-2.83M12 8a4 4 0 100 8 4 4 0 000-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <svg viewBox="0 0 24 24" fill="none" class="theme-icon" id="themeIcon">
+                </svg>
+            </button>
+        </nav>
+    </header>
+
+    <div id="results">
+        <h2>[results]</h2>
+            <div class="vs-grid">
+                <div class="vs-card" id="rYou"><div class="name">You</div><div class="big" id="rYouScore">-</div><div class="sub">score</div></div>
+                <div class="vs-card" id="rAI"><div class="name">Pixel</div><div class="big" id="rAIScore">-</div><div class="sub">score</div></div>
+            </div>
+            <button class="btn-retry" onclick="resetAll()">Play Again</button>
+        </div>
+
+    <div class="game-area">
+
+        <div class="canvas-wrap">
+            <canvas id="playerCanvas" width="360" height="360"></canvas>
+            <div class="canvas-label">You</div>
+        </div>
+
+        <div class="side-panel">
+            <div>
+                <div class="stat-label-sm">Your Score</div>
+                <div class="stat-val" style="color:#3d9970" id="yourScore">0</div>
+            </div>
+            <div>
+                <div class="stat-label-sm" id="aiScoreLabel">Pixel Score</div>
+                <div class="stat-val" id="aiScore">0</div>
+            </div>
+            <div>
+                <div class="stat-label-sm">Mode</div>
+                <div style="font-size: 0.95rem; color: #e67e22;">vs Pixel</div>
+            </div>
+            <div id="gameMsg">Use arrow keys or WASD</div>
+            <button class="btn-start" id="startBtn" onclick="startBoth()">Start Game</button>
+        </div>
+
+        <div class="canvas-wrap">
+            <canvas id="aiCanvas" width="360" height="360"></canvas>
+            <div class="canvas-label" id="aiLabel">vs Pixel</div>
+        </div>
+    </div>
+
+    <script src="../../script.js?v=9"></script>
+    <script>
+    const CELL = 18, COLS = 20, ROWS = 20;
+    let playerGame, aiGame, gameInterval, aiInterval;
+    let running = false;
+
+    function createGame(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext('2d');
+        const snake = [{ x: Math.floor(COLS/2), y: Math.floor(ROWS/2) }];
+        const food = spawnFood(snake);
+        return { ctx, snake, dir: { x: 1, y: 0 }, nextDir: { x: 1, y: 0 }, food, score: 0, dead: false };
+    }
+
+    function spawnFood(snake) {
+        let f;
+        do { f = { x: Math.floor(Math.random()*COLS), y: Math.floor(Math.random()*ROWS) }; }
+        while (snake.some(s => s.x === f.x && s.y === f.y));
+        return f;
+    }
+
+    function drawGame(g, isAI) {
+        const { ctx, snake, food } = g;
+        ctx.clearRect(0, 0, COLS*CELL, ROWS*CELL);
+        
+        ctx.fillStyle = '#252525';
+        ctx.fillRect(0, 0, COLS*CELL, ROWS*CELL);
+
+        
+        const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 160);
+        const foodR = (CELL / 2 - 2) * (0.72 + 0.38 * pulse);
+        ctx.save();
+        ctx.shadowColor = '#e74c3c';
+        ctx.shadowBlur = 16 * pulse;
+        ctx.fillStyle = '#e74c3c';
+        ctx.beginPath();
+        ctx.arc(food.x*CELL + CELL/2, food.y*CELL + CELL/2, foodR, 0, Math.PI*2);
+        ctx.fill();
+        ctx.restore();
+
+        
+        snake.forEach((s, i) => {
+            ctx.fillStyle = i === 0 ? (isAI ? '#e67e22' : '#3d9970') : (isAI ? 'rgba(230,126,34,0.5)' : 'rgba(61,153,112,0.5)');
+            ctx.fillRect(s.x*CELL + 1, s.y*CELL + 1, CELL - 2, CELL - 2);
+        });
+
+        if (g.dead) {
+            ctx.fillStyle = 'rgba(0,0,0,0.6)';
+            ctx.fillRect(0, 0, COLS*CELL, ROWS*CELL);
+            ctx.fillStyle = '#fff';
+            ctx.font = '16px Share Tech Mono';
+            ctx.textAlign = 'center';
+            ctx.fillText(isAI ? 'Pixel Done' : 'Game Over', COLS*CELL/2, ROWS*CELL/2);
+        }
+    }
+
+    function stepGame(g) {
+        if (g.dead) return;
+        g.dir = g.nextDir;
+        const head = { x: g.snake[0].x + g.dir.x, y: g.snake[0].y + g.dir.y };
+        if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS || g.snake.some(s => s.x===head.x && s.y===head.y)) {
+            g.dead = true; return;
+        }
+        g.snake.unshift(head);
+        if (head.x === g.food.x && head.y === g.food.y) {
+            g.score++;
+            g.food = spawnFood(g.snake);
+        } else { g.snake.pop(); }
+    }
+
+    
+    function aiMove(g) {
+        if (g.dead) return;
+        const head = g.snake[0];
+        const food = g.food;
+        const dirs = [
+            { x: 1, y: 0 }, { x: -1, y: 0 },
+            { x: 0, y: 1 }, { x: 0, y: -1 }
+        ];
+        const valid = dirs.filter(d => {
+            const nx = head.x + d.x, ny = head.y + d.y;
+            return nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && !g.snake.some(s => s.x===nx && s.y===ny);
+        });
+        if (!valid.length) { g.dead = true; return; }
+        valid.sort((a, b) => {
+            const da = Math.abs((head.x+a.x)-food.x) + Math.abs((head.y+a.y)-food.y);
+            const db = Math.abs((head.x+b.x)-food.x) + Math.abs((head.y+b.y)-food.y);
+            return da - db;
+        });
+        g.nextDir = valid[0];
+    }
+
+    function startBoth() {
+        if (running) return;
+        running = true;
+        stopPreview();
+        document.getElementById('startBtn').textContent = 'Restart';
+        document.getElementById('startBtn').onclick = resetAll;
+
+        playerGame = createGame('playerCanvas');
+        aiGame = createGame('aiCanvas');
+
+        const playerSpeed = 120;
+        const aiSpeed = 135; 
+
+        gameInterval = setInterval(() => {
+            stepGame(playerGame);
+            drawGame(playerGame, false);
+            document.getElementById('yourScore').textContent = playerGame.score;
+            if (playerGame.dead) {
+                clearInterval(gameInterval);
+                checkEnd();
+            }
+        }, playerSpeed);
+
+        aiInterval = setInterval(() => {
+            aiMove(aiGame);
+            stepGame(aiGame);
+            drawGame(aiGame, true);
+            document.getElementById('aiScore').textContent = aiGame.score;
+        }, aiSpeed);
+
+        document.getElementById('gameMsg').textContent = 'Use arrow keys or WASD';
+    }
+
+    function checkEnd() {
+        setTimeout(() => {
+            clearInterval(aiInterval);
+            const yourFinal = playerGame.score;
+            const aiFinal = aiGame.score;
+            document.getElementById('rYouScore').textContent = yourFinal;
+            const youWin = yourFinal > aiFinal;
+            document.getElementById('rAIScore').textContent = aiFinal;
+            document.getElementById('rYou').classList.toggle('winner', youWin);
+            document.getElementById('rAI').classList.toggle('winner', !youWin);
+            document.querySelector('#results h2').textContent = youWin ? 'You beat Pixel!' : 'Pixel wins.';
+            document.getElementById('results').classList.add('visible');
+        }, 800);
+    }
+
+    function resetAll() {
+        running = false;
+        clearInterval(gameInterval); clearInterval(aiInterval);
+        document.getElementById('results').classList.remove('visible');
+        document.getElementById('startBtn').textContent = 'Start Game';
+        document.getElementById('startBtn').onclick = startBoth;
+        document.getElementById('yourScore').textContent = 0;
+        document.getElementById('aiScore').textContent = 0;
+
+        
+        renderPreview();
+        document.getElementById('gameMsg').textContent = 'Use arrow keys or WASD';
+    }
+
+    
+    const keyMap = { ArrowUp:{x:0,y:-1}, ArrowDown:{x:0,y:1}, ArrowLeft:{x:-1,y:0}, ArrowRight:{x:1,y:0}, w:{x:0,y:-1}, s:{x:0,y:1}, a:{x:-1,y:0}, d:{x:1,y:0} };
+    document.addEventListener('keydown', e => {
+        const d = keyMap[e.key];
+        if (!d || !playerGame) return;
+        e.preventDefault();
+        
+        if (d.x !== -playerGame.dir.x || d.y !== -playerGame.dir.y) {
+            playerGame.nextDir = d;
+        }
+    });
+
+    
+    
+    let previewRaf = null;
+    function stopPreview() {
+        if (previewRaf) { cancelAnimationFrame(previewRaf); previewRaf = null; }
+    }
+    function renderPreview() {
+        stopPreview();
+        playerGame = createGame('playerCanvas');
+        aiGame = createGame('aiCanvas');
+        const loop = () => {
+            if (running) { previewRaf = null; return; }
+            drawGame(playerGame, false);
+            drawGame(aiGame, true);
+            previewRaf = requestAnimationFrame(loop);
+        };
+        loop();
+    }
+    try { renderPreview(); } catch (err) {  }
+    </script>
+    <script src="../../music-player.js?v=11"></script>
+</body>
+</html>

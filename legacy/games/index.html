@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Games - pixelis.dev</title>
+    <meta name="description" content="unfortunately still online.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="pixelis.dev">
+    <meta property="og:title" content="Games - pixelis.dev">
+    <meta property="og:description" content="unfortunately still online.">
+    <meta property="og:url" content="https://pixelis.dev/games/">
+    <meta property="og:image" content="https://pixelis.dev/assets/social-preview.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="pixelis.dev with a small teal dot and the tagline unfortunately still online. on a dark background">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Games - pixelis.dev">
+    <meta name="twitter:description" content="unfortunately still online.">
+    <meta name="twitter:image" content="https://pixelis.dev/assets/social-preview.png">
+    <meta name="twitter:image:alt" content="pixelis.dev with a small teal dot and the tagline unfortunately still online. on a dark background">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../assets/favicon.png">
+    <link rel="stylesheet" href="../styles.css?v=10">
+    <style>
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        .game-card {
+            text-decoration: none;
+            display: block;
+        }
+        .game-thumbnail {
+            width: 100%;
+            height: 180px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .game-thumbnail i {
+            font-size: 3rem;
+            color: var(--accent-teal);
+            opacity: 0.5;
+        }
+        .game-card h3 {
+            margin: 0 0 10px 0;
+            color: #fff;
+        }
+        .game-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.4;
+        }
+        .maintenance-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-family: var(--font-mono);
+            background: rgba(255, 200, 0, 0.1);
+            color: #ffc800;
+            border: 1px solid rgba(255, 200, 0, 0.2);
+            margin-top: 12px;
+            letter-spacing: 0.5px;
+        }
+        .game-card.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            cursor: default;
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <a href="../../index.html" class="legacy-return" style="position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); white-space: nowrap; z-index: 99999; display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; background: #ffe066; color: #1f2a44; border: 2px solid #1f2a44; box-shadow: 3px 3px 0 #1f2a44; font: 700 14px/1.2 system-ui, sans-serif; text-decoration: none;">you're on the legacy site · back to the new one →</a>
+    <div class="cursor-trail" id="cursorTrail">
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+    </div>
+    <div class="vignette"></div>
+    <canvas id="snowfall"></canvas>
+    <header class="navbar fade-up-initial">
+        <a href="../index.html" class="brand">pixelis.dev</a>
+        <nav class="nav-links">
+            <a href="#" class="nav-item active">Games</a>
+            <a href="../notes.html" class="nav-item">Notes</a>
+            <button class="snow-toggle" id="snowToggle" aria-label="Toggle snowfall" title="Toggle snowfall">
+                <svg viewBox="0 0 24 24" fill="none" class="snow-icon" id="snowIcon">
+                    <path d="M12 2v4m0 12v4M4 12H2m20 0h-2M5.64 5.64l2.83 2.83m7.07 7.07l2.83 2.83M5.64 18.36l2.83-2.83m7.07-7.07l2.83-2.83M12 8a4 4 0 100 8 4 4 0 000-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <svg viewBox="0 0 24 24" fill="none" class="theme-icon" id="themeIcon">
+                </svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container">
+        <hr class="nav-divider fade-up-initial">
+        <section class="card section fade-up-initial">
+            <div class="card-content">
+                <div class="section-header">
+                    <h2 class="mono-label glitch-text" data-text="[games_menu]">[games_menu]</h2>
+                </div>
+                <p class="bio-text">Welcome to the Lab. Here are some mini-games and interactive tools I've built.</p>
+                <div class="games-grid">
+                    <a href="chess/index.html" class="game-card glow-card tiltable">
+                        <div class="glow-content">
+                            <div class="game-thumbnail">
+                                <img src="../assets/thumbnails/chess-king-wide.png" alt="A simple illustrated chess king" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <h3>Play me in Chess</h3>
+                            <p>Think you can beat my 1500 Elo bot? It talks back, so losing comes with commentary.</p>
+                        </div>
+                    </a>
+                    <div class="game-card glow-card tiltable disabled">
+                        <div class="glow-content">
+                            <div class="game-thumbnail" style="background:#fff; position:relative; overflow:hidden;">
+                                <svg width="100%" height="100%" viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg" aria-label="Black crosshair on a white background">
+                                    <g fill="none" stroke="#171719" stroke-width="4" stroke-linecap="square">
+                                        <circle cx="150" cy="90" r="29"/>
+                                        <circle cx="150" cy="90" r="4" fill="#171719"/>
+                                        <path d="M150 39v22M150 119v22M99 90h22M179 90h22"/>
+                                    </g>
+                                </svg>
+                            </div>
+                            <h3>Aim Trainer</h3>
+                            <p>Click targets as fast as possible. Compare your accuracy vs Pixel and Code.</p>
+                            <span class="maintenance-badge">[ UNDER MAINTENANCE ]</span>
+                        </div>
+                    </div>
+                    <a href="typing/index.html" class="game-card glow-card tiltable">
+                        <div class="glow-content">
+                            <div class="game-thumbnail">
+                                <img src="../assets/thumbnails/typing.jpg" alt="Typing Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <h3>Typing Speed</h3>
+                            <p>Race in real-time vs Pixel (90 WPM). Who finishes first?</p>
+                            <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
+                        </div>
+                    </a>
+                    <a href="sequence-memory/index.html" class="game-card glow-card tiltable">
+                        <div class="glow-content">
+                            <div class="game-thumbnail" style="background:#fff; display:flex; align-items:center; justify-content:center;">
+                                <svg width="160" height="120" viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg" aria-label="Sequence memory tiles on white">
+                                    <g fill="#fff" stroke="#171719" stroke-width="4">
+                                        <rect x="10" y="10" width="40" height="40" rx="5"/><rect x="60" y="10" width="40" height="40" rx="5"/><rect x="110" y="10" width="40" height="40" rx="5"/>
+                                        <rect x="10" y="60" width="40" height="40" rx="5"/><rect x="60" y="60" width="40" height="40" rx="5"/><rect x="110" y="60" width="40" height="40" rx="5"/>
+                                    </g>
+                                    <rect x="60" y="60" width="40" height="40" rx="5" fill="#171719"/>
+                                </svg>
+                            </div>
+                            <h3>Sequence Memory</h3>
+                            <p>Remember and repeat the growing pattern. Beat Pixel's best of 12.</p>
+                            <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
+                        </div>
+                    </a>
+                    <div class="game-card glow-card tiltable disabled">
+                        <div class="glow-content">
+                            <div class="game-thumbnail" style="background:#fff; display:flex; align-items:center; justify-content:center;">
+                                <svg width="100%" height="100%" viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg" aria-label="Snake in black pixel lettering with a small pixel snake">
+                                    <rect width="300" height="180" fill="#fff"/>
+                                    <text x="150" y="82" text-anchor="middle" fill="#111" font-family="monospace" font-size="42" font-weight="900" letter-spacing="3">snake</text>
+                                    <g fill="#111" shape-rendering="crispEdges">
+                                        <rect x="112" y="111" width="14" height="14"/><rect x="128" y="111" width="14" height="14"/><rect x="144" y="111" width="14" height="14"/><rect x="144" y="127" width="14" height="14"/><rect x="160" y="127" width="14" height="14"/><rect x="176" y="127" width="14" height="14"/>
+                                    </g>
+                                    <rect x="180" y="130" width="3" height="3" fill="#fff"/><rect x="186" y="130" width="3" height="3" fill="#fff"/>
+                                </svg>
+                            </div>
+                            <h3>Snake</h3>
+                            <p>Split-screen Snake. Race vs Pixel at human speed.</p>
+                            <span class="maintenance-badge">[ UNDER MAINTENANCE ]</span>
+                        </div>
+                    </div>
+                    <a href="reaction-time/index.html" class="game-card glow-card tiltable">
+                        <div class="glow-content">
+                            <div class="game-thumbnail">
+                                <img src="../assets/thumbnails/reaction.jpg" alt="Reaction Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <h3>Reaction Time</h3>
+                            <p>Click when it turns green. Beat Pixel's reaction time if you dare.</p>
+                            <span class="mono-label" style="display: inline-block; margin-top: 15px;">Launch →</span>
+                        </div>
+                    </a>
+                    <div class="game-card glow-card tiltable disabled">
+                        <div class="glow-content">
+                            <div class="game-thumbnail">
+                                <img src="../assets/thumbnails/wordle.png" alt="Wordle Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <h3>Wordle</h3>
+                            <p>6 guesses to find the hidden 5-letter word. Flip animations, keyboard tracking, streak counter.</p>
+                            <span class="maintenance-badge">[ UNDER MAINTENANCE ]</span>
+                        </div>
+                    </div>
+                    <div class="game-card glow-card tiltable" style="opacity: 0.4; pointer-events: none;">
+                        <div class="glow-content">
+                            <div class="game-thumbnail" style="background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 20px);">
+                                <span class="mono-label">COMING SOON</span>
+                            </div>
+                            <h3>More Games...</h3>
+                            <p>Always cooking something new in the lab.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="../script.js?v=9"></script>
+    <script src="../music-player.js?v=11"></script>
+    <script src="../cat.js?v=1"></script>
+</body>
+</html>
+

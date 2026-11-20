@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pixelis.dev</title>
+    <meta name="description" content="unfortunately still online.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="pixelis.dev">
+    <meta property="og:title" content="pixelis.dev">
+    <meta property="og:description" content="unfortunately still online.">
+    <meta property="og:url" content="https://pixelis.dev/">
+    <meta property="og:image" content="https://pixelis.dev/assets/social-preview.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="pixelis.dev with a small teal dot and the tagline unfortunately still online. on a dark background">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="pixelis.dev">
+    <meta name="twitter:description" content="unfortunately still online.">
+    <meta name="twitter:image" content="https://pixelis.dev/assets/social-preview.png">
+    <meta name="twitter:image:alt" content="pixelis.dev with a small teal dot and the tagline unfortunately still online. on a dark background">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="stylesheet" href="styles.css?v=13">
+</head>
+<body class="dark-mode">
+    <a href="../index.html" class="legacy-return" style="position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); white-space: nowrap; z-index: 99999; display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; background: #ffe066; color: #1f2a44; border: 2px solid #1f2a44; box-shadow: 3px 3px 0 #1f2a44; font: 700 14px/1.2 system-ui, sans-serif; text-decoration: none;">you're on the legacy site · back to the new one →</a>
+    <!-- if you are reading this, try typing "pixel" -->
+    <div class="cursor-trail">
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+    </div>
+    <div class="vignette"></div>
+    <canvas id="snowfall"></canvas>
+    <header class="navbar fade-up-initial">
+        <a href="index.html" class="brand">pixelis.dev</a>
+        <nav class="nav-links">
+            <a href="games/index.html" class="nav-item">Games</a>
+            <a href="notes.html" class="nav-item">Notes</a>
+            <button class="snow-toggle" id="snowToggle" aria-label="Toggle snowfall" title="Toggle snowfall">
+                <svg viewBox="0 0 24 24" fill="none" class="snow-icon" id="snowIcon">
+                    <path d="M12 2v4m0 12v4M4 12H2m20 0h-2M5.64 5.64l2.83 2.83m7.07 7.07l2.83 2.83M5.64 18.36l2.83-2.83m7.07-7.07l2.83-2.83M12 8a4 4 0 100 8 4 4 0 000-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <svg viewBox="0 0 24 24" fill="none" class="theme-icon" id="themeIcon">
+                </svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container">
+        <hr class="nav-divider fade-up-initial">
+        <div style="position: relative;">
+            <section class="card section fade-up-initial" id="about">
+                <div class="card-content">
+                    <h2 class="mono-label glitch-text" data-text="[about]">[about]</h2>
+                    <div class="intro-heading">
+                        <div class="goat-doodle" id="goatDoodle">
+                            <svg viewBox="0 0 600 280" role="img" aria-label="GOAT, with a looping arrow pointing to Hi, I'm Pixel">
+                                <defs>
+                                    <filter id="rough" x="-20%" y="-20%" width="140%" height="140%">
+                                        <feTurbulence type="fractalNoise" baseFrequency=".025" numOctaves="2" seed="8" result="noise"></feTurbulence>
+                                        <feDisplacementMap in="SourceGraphic" in2="noise" scale="2"></feDisplacementMap>
+                                    </filter>
+                                </defs>
+                                <path pathLength="1" class="crayon G" d="M68 82 C50 65 23 69 20 101 C18 133 43 147 65 130 C73 123 75 113 71 104 L54 104 L70 104 L70 126"></path>
+                                <path pathLength="1" class="crayon O" d="M99 77 C76 76 73 135 98 138 C125 140 130 82 104 77 C102 77 100 77 99 77"></path>
+                                <path pathLength="1" class="crayon A" d="M132 138 L153 76 L176 138 M141 113 L168 113"></path>
+                                <path pathLength="1" class="crayon T" d="M183 78 L226 78 M204 78 L204 138"></path>
+                                <path pathLength="1" class="crayon line" d="M220 139 C252 150 278 196 250 219 C219 244 211 196 251 175 C294 152 349 171 348 209 C347 245 293 235 300 197 C307 156 373 152 400 110 C430 62 369 47 361 84 C353 123 424 159 480 146 C522 137 544 134 580 140"></path>
+                                <path pathLength="1" class="crayon arrow" d="M558 123 L580 140 L555 154"></path>
+                            </svg>
+                        </div>
+                        <h1 class="main-heading">Hi, I'm Pixel.</h1>
+                    </div>
+                    <p class="bio-text">Hey, I'm Pixel. Not much to say, but ever felt like you’re lowk chilling in your room creating imaginary scenarios in your head, then you catch yourself smiling so you gotta remind yourself you’re a loser and ask yourself what level of chud this is?</p>
+                    <p class="bio-text">I make random stuff on the internet and occasionally convince myself it was a good idea.</p>
+                    <p class="bio-text bio-signoff">unfortunately still online.</p>
+                    <aside class="currently-card" id="currentlyCard" data-discord-id="1009828837141528696" data-status="unavailable" aria-labelledby="currentlyHeading">
+                        <div class="currently-header">
+                            <h2 class="mono-label" id="currentlyHeading">[currently]</h2>
+                            <span class="currently-status"><span class="currently-dot" aria-hidden="true"></span><span id="currentlyStatus">status: unavailable</span></span>
+                        </div>
+                        <p class="currently-custom" id="currentlyCustomStatus" hidden></p>
+                        <div id="currentlyActivity" aria-live="polite" aria-atomic="true">
+                            <p class="currently-empty">activity unavailable right now</p>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+            <div class="side-note-stack">
+                <div id="sticky-new" class="side-sticky-note">
+                    <div class="note-body">site passed quality control (i checked it myself)</div>
+                    <div class="signature-doodle" id="masSignature">
+                        <svg viewBox="0 0 280 170" role="img" aria-labelledby="masSignatureTitle">
+                            <title id="masSignatureTitle">Masood's handwritten mas signature</title>
+                            <defs>
+                                <path id="masSignatureWriting" pathLength="1" d="M27 100 Q36 87 46 67 C47 38 53 26 57 36 C62 46 46 77 47 95 C57 59 69 47 73 56 C78 67 65 88 69 93 C79 58 96 54 100 62 C106 73 92 91 100 96 C125 102 140 63 119 39 C101 16 60 13 37 31 C12 51 9 96 34 111 C59 127 96 122 116 102 C128 85 142 62 153 68 C139 56 118 68 121 88 C124 105 142 89 151 72 C149 80 142 95 150 98 C159 100 175 84 184 74 C199 52 202 56 196 66 C191 74 172 79 172 88 C172 97 187 95 192 102 C201 117 178 126 169 119 C160 112 182 104 201 97 C218 91 228 90 239 88"/>
+                                <path id="masSignatureUnderline" pathLength="1" d="M230 119 C179 120 123 136 72 140 C117 135 194 131 255 132"/>
+                            </defs>
+                            <use href="#masSignatureWriting" class="signature-line signature-ink"/>
+                            <use href="#masSignatureUnderline" class="signature-line signature-ink signature-underline"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <section class="card section fade-up" id="notes">
+            <div class="card-content">
+                <div class="section-header">
+                    <h2 class="mono-label glitch-text" data-text="[leave a note]">[leave a note]</h2>
+                    <a href="notes.html" class="mono-label card-link">[see the wall →]</a>
+                </div>
+                <a href="notes.html" class="glow-card tiltable notes-home-card">
+                    <div class="glow-content">
+                        <div class="section-header games-heading" style="margin-bottom: 5px;">
+                            <h3 style="margin-bottom: 0;">say something before you disappear into the void</h3>
+                            <span class="mono-label">notes + doodles</span>
+                        </div>
+                        <p>leave a message, draw something questionable, and hope Pixel lets it onto the wall.</p>
+                    </div>
+                </a>
+            </div>
+        </section>
+        <section class="card section fade-up" id="hall-of-fame" style="position: relative;">
+            <div class="card-content">
+                <div class="section-header">
+                    <h2 class="mono-label glitch-text" data-text="[hall of fame]">[hall of fame]</h2>
+                </div>
+                <p class="bio-text" style="margin-bottom: 30px;">somehow these people still talk to me</p>
+                <div class="projects-grid hall-of-fame-grid">
+                    <div class="glow-card tiltable friend-card" data-portrait-id="assets/hall_of_fame/hof_aug22_1.png" tabindex="0">
+                        <div class="glow-content friend-content">
+                            <img src="assets/hall_of_fame/vault-x-x-card.png" style="max-width: 100%; border-radius: 8px;" alt="Ali Asghar">
+                            <p class="friend-caption">cs2 buddy</p>
+                        </div>
+                    </div>
+                    <div class="glow-card tiltable friend-card" data-portrait-id="assets/hall_of_fame/hof_aug22_2.png" tabindex="0">
+                        <div class="glow-content friend-content">
+                            <img src="assets/hall_of_fame/phishgoesblub-card.png" style="max-width: 100%; border-radius: 8px;" alt="phishgoesblub">
+                            <p class="friend-caption">has witnessed too much</p>
+                        </div>
+                    </div>
+                    <div class="glow-card tiltable friend-card" data-portrait-id="assets/hall_of_fame/hof_aug22_3.png" tabindex="0">
+                        <div class="glow-content friend-content">
+                            <img src="assets/hall_of_fame/kaz-card.png" style="max-width: 100%; border-radius: 8px;" alt="kazoch">
+                            <p class="friend-caption">OG homie ong</p>
+                        </div>
+                    </div>
+                    <div class="glow-card tiltable friend-card lore-card vault-card" data-lore-id="biscuits-tea" data-portrait-id="assets/hall_of_fame/hof_aug23_1.png" tabindex="0" role="button" aria-expanded="false" aria-label="Evrin — cookies and tea addict. Click five times to open the biscuit vault.">
+                        <div class="vault-room" aria-hidden="true">
+                            <span class="vault-label">biscuit reserves</span>
+                            <div class="vault-biscuits"><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span></div>
+                            <span class="vault-label">hands off.</span>
+                        </div>
+                        <div class="glow-content friend-content">
+                            <img src="assets/hall_of_fame/evrin-card.png" style="max-width: 100%; border-radius: 8px;" alt="Evrin">
+                            <p class="friend-caption">cookies and tea addict</p>
+                            <span class="vault-wheel" aria-hidden="true"></span>
+                        </div>
+                    </div>
+                    <div class="glow-card tiltable friend-card aura-card" data-portrait-id="assets/hall_of_fame/hof_aug23_2.png" tabindex="0" role="button" aria-label="waqarbadqar — W wingman. Click for aura.">
+                        <div class="glow-content friend-content">
+                            <img src="assets/hall_of_fame/waqarbadqar-card.png" style="max-width: 100%; border-radius: 8px;" alt="waqarbadqar">
+                            <p class="friend-caption">W wingman</p>
+                        </div>
+                    </div>
+                    <div class="glow-card tiltable friend-card" data-portrait-id="assets/hall_of_fame/hof_aug23_3.png" tabindex="0">
+                        <div class="glow-content friend-content">
+                            <img src="assets/hall_of_fame/mirkohprosh-card.png" style="max-width: 100%; border-radius: 8px;" alt="mirkohprosh">
+                            <p class="friend-caption">top tier dirty jokes</p>
+                        </div>
+                    </div>
+                    <div class="glow-card tiltable friend-card" data-portrait-id="assets/hall_of_fame/hoku-yume.png" tabindex="0">
+                        <div class="glow-content friend-content">
+                            <img src="assets/hall_of_fame/hoku-yume-card.png" style="max-width: 100%; border-radius: 8px;" alt="Hoku Yume">
+                            <p class="friend-caption">night time buddy</p>
+                        </div>
+                    </div>
+                    <div class="glow-card tiltable friend-card" data-portrait-id="assets/hall_of_fame/ali-usman.png" tabindex="0">
+                        <div class="glow-content friend-content">
+                            <img src="assets/hall_of_fame/ali-usman-card.png" style="max-width: 100%; border-radius: 8px;" alt="Ali Usman">
+                            <p class="friend-caption">hehe, gud friend &lt;3</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card section fade-up" id="games">
+            <div class="card-content">
+                <div class="section-header">
+                    <h2 class="mono-label glitch-text" data-text="[games]">[games]</h2>
+                    <a href="games/index.html" class="mono-label card-link">[visit arcade →]</a>
+                </div>
+                <div class="glow-card tiltable" onclick="window.location.href='games/index.html'" style="cursor: pointer;">
+                    <div class="glow-content">
+                        <div class="section-header games-heading" style="margin-bottom: 5px;">
+                            <h3 style="margin-bottom: 0;">things i made instead of being productive</h3>
+                            <span class="mono-label">7 games</span>
+                        </div>
+                        <p>chess, wordle, typing tests and several other excellent uses of electricity.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="card section fade-up" id="hall-of-gay" style="position: relative;">
+            <div class="card-content">
+                <div class="section-header">
+                    <h2 class="mono-label glitch-text" data-text="[hall of gay]">[hall of gay]</h2>
+                </div>
+                <p class="bio-text" style="margin-bottom: 30px;">The hall of fame's sister wing. Same rules apply: you earn your spot here, but for completely different reasons.</p>
+                <div class="projects-grid hall-of-fame-grid">
+                    <div class="glow-card tiltable friend-card" tabindex="0">
+                        <div class="glow-content friend-content">
+                            <img src="assets/hall_of_fame/sardar-smk-card.png" style="max-width: 100%; border-radius: 8px;" alt="sardarsmk">
+                            <p class="friend-caption">once this guy held me at knifepoint and told me to drop my pants, extremely normal individual</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="card section fade-up" id="contact">
+            <div class="card-content">
+                <div class="section-header">
+                    <h2 class="mono-label glitch-text" data-text="[ways to bother me]">[ways to bother me]</h2>
+                    <div class="peak-doodle" id="peakDoodle" role="img" aria-label="A handwritten peak website doodle">
+                        <svg viewBox="0 0 240 78" aria-hidden="true">
+                            <text class="peak-ink peak-word" x="8" y="34">peak</text>
+                            <text class="peak-ink website-word" x="52" y="62">website</text>
+                        </svg>
+                    </div>
+                </div>
+                <div class="projects-grid">
+                    <div class="glow-card tiltable contact-flex" onclick="copyEmail(this)" style="cursor: pointer; grid-column: 1 / -1;">
+                        <div class="glow-content flex-contents" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center;">
+                                <span class="mono-label list-label">email</span>
+                                <span style="display: flex; flex-direction: column; align-items: flex-start;">
+                                    <span class="contact-handle">kx.zaper@gmail.com</span>
+                                    <span class="email-joke" style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 2px;">(made this email years ago, pls don't judge)</span>
+                                </span>
+                            </div>
+                            <span class="mono-label copy-status" style="color: var(--text-primary); opacity: 0; transition: opacity 0.3s; margin: 0;">[copied!]</span>
+                        </div>
+                    </div>
+                    <a href="https://github.com/pixelatedxp" target="_blank" class="glow-card tiltable contact-flex">
+                        <div class="glow-content flex-contents">
+                            <span class="mono-label list-label">github</span>
+                            <span class="contact-handle">@pixelatedxp</span>
+                        </div>
+                    </a>
+                    <a href="https://discord.com/users/1009828837141528696" target="_blank" class="glow-card tiltable contact-flex">
+                        <div class="glow-content flex-contents">
+                            <span class="mono-label list-label">discord</span>
+                            <span class="contact-handle">@pixel</span>
+                        </div>
+                    </a>
+                    <a href="https://github.com/pixelatedxp/my-website" target="_blank" class="glow-card tiltable contact-flex" style="grid-column: 1 / -1;">
+                        <div class="glow-content flex-contents" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center;">
+                                <span class="mono-label list-label">source</span>
+                                <span class="contact-handle">pixelis.dev source is on GitHub</span>
+                            </div>
+                            <span class="mono-label card-link" style="color: var(--accent-teal); margin: 0;">[view repo →]</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer class="site-footer">built with poor judgment</footer>
+    <script>
+        (function () {
+            var doodle = document.getElementById('goatDoodle');
+            if (!doodle || !('IntersectionObserver' in window)) return;
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        doodle.classList.add('animate');
+                        observer.disconnect();
+                    }
+                });
+            }, { threshold: 0.5 });
+            observer.observe(doodle);
+        })();
+    </script>
+    <script>
+        (function () {
+            var signature = document.getElementById('masSignature');
+            if (!signature || !('IntersectionObserver' in window) ||
+                window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            signature.classList.add('signature-pending');
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        signature.classList.add('is-drawn');
+                        observer.disconnect();
+                    }
+                });
+            }, { threshold: 0.25 });
+            observer.observe(signature);
+        })();
+    </script>
+    <script src="music-player.js?v=11" data-autoplay="true"></script>
+    <script src="currently.js?v=7"></script>
+    <script src="script.js?v=12"></script>
+    <script src="cat.js?v=1"></script>
+</body>
+</html>
+

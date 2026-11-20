@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-const source = fs.readFileSync(path.join(__dirname, '../music-player.js'), 'utf8');
+const source = fs.readFileSync(path.join(__dirname, '../legacy/music-player.js'), 'utf8');
 const settle = () => new Promise(resolve => setImmediate(resolve));
 
 // These are isolated media-policy fixtures, not browser session data.

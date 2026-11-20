@@ -3,92 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leave a note - pixelis.dev</title>
-    <meta name="description" content="A little wall of notes, doodles, and people who stopped by.">
-    <meta property="og:title" content="Leave a note - pixelis.dev">
-    <meta property="og:description" content="A little wall of notes, doodles, and people who stopped by.">
+    <title>Postcards - pixelis.dev</title>
+    <meta name="description" content="A wall of postcards, doodles, and people who stopped by.">
+    <meta name="theme-color" content="#f3f6fa">
+    <meta property="og:title" content="Postcards - pixelis.dev">
+    <meta property="og:description" content="A wall of postcards, doodles, and people who stopped by.">
     <meta property="og:image" content="https://pixelis.dev/assets/social-preview.png">
     <meta property="og:url" content="https://pixelis.dev/notes.html">
     <meta name="twitter:card" content="summary_large_image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Fredoka:wght@600;700&family=Outfit:wght@400;500;600;700;800&family=Space+Mono&family=VT323&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="assets/favicon.png">
-    <link rel="stylesheet" href="styles.css?v=12">
-    <link rel="stylesheet" href="notes.css?v=1">
+    <link rel="stylesheet" href="site.css?v=2">
 </head>
-<body class="dark-mode notes-page">
-    <div class="vignette"></div>
-    <canvas id="snowfall"></canvas>
-    <header class="navbar">
-        <a href="index.html" class="brand">pixelis.dev</a>
-        <nav class="nav-links" aria-label="Main navigation">
-            <a href="games/index.html" class="nav-item">Games</a>
-            <a href="notes.html" class="nav-item active" aria-current="page">Notes</a>
-            <button class="snow-toggle" id="snowToggle" aria-label="Toggle snowfall"><svg viewBox="0 0 24 24" fill="none" class="snow-icon" id="snowIcon"><path d="M12 2v4m0 12v4M4 12H2m20 0h-2M5.64 5.64l2.83 2.83m7.07 7.07l2.83 2.83M5.64 18.36l2.83-2.83m7.07-7.07l2.83-2.83M12 8a4 4 0 100 8 4 4 0 000-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><svg viewBox="0 0 24 24" fill="none" class="theme-icon" id="themeIcon"></svg></button>
+<body>
+    <a class="skip-link" href="#main">skip to content</a>
+    <header class="site-header wrap">
+        <div class="brand-row">
+            <a class="logo" href="index.html" aria-label="pixelis.dev home">
+                <span class="logo-word" aria-hidden="true">pixelis</span><span class="logo-tag" aria-hidden="true">.dev</span>
+            </a>
+            <a class="legacy-badge" href="legacy/index.html" title="the old pixelis.dev, with everything still working"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>legacy site</a>
+        </div>
+        <nav class="site-nav" aria-label="Main">
+            <a href="games/index.html">games</a>
+            <a href="index.html#friends">friends</a>
+            <a href="https://github.com/pixelatedxp/my-website">source</a>
         </nav>
     </header>
-    <main class="notes-container">
-        <hr class="nav-divider">
-        <div class="notes-heading">
-            <div><p class="mono-label">[you were here]</p><h1>leave a little note.</h1><p class="notes-muted">a thought, a doodle, a tiny piece of internet history.</p></div>
-            <a href="#write-note" class="notes-button">Write yours <span aria-hidden="true">↗</span></a>
+
+    <main id="main" class="wrap page" style="gap: 48px">
+        <div class="section-head">
+            <div>
+                <span class="label">page 03 — you were here</span>
+                <h1 class="h2" style="font-size: clamp(40px, 6vw, 60px); letter-spacing: -1.5px">postcards from <span class="mark">visitors.</span></h1>
+                <span class="hand muted" style="font-size: 28px">a thought, a doodle, a tiny piece of internet history.</span>
+            </div>
+            <a href="#write" class="btn btn-yellow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4-1L19 8l-3-3L5 16z"/></svg>
+                write one
+            </a>
         </div>
+
         <div class="notes-layout">
-            <section class="notes-wall-section" aria-labelledby="wall-title">
-                <div class="notes-section-label"><h2 id="wall-title">[the wall]</h2><span>approved notes only</span></div>
-                <div id="notesWall" class="notes-wall" aria-busy="true"></div>
-                <p id="wallStatus" class="wall-status" role="status">Loading the wall…</p>
-                <button id="wallRetry" class="notes-button secondary" hidden>Try again</button>
-                <button id="loadMore" class="notes-button secondary" hidden>More notes</button>
+            <section aria-labelledby="wallTitle" style="display: flex; flex-direction: column; gap: 24px; min-width: 0">
+                <div class="section-head">
+                    <h2 id="wallTitle" class="h2" style="font-size: 26px">the wall</h2>
+                    <span class="mono muted" style="font-size: 13px">approved postcards only</span>
+                </div>
+                <div id="notesWall" class="postcard-grid" aria-busy="true"></div>
+                <p id="wallStatus" class="wall-status" role="status">fetching the mail…</p>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap">
+                    <button id="wallRetry" class="btn" type="button" hidden>try again</button>
+                    <button id="loadMore" class="btn" type="button" hidden>more postcards</button>
+                </div>
             </section>
-            <section id="write-note" class="note-composer" aria-labelledby="write-title">
-                <div id="composerContents">
-                    <div class="notes-section-label"><h2 id="write-title">[your note]</h2><span>make yourself at home</span></div>
-                    <form id="noteForm">
-                        <div class="name-row"><label for="noteName">Name <span class="notes-muted">/ nickname</span></label><label class="check-label"><input type="checkbox" id="anonymous"> Anonymous</label></div>
-                        <input id="noteName" name="name" class="notes-input" maxlength="64" placeholder="what should we call you?" autocomplete="nickname" required>
-                        <div class="editor-top"><label id="messageLabel">Your message</label><span id="characterCount">0 / 250</span></div>
-                        <div class="format-toolbar" role="group" aria-label="Text formatting">
-                            <button type="button" data-format="bold" aria-label="Bold" aria-pressed="false"><b>B</b></button>
-                            <button type="button" data-format="italic" aria-label="Italic" aria-pressed="false"><i>I</i></button>
-                            <button type="button" data-format="underline" aria-label="Underline" aria-pressed="false"><u>U</u></button>
-                            <span>select text to style it</span>
+
+            <section id="write" class="composer paper" aria-labelledby="writeTitle">
+                <span class="tape" aria-hidden="true"></span>
+                <div id="composerContents" style="display: flex; flex-direction: column; gap: 18px">
+                    <div>
+                        <span class="label">your postcard</span>
+                        <h2 id="writeTitle" class="h2" style="font-size: 28px">write one</h2>
+                    </div>
+                    <form id="noteForm" novalidate>
+                        <div class="field">
+                            <div class="field-row">
+                                <label for="noteName">name <span class="muted" style="font-weight: 400">/ nickname</span></label>
+                                <label class="check"><input type="checkbox" id="anonymous"> anonymous</label>
+                            </div>
+                            <input id="noteName" name="name" class="input" maxlength="64" placeholder="what should we call you?" autocomplete="nickname" required>
                         </div>
-                        <div id="noteEditor" class="note-editor" contenteditable="true" role="textbox" aria-labelledby="messageLabel" aria-multiline="true" aria-describedby="characterCount" data-placeholder="something worth sticking around for…" spellcheck="true"></div>
-                        <fieldset class="note-colours"><legend>Paper colour</legend>
-                            <label style="--swatch:#fff0b3"><input type="radio" name="colour" value="yellow" checked><span>Yellow</span></label>
-                            <label style="--swatch:#f9d6e2"><input type="radio" name="colour" value="pink"><span>Pink</span></label>
-                            <label style="--swatch:#d4eaf5"><input type="radio" name="colour" value="blue"><span>Blue</span></label>
-                            <label style="--swatch:#daebcd"><input type="radio" name="colour" value="green"><span>Green</span></label>
+
+                        <fieldset>
+                            <legend>pick your postmark</legend>
+                            <div id="badgeOptions" class="badge-options"></div>
                         </fieldset>
-                        <details class="doodle-section" id="doodleSection"><summary>Add a doodle <span>optional</span></summary>
-                            <p class="doodle-hint" id="doodleHint">a heart, a signature, whatever. draw with your finger or mouse.</p>
-                            <div class="drawing-tools"><label>Ink <select id="penColour"><option value="#252126">Black</option><option value="#147b83">Teal</option><option value="#bc365e">Rose</option><option value="#375daa">Blue</option></select></label><label>Pen <select id="penSize"><option value="2">Fine</option><option value="4" selected>Medium</option><option value="6">Thick</option></select></label><button type="button" id="undoDoodle">Undo</button><button type="button" id="clearDoodle">Clear</button></div>
-                            <canvas id="doodleCanvas" width="480" height="240" aria-label="Optional drawing pad" aria-describedby="doodleHint">You can leave a text note without drawing.</canvas>
+
+                        <div class="field">
+                            <div class="field-row">
+                                <span id="messageLabel" class="field-label">your message</span>
+                                <span id="characterCount" class="count">0 / 250</span>
+                            </div>
+                            <div class="toolbar" role="group" aria-label="Text formatting">
+                                <button type="button" data-format="bold" aria-label="Bold" aria-pressed="false"><b>B</b></button>
+                                <button type="button" data-format="italic" aria-label="Italic" aria-pressed="false"><i>I</i></button>
+                                <button type="button" data-format="underline" aria-label="Underline" aria-pressed="false"><u>U</u></button>
+                                <span>select text to style it</span>
+                            </div>
+                            <div id="noteEditor" class="editor" contenteditable="true" role="textbox" aria-labelledby="messageLabel" aria-multiline="true" aria-describedby="characterCount" data-placeholder="something worth sticking around for…" spellcheck="true"></div>
+                        </div>
+
+                        <fieldset>
+                            <legend>stamp colour</legend>
+                            <div class="swatches">
+                                <label class="swatch" style="--swatch: var(--stamp-yellow)"><input type="radio" name="colour" value="yellow" checked><span>yellow</span></label>
+                                <label class="swatch" style="--swatch: var(--stamp-pink)"><input type="radio" name="colour" value="pink"><span>pink</span></label>
+                                <label class="swatch" style="--swatch: var(--stamp-blue)"><input type="radio" name="colour" value="blue"><span>blue</span></label>
+                                <label class="swatch" style="--swatch: var(--stamp-green)"><input type="radio" name="colour" value="green"><span>green</span></label>
+                            </div>
+                        </fieldset>
+
+                        <details class="fold" id="doodleSection">
+                            <summary>add a doodle <span>optional</span></summary>
+                            <p id="doodleHint" class="muted" style="margin: 0 0 10px; font-size: 15px">a heart, a signature, whatever. draw with your finger or mouse.</p>
+                            <div class="doodle-tools">
+                                <label>ink <select id="penColour"><option value="#252126">black</option><option value="#147b83">teal</option><option value="#bc365e">rose</option><option value="#375daa">blue</option></select></label>
+                                <label>pen <select id="penSize"><option value="2">fine</option><option value="4" selected>medium</option><option value="6">thick</option></select></label>
+                                <button type="button" id="undoDoodle">undo</button>
+                                <button type="button" id="clearDoodle">clear</button>
+                            </div>
+                            <canvas id="doodleCanvas" width="480" height="240" aria-label="Optional drawing pad" aria-describedby="doodleHint">You can send a postcard without drawing.</canvas>
                         </details>
-                        <details class="preview-section"><summary>Preview your note</summary><div id="notePreview" class="note-preview"></div></details>
-                        <p class="note-rules" id="noteRules">Keep it decent. Nothing sexual or explicit, mean, hateful, or illegal—in the message or the doodle.</p>
-                        <label class="check-label rules-check"><input type="checkbox" id="rulesAccepted" required><span>I confirm my note and doodle follow these rules.</span></label>
-                        <p class="notes-muted review-explainer">Pixel reviews each submission in Discord before it appears here. Anonymous notes are sent as “Anonymous.”</p>
+
+                        <details class="fold">
+                            <summary>preview your postcard</summary>
+                            <div id="notePreview"></div>
+                        </details>
+
+                        <p class="rules" id="noteRules">Keep it decent. Nothing sexual or explicit, mean, hateful, or illegal, in the message or the doodle.</p>
+                        <label class="check"><input type="checkbox" id="rulesAccepted" required><span>I confirm my postcard and doodle follow these rules.</span></label>
+                        <p class="muted" style="margin: 0; font-size: 15px">Pixel reviews every postcard before it goes on the wall. Anonymous ones are signed “Anonymous.”</p>
                         <div id="turnstileWidget"></div>
                         <p id="formStatus" class="form-status" role="status"></p>
-                        <button type="submit" id="submitNote" class="notes-button submit-note"><span class="submit-spinner" hidden aria-hidden="true"></span><span id="submitLabel">Send for approval</span><span aria-hidden="true">↗</span></button>
+                        <button type="submit" id="submitNote" class="btn btn-yellow" style="align-self: flex-start"><span class="spinner submit-spinner" hidden aria-hidden="true"></span><span id="submitLabel">send for approval</span></button>
                     </form>
                 </div>
-                <div id="submissionSuccess" class="submission-success" hidden tabindex="-1">
-                    <span class="success-mark" aria-hidden="true">✓</span><p class="mono-label">[note received]</p><h2>waiting for approval.</h2><p>This can take a few hours. You can close this page—your note is saved.</p><a href="index.html" class="notes-button">Back to homepage <span aria-hidden="true">↗</span></a>
+                <div id="submissionSuccess" class="success" hidden tabindex="-1">
+                    <span class="sticker" style="transform: rotate(-4deg)">sent!</span>
+                    <h2 class="h2">waiting for approval.</h2>
+                    <p class="muted" style="margin: 0">This can take a few hours. You can close this page; your postcard is saved.</p>
+                    <a href="index.html" class="btn">back to the homepage</a>
                 </div>
             </section>
         </div>
     </main>
-    <footer class="site-footer">thanks for leaving a little bit of yourself here.</footer>
-    <noscript><p class="notes-noscript">Please enable JavaScript to view and submit notes.</p></noscript>
+
+    <footer class="site-footer wrap">
+        <span class="hand">thanks for leaving a little bit of yourself here.</span>
+        <a class="mono" href="#main">back to top ↑</a>
+    </footer>
+    <noscript><p class="wrap">Please enable JavaScript to read and send postcards.</p></noscript>
     <script src="notes-config.js?v=1"></script>
-    <script src="notes.js?v=1"></script>
-    <script src="script.js?v=9"></script>
-    <script src="music-player.js?v=11"></script>
-    <script src="cat.js?v=1"></script>
+    <script src="postcards.js?v=1"></script>
+    <script src="notes.js?v=2"></script>
 </body>
 </html>

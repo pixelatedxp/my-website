@@ -16,6 +16,7 @@ export function moderationMessage(note) {
     color: pending ? 0x3ca7cb : note.status === 'approved' ? 0x43b581 : 0xed4245,
     fields: [
       { name: 'From', value: note.anonymous ? 'Anonymous' : discordText([{ text: note.name }]), inline: true },
+      ...(note.badge ? [{ name: 'Postmark', value: note.badge, inline: true }] : []),
       { name: 'Submitted', value: `<t:${Math.floor(note.created_at / 1000)}:f>`, inline: true },
       { name: 'Rules', value: 'Visitor confirmed the text and doodle follow the rules.' }
     ],
@@ -152,9 +153,9 @@ async function submit(request, env, ctx) {
   const doodle = await validateDoodle(input.doodle);
   await rateLimit(request, env);
   const createdAt = now();
-  await env.DB.prepare(`INSERT INTO notes(id,request_hash,name,anonymous,content,doodle,colour,created_at)
-    VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING`)
-    .bind(note.id, requestHash, note.name, Number(note.anonymous), JSON.stringify(note.content), doodle ? doodle.buffer : null, note.colour, createdAt).run();
+  await env.DB.prepare(`INSERT INTO notes(id,request_hash,name,anonymous,content,doodle,colour,badge,created_at)
+    VALUES (?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING`)
+    .bind(note.id, requestHash, note.name, Number(note.anonymous), JSON.stringify(note.content), doodle ? doodle.buffer : null, note.colour, note.badge, createdAt).run();
   const stored = await env.DB.prepare('SELECT request_hash FROM notes WHERE id=?').bind(note.id).first();
   if (stored.request_hash !== requestHash) throw new HttpError(409, 'This submission ID is already in use.');
   ctx.waitUntil(sendNote(env, note.id));
@@ -168,7 +169,7 @@ async function publicNotes(url, env) {
     const parts = cursor.split('_'); group = Number(parts[0]); rank = Number(parts[1]); timestamp = Number(parts[2]); id = parts[3];
     if (![0, 1].includes(group) || !Number.isInteger(rank) || !Number.isSafeInteger(timestamp) || timestamp < 0 || !UUID.test(id || '')) throw new HttpError(400, 'Invalid page.');
   }
-  const { results } = await env.DB.prepare(`SELECT id,name,anonymous,content,colour,created_at,pinned_rank,doodle IS NOT NULL AS has_doodle,
+  const { results } = await env.DB.prepare(`SELECT id,name,anonymous,content,colour,badge,created_at,pinned_rank,doodle IS NOT NULL AS has_doodle,
     CASE WHEN pinned_rank IS NULL THEN 1 ELSE 0 END AS sort_group
     FROM notes WHERE status='approved' AND (
       CASE WHEN pinned_rank IS NULL THEN 1 ELSE 0 END > ? OR
@@ -178,7 +179,7 @@ async function publicNotes(url, env) {
     .bind(group, group, rank, rank, timestamp, timestamp, id).all();
   const rows = results.slice(0, 24);
   return json({ notes: rows.map(n => ({ id: n.id, name: n.anonymous ? 'Anonymous' : n.name, anonymous: !!n.anonymous,
-    content: JSON.parse(n.content), colour: n.colour, createdAt: new Date(n.created_at).toISOString(),
+    content: JSON.parse(n.content), colour: n.colour, badge: n.badge ?? null, createdAt: new Date(n.created_at).toISOString(),
     pinned: n.pinned_rank !== null, doodleUrl: n.has_doodle ? `/api/notes/${n.id}/doodle` : null })),
     nextCursor: results.length > 24 ? `${rows.at(-1).sort_group}_${rows.at(-1).pinned_rank ?? -1}_${rows.at(-1).created_at}_${rows.at(-1).id}` : null });
 }

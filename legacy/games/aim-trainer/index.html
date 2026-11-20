@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aim Trainer - pixelis.dev</title>
+    <meta name="description" content="unfortunately still online.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="pixelis.dev">
+    <meta property="og:title" content="Aim Trainer - pixelis.dev">
+    <meta property="og:description" content="unfortunately still online.">
+    <meta property="og:url" content="https://pixelis.dev/games/aim-trainer/">
+    <meta property="og:image" content="https://pixelis.dev/assets/social-preview.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="pixelis.dev with a small teal dot and the tagline unfortunately still online. on a dark background">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Aim Trainer - pixelis.dev">
+    <meta name="twitter:description" content="unfortunately still online.">
+    <meta name="twitter:image" content="https://pixelis.dev/assets/social-preview.png">
+    <meta name="twitter:image:alt" content="pixelis.dev with a small teal dot and the tagline unfortunately still online. on a dark background">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../../assets/favicon.png">
+    <link rel="stylesheet" href="../../styles.css?v=10">
+    <style>
+        * { cursor: none !important; }
+        html, body { height: 100%; overflow: hidden; }
+        body { display: flex; flex-direction: column; }
+
+        .navbar { display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 0 40px !important; flex-shrink: 0; width: 100%; box-sizing: border-box; }
+
+        .game-area {
+            flex: 1;
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #canvas {
+            flex: 1;
+            cursor: crosshair;
+            background: #252525;
+            display: block;
+        }
+
+        .side-panel {
+            width: 280px;
+            background: #111;
+            border-left: 1px solid rgba(255,255,255,0.07);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 20px;
+            gap: 20px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .panel-title {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .big-stat {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .stat-label { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 4px; }
+
+        .stat-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .stat-box {
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .stat-box .val { font-size: 1.5rem; color: #fff; }
+        .stat-box .lbl { font-size: 0.75rem; color: #666; }
+
+        .btn-start {
+            padding: 13px;
+            background: #c0392b;
+            border: none;
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .btn-start:hover { background: #e74c3c; }
+
+        .timer-bar-wrap {
+            background: #1a1a1a;
+            border-radius: 6px;
+            height: 8px;
+            overflow: hidden;
+        }
+        .timer-bar {
+            height: 100%;
+            background: #c0392b;
+            transition: width 0.1s linear;
+            width: 100%;
+        }
+
+        
+        #results {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(8,8,12,0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            font-family: 'Share Tech Mono', monospace;
+            color: #fff;
+            z-index: 10;
+        }
+        #results.visible { display: flex; }
+        #results h2 { font-size: 2rem; margin: 0; opacity: 0; transform: translateY(18px); }
+
+        .vs-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            text-align: center;
+        }
+        .vs-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 16px;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            padding: 20px 24px;
+            opacity: 0;
+            transform: translateY(22px) scale(0.97);
+        }
+        .vs-card.winner { border-color: #3d9970; box-shadow: 0 0 34px rgba(61,153,112,0.2); }
+        #results.visible h2, #results.visible .vs-card, #results.visible .btn-retry { animation: cardIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        #results.visible .vs-card:nth-child(2) { animation-delay: 0.13s; }
+        #results.visible .vs-card:nth-child(3) { animation-delay: 0.26s; }
+        #results.visible .btn-retry { animation-delay: 0.42s; }
+        @keyframes cardIn { to { opacity: 1; transform: translateY(0) scale(1); } }
+        .vs-card .name { font-size: 0.8rem; color: #888; margin-bottom: 8px; }
+        .vs-card .score-big { font-size: 2rem; color: #fff; }
+        .vs-card .subscore { font-size: 0.75rem; color: #666; margin-top: 4px; }
+
+        .btn-retry {
+            padding: 12px 32px;
+            background: #c0392b;
+            border: none;
+            color: #fff;
+            border-radius: 8px;
+            cursor: none;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            opacity: 0;
+            transform: translateY(18px);
+        }
+        .btn-retry:hover { background: #e74c3c; }
+    </style>
+</head>
+<body class="dark-mode">
+    <a href="../../../index.html" class="legacy-return" style="position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); white-space: nowrap; z-index: 99999; display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; background: #ffe066; color: #1f2a44; border: 2px solid #1f2a44; box-shadow: 3px 3px 0 #1f2a44; font: 700 14px/1.2 system-ui, sans-serif; text-decoration: none;">you're on the legacy site · back to the new one →</a>
+    <div id="maintenanceOverlay" style="display:flex; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:1000; flex-direction:column; align-items:center; justify-content:center; font-family:'Share Tech Mono',monospace; color:#fff;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:64px; height:64px; margin-bottom:24px; color:#e67e22;">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <h2 style="font-size:1.8rem; margin-bottom:12px;">[under maintenance]</h2>
+        <p style="color:rgba(255,255,255,0.5); font-size:0.9rem; max-width:400px; text-align:center; line-height:1.6;">The aim trainer is currently being updated. Check back soon for improvements and new features.</p>
+        <a href="../index.html" style="margin-top:30px; color:#3d9970; text-decoration:none; font-size:0.85rem;">[back to games →]</a>
+    </div>
+    <div class="cursor-trail">
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+    </div>
+    <div class="vignette"></div>
+    <canvas id="snowfall"></canvas>
+
+    <header class="navbar fade-up-initial">
+        <a href="../../index.html" class="brand">pixelis.dev</a>
+        <nav class="nav-links">
+            <a href="../index.html" class="nav-item active">Games</a>
+            <a href="../../notes.html" class="nav-item">Notes</a>
+            <button class="snow-toggle" id="snowToggle" aria-label="Toggle snowfall" title="Toggle snowfall">
+                <svg viewBox="0 0 24 24" fill="none" class="snow-icon" id="snowIcon">
+                    <path d="M12 2v4m0 12v4M4 12H2m20 0h-2M5.64 5.64l2.83 2.83m7.07 7.07l2.83 2.83M5.64 18.36l2.83-2.83m7.07-7.07l2.83-2.83M12 8a4 4 0 100 8 4 4 0 000-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <svg viewBox="0 0 24 24" fill="none" class="theme-icon" id="themeIcon">
+                </svg>
+            </button>
+        </nav>
+    </header>
+
+    <div class="game-area">
+        <canvas id="canvas"></canvas>
+
+        <div id="results">
+            <h2>[results]</h2>
+            <div class="vs-grid">
+                <div class="vs-card" id="yourCard">
+                    <div class="name">You</div>
+                    <div class="score-big" id="yourScore">-</div>
+                    <div class="subscore" id="yourAcc">-</div>
+                </div>
+                <div class="vs-card" id="pixelCard">
+                    <div class="name">Pixel</div>
+                    <div class="score-big">44</div>
+                    <div class="subscore">82% acc</div>
+                </div>
+                <div class="vs-card" id="codeCard">
+                    <div class="name">Code</div>
+                    <div class="score-big">9,999+</div>
+                    <div class="subscore">100% acc</div>
+                </div>
+            </div>
+            <button class="btn-retry" onclick="startGame()">Play Again</button>
+        </div>
+
+        <div class="side-panel">
+            <div>
+                <div class="panel-title">Aim Trainer</div>
+            </div>
+
+            <div>
+                <div class="big-stat" id="scoreDisplay">0</div>
+                <div class="stat-label">Targets Hit</div>
+            </div>
+
+            <div class="stat-row">
+                <div class="stat-box">
+                    <div class="val" id="missDisplay">0</div>
+                    <div class="lbl">Misses</div>
+                </div>
+                <div class="stat-box">
+                    <div class="val" id="accDisplay">-</div>
+                    <div class="lbl">Accuracy</div>
+                </div>
+            </div>
+
+            <div>
+                <div class="stat-label" style="margin-bottom: 8px;">Time Remaining</div>
+                <div class="timer-bar-wrap">
+                    <div class="timer-bar" id="timerBar"></div>
+                </div>
+                <div class="val" id="timerDisplay" style="font-size:1rem; margin-top:6px; color:#fff; font-family: 'Share Tech Mono', monospace;">30s</div>
+            </div>
+
+            <div class="stat-row">
+                <div class="stat-box">
+                    <div class="val" style="color:#aaa;">44</div>
+                    <div class="lbl">Pixel's Best</div>
+                </div>
+                <div class="stat-box">
+                    <div class="val" style="color:#3d9970;">9,999+</div>
+                    <div class="lbl">Code's Best</div>
+                </div>
+            </div>
+
+            <button class="btn-start" id="startBtn" onclick="startGame()">Start Game</button>
+        </div>
+    </div>
+
+    <script src="../../script.js?v=9"></script>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let targets = [], score = 0, misses = 0, totalClicks = 0;
+        let gameActive = false, timeLeft = 30, timerInterval = null;
+        const GAME_TIME = 30;
+
+        function resize() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function randRange(min, max) { return Math.random() * (max - min) + min; }
+
+        function spawnTarget() {
+            const r = randRange(20, 45);
+            const x = randRange(r + 10, canvas.width - r - 10);
+            const y = randRange(r + 10, canvas.height - r - 10);
+            targets.push({ x, y, r, born: Date.now(), life: randRange(1800, 3000) });
+        }
+
+        function drawTarget(t) {
+            const age = Date.now() - t.born;
+            const progress = age / t.life;
+            const alpha = Math.max(0, 1 - progress * 0.4);
+
+            ctx.save();
+            
+            ctx.strokeStyle = `rgba(192, 57, 43, ${alpha})`;
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2); ctx.stroke();
+            
+            ctx.strokeStyle = `rgba(231, 76, 60, ${alpha})`;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.arc(t.x, t.y, t.r * 0.6, 0, Math.PI * 2); ctx.stroke();
+            
+            ctx.fillStyle = `rgba(231, 76, 60, ${alpha})`;
+            ctx.beginPath(); ctx.arc(t.x, t.y, t.r * 0.2, 0, Math.PI * 2); ctx.fill();
+            
+            ctx.strokeStyle = `rgba(231, 76, 60, ${alpha * 0.7})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(t.x - t.r - 8, t.y); ctx.lineTo(t.x - t.r * 0.25, t.y);
+            ctx.moveTo(t.x + t.r * 0.25, t.y); ctx.lineTo(t.x + t.r + 8, t.y);
+            ctx.moveTo(t.x, t.y - t.r - 8); ctx.lineTo(t.x, t.y - t.r * 0.25);
+            ctx.moveTo(t.x, t.y + t.r * 0.25); ctx.lineTo(t.x, t.y + t.r + 8);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        let lastSpawn = 0;
+        function gameLoop() {
+            if (!gameActive) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const now = Date.now();
+            if (now - lastSpawn > 600 && targets.length < 5) {
+                spawnTarget(); lastSpawn = now;
+            }
+            targets = targets.filter(t => (now - t.born) < t.life);
+            targets.forEach(drawTarget);
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updateUI() {
+            document.getElementById('scoreDisplay').textContent = score;
+            document.getElementById('missDisplay').textContent = misses;
+            const acc = totalClicks > 0 ? Math.round((score / totalClicks) * 100) : 0;
+            document.getElementById('accDisplay').textContent = totalClicks > 0 ? acc + '%' : '-';
+            document.getElementById('timerBar').style.width = (timeLeft / GAME_TIME * 100) + '%';
+            document.getElementById('timerDisplay').textContent = timeLeft + 's';
+        }
+
+        function startGame() {
+            document.getElementById('results').classList.remove('visible');
+            score = 0; misses = 0; totalClicks = 0; timeLeft = GAME_TIME;
+            targets = []; gameActive = true; lastSpawn = 0;
+            document.getElementById('startBtn').textContent = 'Restart';
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateUI();
+                if (timeLeft <= 0) endGame();
+            }, 1000);
+            updateUI();
+            gameLoop();
+        }
+
+        function endGame() {
+            gameActive = false; clearInterval(timerInterval);
+            targets = [];
+            const acc = totalClicks > 0 ? Math.round((score / totalClicks) * 100) + '%' : '0%';
+            document.getElementById('yourScore').textContent = score;
+            document.getElementById('yourAcc').textContent = acc + ' acc';
+
+            
+            const scores = [
+                { id: 'yourCard', s: score },
+                { id: 'pixelCard', s: 44 },
+                { id: 'codeCard', s: 9999 }
+            ];
+            const maxS = Math.max(...scores.map(c => c.s));
+            scores.forEach(c => {
+                document.getElementById(c.id).classList.toggle('winner', c.s === maxS);
+            });
+            document.getElementById('results').classList.add('visible');
+        }
+
+        canvas.addEventListener('click', (e) => {
+            if (!gameActive) return;
+            totalClicks++;
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+            let hit = false;
+            targets = targets.filter(t => {
+                const dist = Math.hypot(mx - t.x, my - t.y);
+                if (dist <= t.r && !hit) { hit = true; score++; return false; }
+                return true;
+            });
+            if (!hit) misses++;
+            updateUI();
+        });
+    </script>
+    <script src="../../music-player.js?v=11"></script>
+</body>
+</html>

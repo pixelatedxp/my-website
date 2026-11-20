@@ -25,6 +25,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="../../assets/favicon.png">
     <link rel="stylesheet" href="../../styles.css?v=10">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Fredoka:wght@600;700&family=Outfit:wght@400;500;600;700;800&family=Space+Mono&family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../site.css?v=2">
+    <link rel="stylesheet" href="../games.css?v=1">
     <style>
         * { cursor: none !important; }
         html, body { height: 100%; overflow: hidden; }
@@ -201,31 +206,19 @@
         }
     </style>
 </head>
-<body class="dark-mode">
-    <div class="cursor-trail" id="cursorTrail">
-        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
-        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
-        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
-        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
-        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
-    </div>
-    <div class="vignette"></div>
-    <canvas id="snowfall"></canvas>
+<body class="light-mode game-page">
 
-    <header class="navbar fade-up-initial">
-        <a href="../../index.html" class="brand">pixelis.dev</a>
-        <nav class="nav-links">
-            <a href="../index.html" class="nav-item active">Games</a>
-            <a href="../../notes.html" class="nav-item">Notes</a>
-            <button class="snow-toggle" id="snowToggle" aria-label="Toggle snowfall" title="Toggle snowfall">
-                <svg viewBox="0 0 24 24" fill="none" class="snow-icon" id="snowIcon">
-                    <path d="M12 2v4m0 12v4M4 12H2m20 0h-2M5.64 5.64l2.83 2.83m7.07 7.07l2.83 2.83M5.64 18.36l2.83-2.83m7.07-7.07l2.83-2.83M12 8a4 4 0 100 8 4 4 0 000-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </button>
-            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-                <svg viewBox="0 0 24 24" fill="none" class="theme-icon" id="themeIcon">
-                </svg>
-            </button>
+    <header class="site-header wrap">
+        <div class="brand-row">
+            <a class="logo" href="../../index.html" aria-label="pixelis.dev home">
+                <span class="logo-word" aria-hidden="true">pixelis</span><span class="logo-tag" aria-hidden="true">.dev</span>
+            </a>
+            <a class="legacy-badge" href="../../legacy/index.html" title="the old pixelis.dev, with everything still working"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>legacy site</a>
+        </div>
+        <nav class="site-nav" aria-label="Main">
+            <a href="../../games/index.html" aria-current="page">games</a>
+            <a href="../../index.html#friends">friends</a>
+            <a href="https://github.com/pixelatedxp/my-website">source</a>
         </nav>
     </header>
 
@@ -276,8 +269,6 @@
         </div>
         <button class="btn-retry" onclick="closeResults()">Play Again</button>
     </div>
-
-    <script src="../../script.js?v=9"></script>
     <script>
         const MAX_ATTEMPTS = 5;
         let state = 'idle'; 
@@ -556,6 +547,9 @@
         
         setState('idle');
     </script>
-    <script src="../../music-player.js?v=11"></script>
+    <footer class="site-footer wrap">
+        <span class="hand">built with poor judgment</span>
+        <a class="mono" href="../index.html">← back to the arcade</a>
+    </footer>
 </body>
 </html>

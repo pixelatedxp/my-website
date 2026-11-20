@@ -5,6 +5,8 @@ export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-
 const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
 export const lengthOf = text => [...segmenter.segment(text)].length;
 const clean = text => text.normalize('NFC').replace(/\r\n?/g, '\n');
+// Postmark badges a visitor can pick. Keep in sync with BADGES in ../postcards.js.
+export const BADGES = ['cat', 'ghost', 'star', 'heart', 'game', 'music'];
 const controls = /[\u0000-\u0008\u000b-\u001f\u007f\u202a-\u202e\u2066-\u2069]/;
 
 export function validateNote(input) {
@@ -28,7 +30,9 @@ export function validateNote(input) {
   const text = content.map(p => p.text).join('');
   if (!text.trim() || lengthOf(text) > 250 || text.length > 2000) throw new HttpError(400, 'Write a note between 1 and 250 characters.');
   if (!['yellow', 'pink', 'blue', 'green'].includes(input.colour)) throw new HttpError(400, 'Please select a note colour.');
-  return { id: input.id.toLowerCase(), name, anonymous: input.anonymous, content, colour: input.colour };
+  // Optional so older pages that do not send a badge keep working.
+  if (input.badge != null && !BADGES.includes(input.badge)) throw new HttpError(400, 'Please pick a postmark.');
+  return { id: input.id.toLowerCase(), name, anonymous: input.anonymous, content, colour: input.colour, badge: input.badge ?? null };
 }
 
 export async function readLimited(stream, limit) {

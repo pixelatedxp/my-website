@@ -5,312 +5,167 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>pixelis.dev</title>
     <meta name="description" content="unfortunately still online.">
+    <meta name="theme-color" content="#f3f6fa">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="pixelis.dev">
     <meta property="og:title" content="pixelis.dev">
     <meta property="og:description" content="unfortunately still online.">
     <meta property="og:url" content="https://pixelis.dev/">
     <meta property="og:image" content="https://pixelis.dev/assets/social-preview.png">
-    <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="pixelis.dev with a small teal dot and the tagline unfortunately still online. on a dark background">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="pixelis.dev">
     <meta name="twitter:description" content="unfortunately still online.">
     <meta name="twitter:image" content="https://pixelis.dev/assets/social-preview.png">
-    <meta name="twitter:image:alt" content="pixelis.dev with a small teal dot and the tagline unfortunately still online. on a dark background">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Fredoka:wght@600;700&family=Outfit:wght@400;500;600;700;800&family=Space+Mono&family=VT323&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="assets/favicon.png">
-    <link rel="stylesheet" href="styles.css?v=13">
+    <link rel="stylesheet" href="site.css?v=2">
 </head>
-<body class="dark-mode">
-    <!-- if you are reading this, try typing "pixel" -->
-    <div class="cursor-trail">
-        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
-        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
-        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
-        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
-        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
-    </div>
-    <div class="vignette"></div>
-    <canvas id="snowfall"></canvas>
-    <header class="navbar fade-up-initial">
-        <a href="index.html" class="brand">pixelis.dev</a>
-        <nav class="nav-links">
-            <a href="games/index.html" class="nav-item">Games</a>
-            <a href="notes.html" class="nav-item">Notes</a>
-            <button class="snow-toggle" id="snowToggle" aria-label="Toggle snowfall" title="Toggle snowfall">
-                <svg viewBox="0 0 24 24" fill="none" class="snow-icon" id="snowIcon">
-                    <path d="M12 2v4m0 12v4M4 12H2m20 0h-2M5.64 5.64l2.83 2.83m7.07 7.07l2.83 2.83M5.64 18.36l2.83-2.83m7.07-7.07l2.83-2.83M12 8a4 4 0 100 8 4 4 0 000-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </button>
-            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-                <svg viewBox="0 0 24 24" fill="none" class="theme-icon" id="themeIcon">
-                </svg>
-            </button>
+<body>
+    <a class="skip-link" href="#main">skip to content</a>
+    <!-- hi, source reader. -->
+    <header class="site-header wrap">
+        <div class="brand-row">
+            <a class="logo" href="index.html" aria-label="pixelis.dev home">
+                <span class="logo-word" aria-hidden="true">pixelis</span><span class="logo-tag" aria-hidden="true">.dev</span>
+            </a>
+            <a class="legacy-badge" href="legacy/index.html" title="the old pixelis.dev, with everything still working"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>legacy site</a>
+        </div>
+        <nav class="site-nav" aria-label="Main">
+            <a href="games/index.html">games</a>
+            <a href="index.html#friends">friends</a>
+            <a href="https://github.com/pixelatedxp/my-website">source</a>
         </nav>
     </header>
-    <main class="container">
-        <hr class="nav-divider fade-up-initial">
-        <div style="position: relative;">
-            <section class="card section fade-up-initial" id="about">
-                <div class="card-content">
-                    <h2 class="mono-label glitch-text" data-text="[about]">[about]</h2>
-                    <div class="intro-heading">
-                        <div class="goat-doodle" id="goatDoodle">
-                            <svg viewBox="0 0 600 280" role="img" aria-label="GOAT, with a looping arrow pointing to Hi, I'm Pixel">
-                                <defs>
-                                    <filter id="rough" x="-20%" y="-20%" width="140%" height="140%">
-                                        <feTurbulence type="fractalNoise" baseFrequency=".025" numOctaves="2" seed="8" result="noise"></feTurbulence>
-                                        <feDisplacementMap in="SourceGraphic" in2="noise" scale="2"></feDisplacementMap>
-                                    </filter>
-                                </defs>
-                                <path pathLength="1" class="crayon G" d="M68 82 C50 65 23 69 20 101 C18 133 43 147 65 130 C73 123 75 113 71 104 L54 104 L70 104 L70 126"></path>
-                                <path pathLength="1" class="crayon O" d="M99 77 C76 76 73 135 98 138 C125 140 130 82 104 77 C102 77 100 77 99 77"></path>
-                                <path pathLength="1" class="crayon A" d="M132 138 L153 76 L176 138 M141 113 L168 113"></path>
-                                <path pathLength="1" class="crayon T" d="M183 78 L226 78 M204 78 L204 138"></path>
-                                <path pathLength="1" class="crayon line" d="M220 139 C252 150 278 196 250 219 C219 244 211 196 251 175 C294 152 349 171 348 209 C347 245 293 235 300 197 C307 156 373 152 400 110 C430 62 369 47 361 84 C353 123 424 159 480 146 C522 137 544 134 580 140"></path>
-                                <path pathLength="1" class="crayon arrow" d="M558 123 L580 140 L555 154"></path>
-                            </svg>
-                        </div>
-                        <h1 class="main-heading">Hi, I'm Pixel.</h1>
-                    </div>
-                    <p class="bio-text">Hey, I'm Pixel. Not much to say, but ever felt like you’re lowk chilling in your room creating imaginary scenarios in your head, then you catch yourself smiling so you gotta remind yourself you’re a loser and ask yourself what level of chud this is?</p>
-                    <p class="bio-text">I make random stuff on the internet and occasionally convince myself it was a good idea.</p>
-                    <p class="bio-text bio-signoff">unfortunately still online.</p>
-                    <aside class="currently-card" id="currentlyCard" data-discord-id="1009828837141528696" data-status="unavailable" aria-labelledby="currentlyHeading">
-                        <div class="currently-header">
-                            <h2 class="mono-label" id="currentlyHeading">[currently]</h2>
-                            <span class="currently-status"><span class="currently-dot" aria-hidden="true"></span><span id="currentlyStatus">status: unavailable</span></span>
-                        </div>
-                        <p class="currently-custom" id="currentlyCustomStatus" hidden></p>
-                        <div id="currentlyActivity" aria-live="polite" aria-atomic="true">
-                            <p class="currently-empty">activity unavailable right now</p>
-                        </div>
-                    </aside>
-                </div>
-            </section>
-            <div class="side-note-stack">
-                <div id="sticky-new" class="side-sticky-note">
-                    <div class="note-body">site passed quality control (i checked it myself)</div>
-                    <div class="signature-doodle" id="masSignature">
-                        <svg viewBox="0 0 280 170" role="img" aria-labelledby="masSignatureTitle">
-                            <title id="masSignatureTitle">Masood's handwritten mas signature</title>
-                            <defs>
-                                <path id="masSignatureWriting" pathLength="1" d="M27 100 Q36 87 46 67 C47 38 53 26 57 36 C62 46 46 77 47 95 C57 59 69 47 73 56 C78 67 65 88 69 93 C79 58 96 54 100 62 C106 73 92 91 100 96 C125 102 140 63 119 39 C101 16 60 13 37 31 C12 51 9 96 34 111 C59 127 96 122 116 102 C128 85 142 62 153 68 C139 56 118 68 121 88 C124 105 142 89 151 72 C149 80 142 95 150 98 C159 100 175 84 184 74 C199 52 202 56 196 66 C191 74 172 79 172 88 C172 97 187 95 192 102 C201 117 178 126 169 119 C160 112 182 104 201 97 C218 91 228 90 239 88"/>
-                                <path id="masSignatureUnderline" pathLength="1" d="M230 119 C179 120 123 136 72 140 C117 135 194 131 255 132"/>
-                            </defs>
-                            <use href="#masSignatureWriting" class="signature-line signature-ink"/>
-                            <use href="#masSignatureUnderline" class="signature-line signature-ink signature-underline"/>
-                        </svg>
-                    </div>
-                </div>
+
+    <main id="main" class="wrap page">
+
+        <section class="hero" aria-labelledby="hi">
+            <div class="hero-copy">
+                <h1 id="hi">Hi, I'm <span class="mark">Pixel.</span></h1>
+                <p class="tagline">unfortunately still online.</p>
+                <p class="bio">Ever been lowkey chilling in your room making up imaginary scenarios, then caught yourself smiling? Yeah. That's the energy here. I make random stuff on the internet and occasionally convince myself it was a good idea. Poke around, play something, and <a href="notes.html#write" style="color: var(--accent)">send me a postcard</a>.</p>
             </div>
-        </div>
-        <section class="card section fade-up" id="notes">
-            <div class="card-content">
-                <div class="section-header">
-                    <h2 class="mono-label glitch-text" data-text="[leave a note]">[leave a note]</h2>
-                    <a href="notes.html" class="mono-label card-link">[see the wall →]</a>
-                </div>
-                <a href="notes.html" class="glow-card tiltable notes-home-card">
-                    <div class="glow-content">
-                        <div class="section-header games-heading" style="margin-bottom: 5px;">
-                            <h3 style="margin-bottom: 0;">say something before you disappear into the void</h3>
-                            <span class="mono-label">notes + doodles</span>
-                        </div>
-                        <p>leave a message, draw something questionable, and hope Pixel lets it onto the wall.</p>
-                    </div>
-                </a>
+            <div class="hero-photo">
+                <span class="goat-note" aria-hidden="true">the GOAT</span>
+                <svg class="goat-arrow" viewBox="0 0 130 90" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6c6 46 50 70 104 62M100 56l14 12-17 8"/></svg>
+                <figure class="polaroid" style="margin: 0">
+                    <span class="tape" aria-hidden="true"></span>
+                    <img id="avatar" class="avatar" src="assets/pfp.png?v=2" width="226" height="226" alt="Pixel's avatar: an orange-haired anime girl in sunglasses at a DJ deck">
+                    <figcaption class="caption">me, probably</figcaption>
+                </figure>
+                <span class="sticker" aria-hidden="true">certified goat</span>
             </div>
         </section>
-        <section class="card section fade-up" id="hall-of-fame" style="position: relative;">
-            <div class="card-content">
-                <div class="section-header">
-                    <h2 class="mono-label glitch-text" data-text="[hall of fame]">[hall of fame]</h2>
+
+        <section id="now" class="presence" aria-labelledby="nowLabel">
+            <h2 id="nowLabel" class="label" style="margin: 0; font-weight: 400">right now</h2>
+            <div id="presence" class="presence-grid" data-discord-id="1009828837141528696" data-timezone="Asia/Karachi" data-avatar-hash="a_0cc191fc7caf916cac907d9d73ff0207">
+                <div id="spotify" class="spotify" data-state="idle" aria-live="polite">
+                    <div id="spotifyArt" class="spotify-art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l11-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM20 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg></div>
+                    <div class="spotify-copy">
+                        <span class="spotify-label"><span class="eq" aria-hidden="true"><span></span><span></span><span></span><span></span></span><span id="spotifyLabelText">checking spotify…</span></span>
+                        <span id="spotifyTitle" class="spotify-title">…</span>
+                        <span id="spotifyArtist" class="spotify-artist"></span>
+                        <div id="spotifyProgress" class="spotify-progress" hidden>
+                            <span id="spotifyElapsed" aria-hidden="true">0:00</span>
+                            <progress id="spotifyBar" max="1" value="0" aria-label="Song progress"></progress>
+                            <span id="spotifyLength" aria-hidden="true">0:00</span>
+                        </div>
+                    </div>
                 </div>
-                <p class="bio-text" style="margin-bottom: 30px;">somehow these people still talk to me</p>
-                <div class="projects-grid hall-of-fame-grid">
-                    <div class="glow-card tiltable friend-card" data-portrait-id="assets/hall_of_fame/hof_aug22_1.png" tabindex="0">
-                        <div class="glow-content friend-content">
-                            <img src="assets/hall_of_fame/vault-x-x-card.png" style="max-width: 100%; border-radius: 8px;" alt="Ali Asghar">
-                            <p class="friend-caption">cs2 buddy</p>
-                        </div>
+                <div id="statusCard" class="status-card paper" data-status="unavailable">
+                    <span class="label">status report</span>
+                    <p class="status-line" style="margin: 0"><span class="status-dot" aria-hidden="true"></span><b id="statusText">checking…</b><span id="customStatus" class="custom-status" hidden></span></p>
+                    <div id="game" class="game" hidden>
+                        <span id="gameIcon" class="game-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12a4 4 0 0 1 4 4v1a3 3 0 0 1-5.4 1.8L15 13H9l-1.6 1.8A3 3 0 0 1 2 13v-1a4 4 0 0 1 4-4zM7 10.5v3M5.5 12h3M16 11h.01M18 13h.01"/></svg></span>
+                        <span class="game-copy">
+                            <span class="label" style="font-size: 11px; letter-spacing: 1px">playing</span>
+                            <b id="gameName"></b>
+                            <span id="gameDetail" class="small"></span>
+                        </span>
                     </div>
-                    <div class="glow-card tiltable friend-card" data-portrait-id="assets/hall_of_fame/hof_aug22_2.png" tabindex="0">
-                        <div class="glow-content friend-content">
-                            <img src="assets/hall_of_fame/phishgoesblub-card.png" style="max-width: 100%; border-radius: 8px;" alt="phishgoesblub">
-                            <p class="friend-caption">has witnessed too much</p>
-                        </div>
-                    </div>
-                    <div class="glow-card tiltable friend-card" data-portrait-id="assets/hall_of_fame/hof_aug22_3.png" tabindex="0">
-                        <div class="glow-content friend-content">
-                            <img src="assets/hall_of_fame/kaz-card.png" style="max-width: 100%; border-radius: 8px;" alt="kazoch">
-                            <p class="friend-caption">OG homie ong</p>
-                        </div>
-                    </div>
-                    <div class="glow-card tiltable friend-card lore-card vault-card" data-lore-id="biscuits-tea" data-portrait-id="assets/hall_of_fame/hof_aug23_1.png" tabindex="0" role="button" aria-expanded="false" aria-label="Evrin — cookies and tea addict. Click five times to open the biscuit vault.">
-                        <div class="vault-room" aria-hidden="true">
-                            <span class="vault-label">biscuit reserves</span>
-                            <div class="vault-biscuits"><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span></div>
-                            <span class="vault-label">hands off.</span>
-                        </div>
-                        <div class="glow-content friend-content">
-                            <img src="assets/hall_of_fame/evrin-card.png" style="max-width: 100%; border-radius: 8px;" alt="Evrin">
-                            <p class="friend-caption">cookies and tea addict</p>
-                            <span class="vault-wheel" aria-hidden="true"></span>
-                        </div>
-                    </div>
-                    <div class="glow-card tiltable friend-card aura-card" data-portrait-id="assets/hall_of_fame/hof_aug23_2.png" tabindex="0" role="button" aria-label="waqarbadqar — W wingman. Click for aura.">
-                        <div class="glow-content friend-content">
-                            <img src="assets/hall_of_fame/waqarbadqar-card.png" style="max-width: 100%; border-radius: 8px;" alt="waqarbadqar">
-                            <p class="friend-caption">W wingman</p>
-                        </div>
-                    </div>
-                    <div class="glow-card tiltable friend-card" data-portrait-id="assets/hall_of_fame/hof_aug23_3.png" tabindex="0">
-                        <div class="glow-content friend-content">
-                            <img src="assets/hall_of_fame/mirkohprosh-card.png" style="max-width: 100%; border-radius: 8px;" alt="mirkohprosh">
-                            <p class="friend-caption">top tier dirty jokes</p>
-                        </div>
-                    </div>
-                    <div class="glow-card tiltable friend-card" data-portrait-id="assets/hall_of_fame/hoku-yume.png" tabindex="0">
-                        <div class="glow-content friend-content">
-                            <img src="assets/hall_of_fame/hoku-yume-card.png" style="max-width: 100%; border-radius: 8px;" alt="Hoku Yume">
-                            <p class="friend-caption">night time buddy</p>
-                        </div>
-                    </div>
-                    <div class="glow-card tiltable friend-card" data-portrait-id="assets/hall_of_fame/ali-usman.png" tabindex="0">
-                        <div class="glow-content friend-content">
-                            <img src="assets/hall_of_fame/ali-usman-card.png" style="max-width: 100%; border-radius: 8px;" alt="Ali Usman">
-                            <p class="friend-caption">hehe, gud friend &lt;3</p>
-                        </div>
-                    </div>
+                    <p id="localTime" class="local-time"></p>
                 </div>
             </div>
         </section>
 
-        <section class="card section fade-up" id="games">
-            <div class="card-content">
-                <div class="section-header">
-                    <h2 class="mono-label glitch-text" data-text="[games]">[games]</h2>
-                    <a href="games/index.html" class="mono-label card-link">[visit arcade →]</a>
+        <section id="postcards" aria-labelledby="postcardsTitle" style="display: flex; flex-direction: column; gap: 30px">
+            <div class="section-head">
+                <div>
+                    <h2 id="postcardsTitle" class="h2">postcards from visitors</h2>
                 </div>
-                <div class="glow-card tiltable" onclick="window.location.href='games/index.html'" style="cursor: pointer;">
-                    <div class="glow-content">
-                        <div class="section-header games-heading" style="margin-bottom: 5px;">
-                            <h3 style="margin-bottom: 0;">things i made instead of being productive</h3>
-                            <span class="mono-label">7 games</span>
-                        </div>
-                        <p>chess, wordle, typing tests and several other excellent uses of electricity.</p>
-                    </div>
+                <a class="btn btn-yellow" href="notes.html#write">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4-1L19 8l-3-3L5 16z"/></svg>
+                    write one
+                </a>
+            </div>
+            <div class="paper postmark-picker">
+                <span class="hand" id="postmarkLabel" style="font-size: 26px">pick your postmark:</span>
+                <div id="postmarkPicker" class="badge-options" role="radiogroup" aria-labelledby="postmarkLabel"></div>
+                <span class="mono muted" style="font-size: 13px">it shows on your postcard next to your name</span>
+            </div>
+            <div id="homePostcards" class="postcard-grid" aria-busy="true" aria-live="polite">
+                <div class="postcard is-loading" aria-hidden="true"></div>
+                <div class="postcard is-loading" aria-hidden="true"></div>
+                <div class="postcard is-loading" aria-hidden="true"></div>
+            </div>
+            <p id="homePostcardsStatus" class="wall-status" hidden></p>
+            <a href="notes.html" class="hand" style="font-size: 26px; align-self: flex-start">see the whole wall →</a>
+        </section>
+
+        <section id="friends" aria-labelledby="friendsTitle" style="display: flex; flex-direction: column; gap: 34px">
+            <div class="section-head">
+                <div>
+                    <h2 id="friendsTitle" class="h2">the hall of fame</h2>
+                    <span class="hand muted" style="font-size: 26px">somehow these people still talk to me</span>
                 </div>
             </div>
+            <ul class="friends-grid" style="list-style: none; margin: 0; padding: 0">
+                <li><a class="polaroid friend" href="https://www.instagram.com/novaxzenith1/" style="--tilt: -2deg" aria-label="Ali Asghar on Instagram"><span class="tape" aria-hidden="true"></span><span class="friend-photo" style="--c: var(--stamp-blue)" aria-hidden="true">A<img src="assets/friends/ali-asghar.png" alt="" loading="lazy"></span><span class="friend-name">Ali Asghar</span><span class="friend-caption">cs2 buddy</span></a></li>
+                <li><a class="polaroid friend" href="https://www.instagram.com/hashir_.mehh/" style="--tilt: 1.5deg" aria-label="Hashir Pookie on Instagram"><span class="tape" aria-hidden="true"></span><span class="friend-photo" style="--c: var(--accent)" aria-hidden="true">H<img src="assets/friends/hashir-pookie.png" alt="" loading="lazy"></span><span class="friend-name">Hashir Pookie</span><span class="friend-caption">has witnessed too much</span></a></li>
+                <li><a class="polaroid friend" href="https://discord.com/users/1477881499901624482" style="--tilt: -1deg" aria-label="Awais Zahid on Discord"><span class="tape" aria-hidden="true"></span><span class="friend-photo" style="--c: var(--stamp-green)" aria-hidden="true">A<img src="assets/friends/awais-zahid.png" alt="" loading="lazy"></span><span class="friend-name">Awais Zahid</span><span class="friend-caption">OG homie ong</span></a></li>
+                <li><a class="polaroid friend" href="https://www.instagram.com/evrin_91/" style="--tilt: 2.5deg" aria-label="Evrin on Instagram"><span class="tape" aria-hidden="true"></span><span class="friend-photo" style="--c: #8a4fd8" aria-hidden="true">E<img src="assets/friends/evrin.png" alt="" loading="lazy"></span><span class="friend-name">Evrin</span><span class="friend-caption">cookies and tea addict</span></a></li>
+                <li><a class="polaroid friend" href="https://www.instagram.com/waqarbadqar/" style="--tilt: 1deg" aria-label="Waqar Haider on Instagram"><span class="tape" aria-hidden="true"></span><span class="friend-photo" style="--c: var(--stamp-yellow)" aria-hidden="true">W<img src="assets/friends/waqar-haider.png" alt="" loading="lazy"></span><span class="friend-name">Waqar Haider</span><span class="friend-caption">W wingman</span></a></li>
+                <li><a class="polaroid friend" href="https://discord.com/users/1082892492111892581" style="--tilt: -2.5deg" aria-label="kohprosh on Discord"><span class="tape" aria-hidden="true"></span><span class="friend-photo" style="--c: var(--stamp-blue)" aria-hidden="true">K<img src="assets/friends/kohprosh.png" alt="" loading="lazy"></span><span class="friend-name">kohprosh</span><span class="friend-caption">top tier dirty jokes</span></a></li>
+                <li><a class="polaroid friend" href="https://www.instagram.com/hokuyume/" style="--tilt: 2deg" aria-label="Hoku Yume on Instagram"><span class="tape" aria-hidden="true"></span><span class="friend-photo" style="--c: var(--accent)" aria-hidden="true">H<img src="assets/friends/hoku-yume.png" alt="" loading="lazy"></span><span class="friend-name">Hoku Yume</span><span class="friend-caption">night time buddy</span></a></li>
+                <li><a class="polaroid friend" href="https://www.instagram.com/sehazard/" style="--tilt: -1.5deg" aria-label="Ali Usman on Instagram"><span class="tape" aria-hidden="true"></span><span class="friend-photo" style="--c: var(--stamp-green)" aria-hidden="true">A<img src="assets/friends/ali-usman.png" alt="" loading="lazy"></span><span class="friend-name">Ali Usman</span><span class="friend-caption">hehe, gud friend &lt;3</span></a></li>
+                <li><a class="polaroid friend" href="https://www.instagram.com/snowyversatile/" style="--tilt: 1.8deg" aria-label="snowy on Instagram"><span class="tape" aria-hidden="true"></span><span class="friend-photo" style="--c: #8a4fd8" aria-hidden="true">S<img src="assets/friends/snowy.png" alt="" loading="lazy"></span><span class="friend-name">snowy</span><span class="friend-caption">the newest recruit</span></a></li>
+                <li><a class="polaroid friend" href="https://www.instagram.com/aryankubdani/" style="--tilt: -2deg" aria-label="Aryan on Instagram"><span class="tape" aria-hidden="true"></span><span class="friend-photo" style="--c: var(--stamp-blue)" aria-hidden="true">A<img src="assets/friends/aryan.png" alt="" loading="lazy"></span><span class="friend-name">Aryan</span><span class="friend-caption">the other newest recruit</span></a></li>
+            </ul>
         </section>
-        <section class="card section fade-up" id="hall-of-gay" style="position: relative;">
-            <div class="card-content">
-                <div class="section-header">
-                    <h2 class="mono-label glitch-text" data-text="[hall of gay]">[hall of gay]</h2>
-                </div>
-                <p class="bio-text" style="margin-bottom: 30px;">The hall of fame's sister wing. Same rules apply: you earn your spot here, but for completely different reasons.</p>
-                <div class="projects-grid hall-of-fame-grid">
-                    <div class="glow-card tiltable friend-card" tabindex="0">
-                        <div class="glow-content friend-content">
-                            <img src="assets/hall_of_fame/sardar-smk-card.png" style="max-width: 100%; border-radius: 8px;" alt="sardarsmk">
-                            <p class="friend-caption">once this guy held me at knifepoint and told me to drop my pants, extremely normal individual</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section class="card section fade-up" id="contact">
-            <div class="card-content">
-                <div class="section-header">
-                    <h2 class="mono-label glitch-text" data-text="[ways to bother me]">[ways to bother me]</h2>
-                    <div class="peak-doodle" id="peakDoodle" role="img" aria-label="A handwritten peak website doodle">
-                        <svg viewBox="0 0 240 78" aria-hidden="true">
-                            <text class="peak-ink peak-word" x="8" y="34">peak</text>
-                            <text class="peak-ink website-word" x="52" y="62">website</text>
-                        </svg>
-                    </div>
-                </div>
-                <div class="projects-grid">
-                    <div class="glow-card tiltable contact-flex" onclick="copyEmail(this)" style="cursor: pointer; grid-column: 1 / -1;">
-                        <div class="glow-content flex-contents" style="display: flex; justify-content: space-between; align-items: center;">
-                            <div style="display: flex; align-items: center;">
-                                <span class="mono-label list-label">email</span>
-                                <span style="display: flex; flex-direction: column; align-items: flex-start;">
-                                    <span class="contact-handle">kx.zaper@gmail.com</span>
-                                    <span class="email-joke" style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 2px;">(made this email years ago, pls don't judge)</span>
-                                </span>
-                            </div>
-                            <span class="mono-label copy-status" style="color: var(--text-primary); opacity: 0; transition: opacity 0.3s; margin: 0;">[copied!]</span>
-                        </div>
-                    </div>
-                    <a href="https://github.com/pixelatedxp" target="_blank" class="glow-card tiltable contact-flex">
-                        <div class="glow-content flex-contents">
-                            <span class="mono-label list-label">github</span>
-                            <span class="contact-handle">@pixelatedxp</span>
-                        </div>
-                    </a>
-                    <a href="https://discord.com/users/1009828837141528696" target="_blank" class="glow-card tiltable contact-flex">
-                        <div class="glow-content flex-contents">
-                            <span class="mono-label list-label">discord</span>
-                            <span class="contact-handle">@pixel</span>
-                        </div>
-                    </a>
-                    <a href="https://github.com/pixelatedxp/my-website" target="_blank" class="glow-card tiltable contact-flex" style="grid-column: 1 / -1;">
-                        <div class="glow-content flex-contents" style="display: flex; justify-content: space-between; align-items: center;">
-                            <div style="display: flex; align-items: center;">
-                                <span class="mono-label list-label">source</span>
-                                <span class="contact-handle">pixelis.dev source is on GitHub</span>
-                            </div>
-                            <span class="mono-label card-link" style="color: var(--accent-teal); margin: 0;">[view repo →]</span>
-                        </div>
-                    </a>
-                </div>
+
+        <section class="split" aria-label="Around the site and contact">
+            <nav class="toc paper" aria-labelledby="tocTitle">
+                <h2 id="tocTitle" class="h2">table of contents</h2>
+                <a href="games/index.html"><b>the arcade</b><span class="mono">7 games, mostly chess losses … p.02</span></a>
+                <a href="notes.html"><b>the postcard wall</b><span class="mono">notes + doodles … p.03</span></a>
+                <a href="legacy/index.html"><b>the old site</b><span class="mono">everything from before … p.04</span></a>
+                <a href="#friends"><b>friends</b><span class="mono">the hall of fame ↑</span></a>
+                <a href="#now"><b>soundtrack</b><span class="mono">what's on repeat ↑</span></a>
+                <a href="https://github.com/pixelatedxp/my-website"><b>source</b><span class="mono">it's on GitHub ↗</span></a>
+            </nav>
+            <div class="contact">
+                <h2 class="h2">ways to bother me</h2>
+                <a class="btn" href="mailto:kx.zaper@gmail.com" data-copy="kx.zaper@gmail.com" aria-describedby="emailCopied"><span class="mono">EMAIL</span>kx.zaper@gmail.com</a>
+                <a class="btn" href="https://github.com/pixelatedxp"><span class="mono">GITHUB</span>@pixelatedxp</a>
+                <a class="btn" href="https://discord.com/users/1009828837141528696"><span class="mono">DISCORD</span>@pixelonline</a>
+                <span class="hand muted" style="font-size: 24px">(made the email years ago, please don't judge) <span id="emailCopied" class="copied" role="status"></span></span>
             </div>
         </section>
     </main>
-    <footer class="site-footer">built with poor judgment</footer>
-    <script>
-        (function () {
-            var doodle = document.getElementById('goatDoodle');
-            if (!doodle || !('IntersectionObserver' in window)) return;
-            var observer = new IntersectionObserver(function (entries) {
-                entries.forEach(function (entry) {
-                    if (entry.isIntersecting) {
-                        doodle.classList.add('animate');
-                        observer.disconnect();
-                    }
-                });
-            }, { threshold: 0.5 });
-            observer.observe(doodle);
-        })();
-    </script>
-    <script>
-        (function () {
-            var signature = document.getElementById('masSignature');
-            if (!signature || !('IntersectionObserver' in window) ||
-                window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-            signature.classList.add('signature-pending');
-            var observer = new IntersectionObserver(function (entries) {
-                entries.forEach(function (entry) {
-                    if (entry.isIntersecting) {
-                        signature.classList.add('is-drawn');
-                        observer.disconnect();
-                    }
-                });
-            }, { threshold: 0.25 });
-            observer.observe(signature);
-        })();
-    </script>
-    <script src="music-player.js?v=11" data-autoplay="true"></script>
-    <script src="currently.js?v=7"></script>
-    <script src="script.js?v=12"></script>
-    <script src="cat.js?v=1"></script>
+
+    <footer class="site-footer wrap">
+        <span class="hand">built with poor judgment</span>
+        <a class="mono" href="#main">back to top ↑</a>
+    </footer>
+
+    <script src="notes-config.js?v=1"></script>
+    <script src="postcards.js?v=1"></script>
+    <script src="presence.js?v=1"></script>
+    <script src="home.js?v=4"></script>
 </body>
 </html>
-

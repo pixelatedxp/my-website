@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const source = fs.readFileSync(path.join(__dirname, '../easter-eggs.js'), 'utf8');
+const source = fs.readFileSync(path.join(__dirname, '../legacy/easter-eggs.js'), 'utf8');
 
 // Deterministic browser fixtures let us check active time without waiting 30 minutes.
 function site({ pathname = '/', storage = new Map(), errorPage = false, portraits = false } = {}) {

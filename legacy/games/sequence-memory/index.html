@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sequence Memory - pixelis.dev</title>
+    <meta name="description" content="unfortunately still online.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="pixelis.dev">
+    <meta property="og:title" content="Sequence Memory - pixelis.dev">
+    <meta property="og:description" content="unfortunately still online.">
+    <meta property="og:url" content="https://pixelis.dev/games/sequence-memory/">
+    <meta property="og:image" content="https://pixelis.dev/assets/social-preview.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="pixelis.dev with a small teal dot and the tagline unfortunately still online. on a dark background">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Sequence Memory - pixelis.dev">
+    <meta name="twitter:description" content="unfortunately still online.">
+    <meta name="twitter:image" content="https://pixelis.dev/assets/social-preview.png">
+    <meta name="twitter:image:alt" content="pixelis.dev with a small teal dot and the tagline unfortunately still online. on a dark background">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../../assets/favicon.png">
+    <link rel="stylesheet" href="../../styles.css?v=10">
+    <style>
+        * { cursor: none !important; }
+        html, body { height: 100%; overflow: hidden; }
+        body { display: flex; flex-direction: column; }
+        .navbar { display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 0 40px !important; flex-shrink: 0; width: 100%; box-sizing: border-box; }
+        .game-area { flex: 1; display: flex; align-items: center; justify-content: center; gap: 60px; padding: 20px; overflow: hidden; }
+        .game-center { display: flex; flex-direction: column; align-items: center; gap: 28px; }
+        .grid { display: grid; grid-template-columns: repeat(3, 120px); grid-template-rows: repeat(3, 120px); gap: 14px; }
+        .tile { border-radius: 14px; background: #1e1e1e; border: 1px solid rgba(255,255,255,0.07); cursor: pointer; transition: background 0.15s, transform 0.1s; user-select: none; }
+        .tile:hover { background: #2a2a2a; }
+        .tile.lit   { background: #6c5ce7 !important; transform: scale(0.95); box-shadow: 0 0 30px rgba(108,92,231,0.6); }
+        .tile.wrong { background: #c0392b !important; }
+        .tile.clicked { background: #3d9970 !important; transform: scale(0.93); }
+        .info-panel { display: flex; flex-direction: column; gap: 26px; width: 200px; font-family: 'Share Tech Mono', monospace; }
+        .stat-label-sm { font-size: 0.75rem; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.08em; }
+        .stat-val { font-size: 2.2rem; color: #fff; line-height: 1; }
+        #statusMsg { font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; color: rgba(255,255,255,0.5); text-align: center; }
+        .btn-start { padding: 12px 32px; background: #6c5ce7; border: none; color: #fff; border-radius: 8px; cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; font-weight: bold; }
+        .btn-start:hover { background: #7d6ff0; }
+        #results { display: none; position: fixed; inset: 0; background: rgba(8,8,12,0.72); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); flex-direction: column; align-items: center; justify-content: center; gap: 28px; font-family: 'Share Tech Mono', monospace; color: #fff; z-index: 10; }
+        #results.visible { display: flex; }
+        #results h2 { font-size: 2rem; margin: 0; opacity: 0; transform: translateY(18px); }
+        .vs-grid { display: grid; grid-template-columns: repeat(2, 180px); gap: 20px; text-align: center; }
+        .vs-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); padding: 20px; opacity: 0; transform: translateY(22px) scale(0.97); }
+        .vs-card.winner { border-color: #6c5ce7; box-shadow: 0 0 34px rgba(108,92,231,0.25); }
+        #results.visible h2, #results.visible .vs-card, #results.visible .btn-retry, #results.visible #rMsg { animation: cardIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        #results.visible .vs-card:nth-child(2) { animation-delay: 0.13s; }
+        #results.visible .vs-card:nth-child(3) { animation-delay: 0.26s; }
+        #results.visible #rMsg { animation-delay: 0.38s; }
+        #results.visible .btn-retry { animation-delay: 0.48s; }
+        @keyframes cardIn { to { opacity: 1; transform: translateY(0) scale(1); } }
+        #results #rMsg { opacity: 0; transform: translateY(18px); }
+        .vs-card .name { font-size: 0.8rem; color: #888; margin-bottom: 8px; }
+        .vs-card .big { font-size: 2.2rem; color: #fff; }
+        .vs-card .sub { font-size: 0.75rem; color: #666; margin-top: 4px; }
+        .btn-retry { padding: 12px 32px; background: #6c5ce7; border: none; color: #fff; border-radius: 8px; cursor: none; font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; font-weight: bold; opacity: 0; transform: translateY(18px); }
+        .results-duo { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; align-items: start; max-width: 700px; }
+        .results-duo .span-graph-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); padding: 20px; opacity: 0; transform: translateY(22px) scale(0.97); text-align: left; }
+        #spanGraph { display: block; height: 280px; width: 100%; }
+        .results-duo .about-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); padding: 20px; opacity: 0; transform: translateY(22px) scale(0.97); font-size: 0.85rem; color: rgba(255,255,255,0.65); line-height: 1.65; text-align: left; }
+        .results-duo .about-card .about-title { margin-bottom: 10px; }
+        .results-duo .about-card p { margin: 0 0 12px; }
+        .results-duo .about-card p:last-child { margin-bottom: 0; }
+        #results.visible .results-duo .span-graph-card, #results.visible .results-duo .about-card { animation: cardIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.38s; }
+        @media (max-width: 700px) { .results-duo { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body class="dark-mode">
+    <a href="../../../index.html" class="legacy-return" style="position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); white-space: nowrap; z-index: 99999; display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; background: #ffe066; color: #1f2a44; border: 2px solid #1f2a44; box-shadow: 3px 3px 0 #1f2a44; font: 700 14px/1.2 system-ui, sans-serif; text-decoration: none;">you're on the legacy site · back to the new one →</a>
+    <div class="cursor-trail">
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+        <div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div>
+    </div>
+    <div class="vignette"></div>
+    <canvas id="snowfall"></canvas>
+    <header class="navbar fade-up-initial">
+        <a href="../../index.html" class="brand">pixelis.dev</a>
+        <nav class="nav-links">
+            <a href="../index.html" class="nav-item active">Games</a>
+            <a href="../../notes.html" class="nav-item">Notes</a>
+            <button class="snow-toggle" id="snowToggle" aria-label="Toggle snowfall" title="Toggle snowfall">
+                <svg viewBox="0 0 24 24" fill="none" class="snow-icon" id="snowIcon">
+                    <path d="M12 2v4m0 12v4M4 12H2m20 0h-2M5.64 5.64l2.83 2.83m7.07 7.07l2.83 2.83M5.64 18.36l2.83-2.83m7.07-7.07l2.83-2.83M12 8a4 4 0 100 8 4 4 0 000-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <svg viewBox="0 0 24 24" fill="none" class="theme-icon" id="themeIcon">
+                </svg>
+            </button>
+        </nav>
+    </header>
+
+    <div id="results">
+        <h2>[results]</h2>
+        <div class="vs-grid">
+            <div class="vs-card" id="rYou"><div class="name">You</div><div class="big" id="rYouVal">-</div><div class="sub">level reached</div></div>
+            <div class="vs-card" id="rPixel"><div class="name">Pixel</div><div class="big">12</div><div class="sub">personal best</div></div>
+        </div>
+        <div id="rMsg" style="font-family:'Share Tech Mono',monospace; font-size:0.9rem; color:#888;"></div>
+        <div class="results-duo">
+            <div class="span-graph-card">
+                <span class="mono-label" style="display:block; margin-bottom:12px;" data-text="[statistics]">[statistics]</span>
+                <canvas id="spanGraph"></canvas>
+            </div>
+            <div class="about-card">
+                <span class="mono-label about-title" data-text="[about the test]">[about the test]</span>
+                <p>Memorize the sequence of buttons that light up, then press them in order.</p>
+                <p>Every time you finish the pattern, it gets longer.</p>
+                <p>Make a mistake, and the test is over.</p>
+            </div>
+        </div>
+        <button class="btn-retry" onclick="resetGame()">Play Again</button>
+    </div>
+
+    <div class="game-area">
+        <div class="game-center">
+            <div class="grid" id="grid"></div>
+            <div id="statusMsg">Press Start to play</div>
+            <button class="btn-start" id="startBtn" onclick="startGame()">Start Game</button>
+        </div>
+        <div class="info-panel">
+            <div><div class="stat-label-sm">Your Level</div><div class="stat-val" style="color:#6c5ce7" id="yourLevel">0</div></div>
+            <div><div class="stat-label-sm">Round</div><div class="stat-val" id="roundDisplay">-</div></div>
+            <div><div class="stat-label-sm">Pixel's Best</div><div class="stat-val" style="color:#e67e22">12</div></div>
+        </div>
+    </div>
+
+    <script src="../../script.js?v=9"></script>
+    <script>
+        const GRID_SIZE = 9;
+        let sequence = [], playerInput = [], level = 0, playerTurn = false, blocked = false;
+        const grid = document.getElementById('grid');
+        for (let i = 0; i < GRID_SIZE; i++) {
+            const t = document.createElement('div');
+            t.className = 'tile';
+            t.dataset.idx = i;
+            t.addEventListener('click', () => onTileClick(i));
+            grid.appendChild(t);
+        }
+        function getTile(i) { return grid.children[i]; }
+        function flashTile(i, dur=400) {
+            return new Promise(res => {
+                getTile(i).classList.add('lit');
+                setTimeout(() => { getTile(i).classList.remove('lit'); res(); }, dur);
+            });
+        }
+        async function playSequence() {
+            playerTurn = false;
+            setStatus('Watch carefully...');
+            await sleep(600);
+            for (const idx of sequence) { await flashTile(idx, 450); await sleep(200); }
+            playerTurn = true; playerInput = [];
+            setStatus(`Your turn: ${sequence.length} tile${sequence.length>1?'s':''}`);
+        }
+        function addToSequence() {
+            sequence.push(Math.floor(Math.random() * GRID_SIZE));
+            level++;
+            document.getElementById('yourLevel').textContent = level - 1;
+            document.getElementById('roundDisplay').textContent = 'Level ' + level;
+        }
+        async function startGame() {
+            document.getElementById('startBtn').style.display = 'none';
+            sequence = []; level = 0; playerInput = [];
+            document.getElementById('yourLevel').textContent = 0;
+            addToSequence();
+            await playSequence();
+        }
+        async function onTileClick(idx) {
+            if (!playerTurn || blocked) return;
+            getTile(idx).classList.add('clicked');
+            setTimeout(() => getTile(idx).classList.remove('clicked'), 200);
+            playerInput.push(idx);
+            const pos = playerInput.length - 1;
+            if (playerInput[pos] !== sequence[pos]) {
+                blocked = true; playerTurn = false;
+                getTile(idx).classList.add('wrong');
+                setTimeout(() => getTile(idx).classList.remove('wrong'), 500);
+                await sleep(600);
+                showResults(level - 1);
+                return;
+            }
+            if (playerInput.length === sequence.length) {
+                playerTurn = false;
+                setStatus('Correct! +1');
+                document.getElementById('yourLevel').textContent = level;
+                await sleep(700);
+                addToSequence();
+                await playSequence();
+                blocked = false;
+            }
+        }
+        function showResults(reached) {
+            document.getElementById('rYouVal').textContent = reached;
+            document.getElementById('rMsg').textContent = reached > 12 ? "You beat Pixel! Impressive." : reached === 12 ? "Tied with Pixel." : "Practice more to beat Pixel's 12.";
+            const best = Math.max(reached, 12);
+            document.getElementById('rYou').classList.toggle('winner', reached >= best && reached > 0);
+            document.getElementById('rPixel').classList.toggle('winner', 12 >= best);
+            document.getElementById('results').classList.add('visible');
+            drawSpanGraph(reached);
+        }
+        function drawSpanGraph(youLevel) {
+            const MAXLVL = 29;
+            
+            const norm = [];
+            for (let i = 0; i <= MAXLVL; i++) {
+                let w = Math.exp(-Math.pow(i - 8, 2) / (2 * 3.5 * 3.5));
+                if (i > 12) w *= Math.exp(-(i - 12) * 0.15);
+                norm.push(w);
+            }
+            const maxVal = Math.max(...norm);
+
+            const cv = document.getElementById('spanGraph');
+            if (!cv) return;
+            const cs = getComputedStyle(cv.parentElement);
+            const cssW = Math.max(200, Math.round(
+                cv.parentElement.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
+            ));
+            const dpr = window.devicePixelRatio || 1;
+            const cssH = 280;
+            cv.style.width = cssW + 'px';
+            cv.style.height = cssH + 'px';
+            cv.width = Math.round(cssW * dpr);
+            cv.height = Math.round(cssH * dpr);
+            const g = cv.getContext('2d');
+            g.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            const padL = 36, padR = 12, padT = 60, padB = 28;
+            const plotW = cssW - padL - padR, plotH = cssH - padT - padB;
+            const step = plotW / (MAXLVL + 1);
+
+            const start = performance.now();
+            function frame(now) {
+                const t = Math.min(1, (now - start) / 850);
+                const ease = 1 - Math.pow(1 - t, 3);
+                g.clearRect(0, 0, cssW, cssH);
+
+                g.strokeStyle = 'rgba(255,255,255,0.07)';
+                g.fillStyle = 'rgba(255,255,255,0.35)';
+                g.font = '9px Share Tech Mono';
+                g.textAlign = 'right';
+                g.textBaseline = 'middle';
+                for (let gy = 0; gy <= 4; gy++) {
+                    const y = padT + plotH - (plotH * gy / 4);
+                    g.beginPath();
+                    g.moveTo(padL, Math.round(y) + 0.5);
+                    g.lineTo(padL + plotW, Math.round(y) + 0.5);
+                    g.stroke();
+                }
+                g.textBaseline = 'alphabetic';
+
+                
+                g.beginPath();
+                g.moveTo(padL, padT + plotH);
+                norm.forEach((val, i) => {
+                    const x = padL + i * step + step / 2;
+                    const y = padT + plotH - (val / maxVal) * plotH * ease;
+                    if (i === 0) g.lineTo(x, y);
+                    else {
+                        const prevX = padL + (i - 1) * step + step / 2;
+                        const prevY = padT + plotH - (norm[i - 1] / maxVal) * plotH * ease;
+                        const cpX = (prevX + x) / 2;
+                        g.bezierCurveTo(cpX, prevY, cpX, y, x, y);
+                    }
+                });
+                g.lineTo(padL + plotW, padT + plotH);
+                g.closePath();
+                g.fillStyle = 'rgba(108,92,231,0.18)';
+                g.fill();
+
+                
+                g.beginPath();
+                norm.forEach((val, i) => {
+                    const x = padL + i * step + step / 2;
+                    const y = padT + plotH - (val / maxVal) * plotH * ease;
+                    if (i === 0) g.moveTo(x, y);
+                    else {
+                        const prevX = padL + (i - 1) * step + step / 2;
+                        const prevY = padT + plotH - (norm[i - 1] / maxVal) * plotH * ease;
+                        const cpX = (prevX + x) / 2;
+                        g.bezierCurveTo(cpX, prevY, cpX, y, x, y);
+                    }
+                });
+                g.strokeStyle = '#6c5ce7';
+                g.lineWidth = 2;
+                g.stroke();
+
+                
+                g.strokeStyle = 'rgba(255,255,255,0.18)';
+                g.lineWidth = 1;
+                g.beginPath();
+                g.moveTo(padL, padT + plotH + 0.5);
+                g.lineTo(padL + plotW, padT + plotH + 0.5);
+                g.stroke();
+
+                
+                const pixelLevel = 12;
+                const ux = padL + Math.min(youLevel, MAXLVL) * step + step / 2;
+                const px = padL + Math.min(pixelLevel, MAXLVL) * step + step / 2;
+
+                
+                const markersClose = Math.abs(ux - px) < 60;
+                const youLabelY = markersClose ? padT - 42 : padT - 28;
+                const pixelLabelY = markersClose ? padT + 18 : padT - 12;
+
+                
+                g.strokeStyle = '#3d9970';
+                g.lineWidth = 1.5;
+                g.setLineDash([3, 3]);
+                g.beginPath();
+                g.moveTo(Math.round(ux) + 0.5, youLabelY + 5);
+                g.lineTo(Math.round(ux) + 0.5, padT + plotH);
+                g.stroke();
+                g.setLineDash([]);
+
+                
+                const label = 'YOU ' + youLevel;
+                g.font = 'bold 11px Share Tech Mono';
+                const tw = g.measureText(label).width;
+                let lx = ux - tw / 2;
+                lx = Math.min(Math.max(lx, padL), padL + plotW - tw);
+                g.fillStyle = 'rgba(10,20,15,0.85)';
+                g.fillRect(lx - 6, youLabelY - 12, tw + 12, 17);
+                g.strokeStyle = '#3d9970';
+                g.strokeRect(lx - 6.5, youLabelY - 12.5, tw + 13, 18);
+                g.fillStyle = '#3d9970';
+                g.textAlign = 'left';
+                g.fillText(label, lx, youLabelY);
+
+                
+                g.strokeStyle = 'rgba(230,126,34,0.85)';
+                g.lineWidth = 1;
+                g.setLineDash([2, 4]);
+                g.beginPath();
+                g.moveTo(Math.round(px) + 0.5, pixelLabelY + 5);
+                g.lineTo(Math.round(px) + 0.5, padT + plotH);
+                g.stroke();
+                g.setLineDash([]);
+
+                
+                g.font = '10px Share Tech Mono';
+                const ptw = g.measureText('pixel').width;
+                let plx = px - ptw / 2;
+                plx = Math.min(Math.max(plx, padL), padL + plotW - ptw);
+                g.fillStyle = 'rgba(10,20,15,0.85)';
+                g.fillRect(plx - 6, pixelLabelY - 11, ptw + 12, 16);
+                g.strokeStyle = 'rgba(230,126,34,0.85)';
+                g.strokeRect(plx - 6.5, pixelLabelY - 11.5, ptw + 13, 17);
+                g.fillStyle = 'rgba(230,126,34,0.95)';
+                g.textAlign = 'center';
+                g.fillText('pixel', plx + ptw / 2, pixelLabelY);
+
+                
+                g.fillStyle = 'rgba(255,255,255,0.4)';
+                g.font = '9px Share Tech Mono';
+                g.textAlign = 'center';
+                const tickStep = cssW < 400 ? 5 : (cssW < 550 ? 2 : 1);
+                for (let lv = 0; lv <= MAXLVL; lv += tickStep) {
+                    g.fillText(String(lv), padL + lv * step + step / 2, cssH - 9);
+                }
+
+                if (t < 1) requestAnimationFrame(frame);
+            }
+            requestAnimationFrame(frame);
+        }
+
+        function resetGame() {
+            document.getElementById('results').classList.remove('visible');
+            document.getElementById('startBtn').style.display = 'inline-block';
+            sequence = []; level = 0; playerInput = []; playerTurn = false; blocked = false;
+            document.getElementById('yourLevel').textContent = 0;
+            document.getElementById('roundDisplay').textContent = '-';
+            setStatus('Press Start to play');
+        }
+        function setStatus(msg) { document.getElementById('statusMsg').textContent = msg; }
+        function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+    </script>
+    <script src="../../music-player.js?v=11"></script>
+</body>
+</html>

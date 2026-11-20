@@ -159,3 +159,17 @@ test('approved notes paginate without exposing private records or delivery metad
   assert.equal(second.notes.length, 2); assert.equal(second.nextCursor, null);
   assert.equal(new Set([...first.notes, ...second.notes].map(n => n.id)).size, 26);
 });
+
+test('postmark badges are optional, validated, shown to the moderator, and returned once approved', async t => {
+  assert.equal(validateNote(valid()).badge, null);
+  assert.equal(validateNote({ ...valid(), badge: 'cat' }).badge, 'cat');
+  assert.throws(() => validateNote({ ...valid(), badge: 'dragon' }), /postmark/);
+  assert.throws(() => validateNote({ ...valid(), badge: '<b>' }), /postmark/);
+  const f = fixture(t); const input = { ...valid(), badge: 'ghost' };
+  assert.equal((await worker.fetch(f.request(input), f.env, f.ctx)).status, 202); await f.drain();
+  const payload = JSON.parse(f.sent[0].body.get('payload_json'));
+  assert.deepEqual(payload.embeds[0].fields.find(field => field.name === 'Postmark'), { name: 'Postmark', value: 'ghost', inline: true });
+  await applyDecision(f.env, input.id, 'approve', '999');
+  const result = await (await worker.fetch(new Request('https://notes.example/api/notes'), f.env, f.ctx)).json();
+  assert.equal(result.notes[0].badge, 'ghost');
+});
