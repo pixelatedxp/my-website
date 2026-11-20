@@ -385,6 +385,7 @@
             return;
         }
         var path = window.location.pathname.replace(/\/index\.html$/, '/');
+        path = path.replace(/^\/legacy(?=\/)/, ''); // the old site now lives under /legacy/
         if (path !== '/' && !/\.[^/]+$/.test(path)) path = path.replace(/\/?$/, '/');
         if (MAIN_PAGES.indexOf(path) === -1) return;
         var visited = loadJson('pixelisMainPagesSeen', {});

@@ -3,10 +3,15 @@
 
     var scriptEl = document.currentScript;
     var autoplay = scriptEl && scriptEl.getAttribute('data-autoplay') === 'true';
-    var segs = window.location.pathname.split('/').filter(Boolean);
-    if (segs.length && /\.html?$/i.test(segs[segs.length - 1])) segs.pop();
+    // Resolve assets next to this script, so the player works wherever the site lives (e.g. /legacy/).
     var prefix = '';
-    for (var i = 0; i < segs.length; i++) prefix += '../';
+    try {
+        prefix = new URL('.', scriptEl.src).href;
+    } catch (e) {
+        var segs = window.location.pathname.split('/').filter(Boolean);
+        if (segs.length && /\.html?$/i.test(segs[segs.length - 1])) segs.pop();
+        for (var i = 0; i < segs.length; i++) prefix += '../';
+    }
 
     var tracks = [
         { title: 'not feeling like shit', file: 'totally-not-feeling-like-shit.m4a', cover: 'thumb.jpg', loop: true },
