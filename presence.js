@@ -191,6 +191,8 @@
             els.statusText.textContent = LABELS[view.status];
             els.custom.textContent = view.custom ? '“' + view.custom + '”' : '';
             els.custom.hidden = !view.custom;
+            var bubble = document.getElementById('statusBubble');
+            if (bubble) { document.getElementById('statusBubbleText').textContent = view.custom || ''; bubble.hidden = !view.custom; }
             // Keep the sharper local copy while the Discord avatar is unchanged; switch only when it changes.
             var knownHash = root.dataset.avatarHash;
             if (view.avatar && els.avatar && els.avatar.dataset.live !== view.avatar && !(knownHash && view.avatar.indexOf('/' + knownHash + '.') !== -1)) {

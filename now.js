@@ -33,6 +33,7 @@
         $('statusCard').dataset.status = view.status;
         $('statusText').textContent = LABELS[view.status];
         $('customStatus').textContent = view.custom ? '“' + view.custom + '”' : ''; $('customStatus').hidden = !view.custom;
+        $('polaroidBubbleText').textContent = view.custom || ''; $('polaroidBubble').hidden = !view.custom;
         $('game').hidden = !view.game;
         if (view.game && !view.game.icon && view.game.applicationId) view.game.icon = await appIcon(view.game.applicationId);
         if (view.game) { $('gameName').textContent = view.game.name; $('gameDetail').textContent = view.game.detail || ''; setImage($('gameIcon'), view.game.icon, gameIcon); }
