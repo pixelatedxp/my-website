@@ -1,5 +1,5 @@
 import { HttpError, UUID, validateNote, validateDoodle, readLimited, discordText, lengthOf } from './validation.mjs';
-import { nowPlaying, topTracks } from './spotify.mjs';
+import { nowPlaying, topTracks, recentlyPlayed, recordPlays, listeningTime, alwaysTracks } from './spotify.mjs';
 import { validateSong, insertSong, sendSong, syncSong, applySongDecision, publicSongs } from './songs.mjs';
 import { readVisits, recordVisit, forgetOldVisitors } from './visits.mjs';
 
@@ -259,6 +259,9 @@ export default {
       }
       else if (url.pathname === '/api/now-playing' && request.method === 'GET') { const result = await nowPlaying(env); response = json(result.body, result.status); }
       else if (url.pathname === '/api/top-tracks' && request.method === 'GET') { const result = await topTracks(env); response = json(result.body, result.status); }
+      else if (url.pathname === '/api/recent' && request.method === 'GET') response = json(await recentlyPlayed(env));
+      else if (url.pathname === '/api/listening-time' && request.method === 'GET') response = json(await listeningTime(env));
+      else if (url.pathname === '/api/always' && request.method === 'GET') response = json(await alwaysTracks(env));
       else if (url.pathname === '/api/songs' && request.method === 'GET') response = json(await publicSongs(env));
       else if (url.pathname === '/api/songs' && request.method === 'POST') {
         if (!origin || !list(env.ALLOWED_ORIGINS).includes(origin)) throw new HttpError(403, 'Please use the music page to send a song.');
@@ -283,6 +286,7 @@ export default {
   },
   async scheduled(event, env, ctx) {
     await forgetOldVisitors(env);
+    await recordPlays(env).catch(error => console.error('Recording plays failed:', error.message));
     if (!env.DISCORD_BOT_TOKEN) return;
     const { results: pending } = await env.DB.prepare("SELECT id FROM notes WHERE status='pending' AND discord_message_id IS NULL AND delivery_after<=? LIMIT 3").bind(now()).all();
     const { results: updates } = await env.DB.prepare('SELECT id FROM notes WHERE sync_needed=1 LIMIT 3').all();

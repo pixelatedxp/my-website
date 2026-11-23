@@ -348,3 +348,44 @@ test('on repeat: top five songs, cached, and a clear flag when the permission is
   assert.equal(result.body.needsPermission, true); assert.deepEqual(result.body.tracks, []);
   assert.deepEqual((await topTracks({})).body, { configured: false, tracks: [] });
 });
+
+test('listening time: plays are recorded once each and totalled for today, this week and this year', async t => {
+  const { recordPlays, listeningTime, periodStarts, resetSpotifyCache } = await import('../src/spotify.mjs');
+  const env = { DB: database(), SPOTIFY_CLIENT_ID: 'id', SPOTIFY_CLIENT_SECRET: 'secret', SPOTIFY_REFRESH_TOKEN: 'refresh' };
+  const now = Date.parse('2026-11-25T12:00:00Z'); // a Wednesday
+  const plays = [
+    ['2026-11-25T11:00:00Z', 180000], ['2026-11-25T10:00:00Z', 240000], // today: 7 min
+    ['2026-11-23T09:00:00Z', 300000],                                    // Monday, same week: 5 min
+    ['2026-03-01T09:00:00Z', 600000],                                    // earlier this year: 10 min
+    ['2025-12-31T23:00:00Z', 600000]                                     // last year
+  ];
+  let afterSeen = [];
+  t.mock.method(globalThis, 'fetch', async url => {
+    url = String(url);
+    if (url.startsWith('https://accounts.spotify.com/')) return Response.json({ access_token: 'token', expires_in: 3600 });
+    afterSeen.push(new URL(url).searchParams.get('after'));
+    return Response.json({ items: plays.map(([at, ms], i) => ({ played_at: at, track: { id: `t${i}`, duration_ms: ms } })) });
+  });
+  resetSpotifyCache();
+  assert.equal(await recordPlays(env), 5);
+  assert.equal(await recordPlays(env), 0); // same plays again are ignored
+  assert.equal(afterSeen[0], null); assert.equal(afterSeen[1], String(Date.parse('2026-11-25T11:00:00Z')));
+  assert.deepEqual(periodStarts(now), { day: Date.parse('2026-11-25T00:00:00Z'), week: Date.parse('2026-11-23T00:00:00Z'), year: Date.parse('2026-01-01T00:00:00Z') });
+  assert.deepEqual(await listeningTime(env, now), { today: 7, week: 12, year: 22, playsThisYear: 4, since: '2025-12-31T23:00:00.000Z' });
+});
+
+test('always list is matched to Spotify for art and links, and the recent list holds five songs', async t => {
+  const { alwaysTracks, recentlyPlayed, resetSpotifyCache, ALWAYS } = await import('../src/spotify.mjs');
+  const env = { SPOTIFY_CLIENT_ID: 'id', SPOTIFY_CLIENT_SECRET: 'secret', SPOTIFY_REFRESH_TOKEN: 'refresh' };
+  t.mock.method(globalThis, 'fetch', async url => {
+    url = String(url);
+    if (url.startsWith('https://accounts.spotify.com/')) return Response.json({ access_token: 'token', expires_in: 3600 });
+    if (url.includes('/search')) return Response.json({ tracks: { items: [{ external_urls: { spotify: 'https://open.spotify.com/track/x' }, album: { images: [{ url: 'https://i.scdn.co/image/a', width: 300 }] } }] } });
+    return Response.json({ items: Array.from({ length: 8 }, (_, i) => ({ played_at: '2026-11-23T10:00:00Z', track: { name: `s${i}`, artists: [{ name: 'a' }] } })) });
+  });
+  resetSpotifyCache();
+  const result = await alwaysTracks(env);
+  assert.equal(result.tracks.length, ALWAYS.length);
+  assert.deepEqual(result.tracks[0], { title: 'Buttercup', artist: 'Jack Stauber', albumArt: 'https://i.scdn.co/image/a', url: 'https://open.spotify.com/track/x' });
+  assert.equal((await recentlyPlayed(env)).tracks.length, 5);
+});

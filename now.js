@@ -14,6 +14,15 @@
         img.addEventListener('error', function () { target.innerHTML = fallback; });
         target.appendChild(img);
     }
+    // Game icon straight from Discord's public app info, when Lanyard gives no image (Roblox, etc).
+    var icons = {};
+    function appIcon(id) {
+        if (!icons[id]) icons[id] = fetch('https://discord.com/api/v10/applications/' + id + '/rpc', { credentials: 'omit', cache: 'force-cache' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (app) { return app && app.id === id && /^(?:a_)?[a-f0-9]{32}$/.test(app.icon) ? P.imageUrl('https://cdn.discordapp.com/app-icons/' + id + '/' + app.icon + '.png?size=128') : ''; })
+            .catch(function () { return ''; });
+        return icons[id];
+    }
     async function refresh() {
         var results = await Promise.allSettled([
             fetch('https://api.lanyard.rest/v1/users/' + USER, { credentials: 'omit', cache: 'no-store' }).then(function (r) { if (!r.ok) throw 0; return r.json(); }),
@@ -25,6 +34,7 @@
         $('statusText').textContent = LABELS[view.status];
         $('customStatus').textContent = view.custom ? '“' + view.custom + '”' : ''; $('customStatus').hidden = !view.custom;
         $('game').hidden = !view.game;
+        if (view.game && !view.game.icon && view.game.applicationId) view.game.icon = await appIcon(view.game.applicationId);
         if (view.game) { $('gameName').textContent = view.game.name; $('gameDetail').textContent = view.game.detail || ''; setImage($('gameIcon'), view.game.icon, gameIcon); }
         var payload = results[1].status === 'fulfilled' ? results[1].value : null;
         var direct = P.directSong(payload, Date.now());

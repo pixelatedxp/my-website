@@ -109,6 +109,65 @@
     }
     loadTop();
 
+    // ---- always: add album art and direct links once Spotify has matched each song
+    async function loadAlways() {
+        if (!base) return;
+        try {
+            var data = await fetch(base + '/api/always', { credentials: 'omit' }).then(function (r) { return r.json(); });
+            (data && Array.isArray(data.tracks) ? data.tracks : []).forEach(function (t, i) {
+                var holder = document.querySelector('[data-always="' + i + '"]');
+                if (!holder) return;
+                if (imageUrl(t.albumArt)) { var img = document.createElement('img'); img.src = imageUrl(t.albumArt); img.alt = ''; img.loading = 'lazy'; img.referrerPolicy = 'no-referrer'; holder.replaceChildren(img); }
+                if (spotifyUrl(t.url)) holder.closest('a').href = spotifyUrl(t.url);
+            });
+        } catch (e) { /* the plain list still works */ }
+    }
+    loadAlways();
+
+    // ---- recently played receipt
+    async function loadRecent() {
+        var list = $('recentTracks'), status = $('recentStatus');
+        if (!base) { status.textContent = 'printer offline.'; list.setAttribute('aria-busy', 'false'); return; }
+        try {
+            var data = await fetch(base + '/api/recent', { credentials: 'omit', cache: 'no-store' }).then(function (r) { return r.json(); });
+            list.replaceChildren();
+            (data && Array.isArray(data.tracks) ? data.tracks : []).slice(0, 5).forEach(function (t) {
+                if (!text(t.title)) return;
+                var li = document.createElement('li');
+                var link = document.createElement(spotifyUrl(t.url) ? 'a' : 'span');
+                if (link.tagName === 'A') { link.href = spotifyUrl(t.url); link.target = '_blank'; link.rel = 'noopener noreferrer'; }
+                var copy = document.createElement('span'); copy.className = 'receipt-copy';
+                var b = document.createElement('b'); b.textContent = text(t.title);
+                var a = document.createElement('span'); a.textContent = text(t.artist);
+                copy.append(b, a);
+                var when = document.createElement('span'); when.className = 'receipt-when mono'; when.textContent = ago(Date.parse(t.playedAt));
+                link.append(copy, when); li.appendChild(link); list.appendChild(li);
+            });
+            status.hidden = list.children.length > 0;
+            status.textContent = 'nothing played lately.';
+        } catch (e) { status.textContent = 'out of paper. try again later.'; }
+        list.setAttribute('aria-busy', 'false');
+    }
+    loadRecent();
+
+    // ---- time listened
+    function hours(minutes) {
+        minutes = Math.max(0, Math.round(Number(minutes) || 0));
+        if (minutes < 60) return minutes + ' min';
+        var h = minutes / 60;
+        return (h < 10 ? h.toFixed(1).replace(/\.0$/, '') : Math.round(h).toLocaleString('en')) + ' h';
+    }
+    async function loadTime() {
+        if (!base) return;
+        try {
+            var data = await fetch(base + '/api/listening-time', { credentials: 'omit', cache: 'no-store' }).then(function (r) { return r.json(); });
+            $('timeToday').textContent = hours(data.today); $('timeWeek').textContent = hours(data.week); $('timeYear').textContent = hours(data.year);
+            var since = Date.parse(data.since);
+            if (Number.isFinite(since)) $('timeNote').textContent = 'counted from spotify every few minutes, since ' + new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short', year: 'numeric' }).format(since).toLowerCase() + '.';
+        } catch (e) { $('timeToday').textContent = $('timeWeek').textContent = $('timeYear').textContent = '?'; }
+    }
+    loadTime();
+
     // ---- songs people sent me
     async function loadSent() {
         var list = $('sentSongs'), status = $('sentStatus');

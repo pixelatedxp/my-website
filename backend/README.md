@@ -90,3 +90,9 @@ Every postcard message in the Discord review channel has a **Reply** button. It 
 - `POST /api/songs` / `GET /api/songs`: "songs people sent me". Visitors send a song (Turnstile action `send-song`, same rate limit as postcards); it arrives in the Discord review channel with **Add to the page** / **Reject**. Only added songs are public.
 
 Apply `migrations/0006_replies_and_songs.sql` before deploying.
+
+## More music data
+
+- `GET /api/recent`: the five most recently played songs (needs `user-read-recently-played`).
+- `GET /api/listening-time`: minutes listened today, this week and this year (UTC). Every scheduled run stores new plays from Spotify in the `plays` table (`migrations/0007_listening_time.sql`), so totals start from when this was first deployed.
+- `GET /api/always`: the all-time favourites (`ALWAYS` in `src/spotify.mjs`), matched to Spotify for album art and links, cached for a day.

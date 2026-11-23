@@ -5,15 +5,15 @@
 
 const TOKEN_URL = 'https://accounts.spotify.com/api/token';
 const PLAYING_URL = 'https://api.spotify.com/v1/me/player/currently-playing?additional_types=track,episode';
-const RECENT_URL = 'https://api.spotify.com/v1/me/player/recently-played?limit=1';
+const RECENT_URL = 'https://api.spotify.com/v1/me/player/recently-played?limit=5';
 const RECENT_MS = 60_000; // the last song changes rarely; ask at most once a minute
 const CACHE_MS = 10_000; // every visitor polls; Spotify is asked at most once per 10 s per Worker instance
 
 let token = null; // { value, expiresAt }
 let cached = null; // { at, body }
-let recent = null; // { at, last }
+let recent = null; // { at, list }
 
-export function resetSpotifyCache() { token = null; cached = null; recent = null; }
+export function resetSpotifyCache() { token = null; cached = null; recent = null; always = null; }
 
 const text = value => (typeof value === 'string' ? value.trim().slice(0, 200) : '');
 
@@ -68,8 +68,11 @@ export function shapePlaying(data) {
 
 // Last finished song, for when nothing is playing. Needs the user-read-recently-played permission;
 // with an older token Spotify answers 401/403 and the card simply stays idle.
-export function shapeRecent(data) {
-  const entry = data?.items?.[0];
+export function shapeRecentList(data) {
+  return (Array.isArray(data?.items) ? data.items : []).map(shapeEntry).filter(Boolean).slice(0, 5);
+}
+export function shapeRecent(data) { return shapeRecentList(data)[0] || null; }
+function shapeEntry(entry) {
   const item = entry?.track;
   if (!item || !text(item.name)) return null;
   const playedAt = Date.parse(entry.played_at);
@@ -82,16 +85,89 @@ export function shapeRecent(data) {
   };
 }
 
-async function lastPlayed(env) {
-  if (recent && Date.now() - recent.at < RECENT_MS) return recent.last;
+async function recentList(env) {
+  if (recent && Date.now() - recent.at < RECENT_MS) return recent.list;
   try {
     const response = await fetch(RECENT_URL, { headers: { Authorization: `Bearer ${await accessToken(env)}` } });
-    const last = response.ok ? shapeRecent(await response.json()) : null;
-    recent = { at: Date.now(), last };
-    return last;
+    const list = response.ok ? shapeRecentList(await response.json()) : [];
+    recent = { at: Date.now(), list };
+    return list;
   } catch (error) {
     console.error('Recently played failed:', error.message);
-    return recent ? recent.last : null;
+    return recent ? recent.list : [];
+  }
+}
+async function lastPlayed(env) { return (await recentList(env))[0] || null; }
+
+// The five most recent plays, for the "recently played" list on the music page.
+export async function recentlyPlayed(env) {
+  if (!env.SPOTIFY_CLIENT_ID || !env.SPOTIFY_CLIENT_SECRET || !env.SPOTIFY_REFRESH_TOKEN) return { configured: false, tracks: [] };
+  return { configured: true, tracks: await recentList(env) };
+}
+
+// ---- listening time
+// Every scheduled run stores new plays from Spotify's recently-played list (up to 50 at a time,
+// so nothing is missed between five-minute runs). Totals start from when tracking began.
+export async function recordPlays(env) {
+  if (!env.SPOTIFY_CLIENT_ID || !env.SPOTIFY_CLIENT_SECRET || !env.SPOTIFY_REFRESH_TOKEN) return 0;
+  const latest = await env.DB.prepare('SELECT MAX(played_at) AS t FROM plays').first();
+  const after = latest?.t ? `&after=${latest.t}` : '';
+  const response = await fetch(`https://api.spotify.com/v1/me/player/recently-played?limit=50${after}`, { headers: { Authorization: `Bearer ${await accessToken(env)}` } });
+  if (!response.ok) throw new Error(`Spotify answered ${response.status}`);
+  const data = await response.json();
+  let added = 0;
+  for (const entry of Array.isArray(data?.items) ? data.items : []) {
+    const playedAt = Date.parse(entry?.played_at); const duration = Number(entry?.track?.duration_ms) || 0;
+    if (!Number.isFinite(playedAt) || duration <= 0 || duration > 3_600_000) continue;
+    const result = await env.DB.prepare('INSERT OR IGNORE INTO plays(played_at, track_id, duration_ms) VALUES (?,?,?)').bind(playedAt, text(entry.track.id) || 'unknown', duration).run();
+    added += result?.meta?.changes || 0;
+  }
+  return added;
+}
+
+export function periodStarts(now = Date.now()) {
+  const d = new Date(now);
+  const day = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  const week = day - ((d.getUTCDay() + 6) % 7) * 86_400_000; // weeks start on Monday (UTC)
+  const year = Date.UTC(d.getUTCFullYear(), 0, 1);
+  return { day, week, year };
+}
+
+export async function listeningTime(env, now = Date.now()) {
+  const { day, week, year } = periodStarts(now);
+  const row = await env.DB.prepare(`SELECT
+      COALESCE(SUM(CASE WHEN played_at >= ? THEN duration_ms END), 0) AS today,
+      COALESCE(SUM(CASE WHEN played_at >= ? THEN duration_ms END), 0) AS week,
+      COALESCE(SUM(CASE WHEN played_at >= ? THEN duration_ms END), 0) AS year,
+      COUNT(CASE WHEN played_at >= ? THEN 1 END) AS plays_year,
+      MIN(played_at) AS since FROM plays`).bind(day, week, year, year).first();
+  const minutes = ms => Math.round((Number(ms) || 0) / 60000);
+  return { today: minutes(row?.today), week: minutes(row?.week), year: minutes(row?.year), playsThisYear: Number(row?.plays_year) || 0,
+    since: row?.since ? new Date(row.since).toISOString() : null };
+}
+
+// ---- "always": the all-time favourites, matched to Spotify for album art and links (cached a day).
+export const ALWAYS = [
+  ['Buttercup', 'Jack Stauber'], ['The Lazy Song', 'Bruno Mars'], ['Money So Big', 'Yeat'], ['Hideaway', 'Marino'],
+  ['Dandelions', 'Ruth B.'], ['505', 'Arctic Monkeys'], ['Sweater Weather', 'The Neighbourhood']
+];
+let always = null; // { at, tracks }
+export async function alwaysTracks(env) {
+  if (!env.SPOTIFY_CLIENT_ID || !env.SPOTIFY_CLIENT_SECRET || !env.SPOTIFY_REFRESH_TOKEN) return { configured: false, tracks: [] };
+  if (always && Date.now() - always.at < 86_400_000) return { configured: true, tracks: always.tracks };
+  try {
+    const auth = { Authorization: `Bearer ${await accessToken(env)}` };
+    const tracks = await Promise.all(ALWAYS.map(async ([title, artist]) => {
+      const q = encodeURIComponent(`track:${title} artist:${artist}`);
+      const response = await fetch(`https://api.spotify.com/v1/search?type=track&limit=1&q=${q}`, { headers: auth });
+      const item = response.ok ? (await response.json())?.tracks?.items?.[0] : null;
+      return { title, artist, albumArt: item ? art(item.album?.images) : null, url: item ? link(item) : null };
+    }));
+    always = { at: Date.now(), tracks };
+    return { configured: true, tracks };
+  } catch (error) {
+    console.error('Always lookup failed:', error.message);
+    return { configured: true, tracks: always ? always.tracks : [] };
   }
 }
 
