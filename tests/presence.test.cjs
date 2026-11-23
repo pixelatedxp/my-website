@@ -51,3 +51,17 @@ test('time helpers never mention a place', () => {
     assert.equal(P.duration(125 * 60000), 'for 2h 5m');
     assert.equal(P.clock(71), '1:11');
 });
+
+test('direct Spotify answers become the same song the card shows, and fall back to Discord when unusable', () => {
+    const P = load();
+    const song = P.directSong({ configured: true, playing: true, title: 'unhappy', artist: 's0rrow', albumArt: 'https://i.scdn.co/image/mid', progressMs: 72000, durationMs: 171000, ageMs: 3000 }, 1000000);
+    assert.equal(song.title, 'unhappy');
+    assert.equal(song.artist, 's0rrow');
+    assert.equal(song.art, 'https://i.scdn.co/image/mid');
+    assert.equal(song.start, 1000000 - 75000);
+    assert.equal(song.end, song.start + 171000);
+    assert.equal(P.directSong({ configured: true, playing: false }, 1), null);       // Spotify says nothing is playing
+    assert.equal(P.directSong({ configured: false }, 1), undefined);                // not set up: use Discord
+    assert.equal(P.directSong({ configured: true, error: 'x' }, 1), undefined);     // Spotify down: use Discord
+    assert.equal(P.directSong({ configured: true, playing: true, title: 'x', albumArt: 'https://evil.example/a.png' }, 1).art, '');
+});

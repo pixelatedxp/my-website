@@ -63,3 +63,15 @@ Frontend deployment follows this repository's existing GitHub Pages process. Dep
 - **Saved note missing in Discord:** check Worker logs and the scheduled retry. Do not tell the visitor to submit a fresh copy.
 
 For a database backup, use Cloudflare's D1 export tools and keep the export private: it includes pending and rejected notes.
+
+## Now playing (Spotify)
+
+`GET /api/now-playing` returns what Pixel is playing straight from Spotify, so the homepage music card works even with Discord closed. Without the secrets below it answers `{ "configured": false }` and the homepage keeps using Discord through Lanyard.
+
+One-time setup:
+
+1. On developer.spotify.com/dashboard create an app with the redirect URI `http://127.0.0.1:8888/callback` and tick "Web API".
+2. In this folder run `node scripts/spotify-auth.mjs <client id> <client secret>`, open the link it prints and approve.
+3. Save the three values it prints with `npx wrangler secret put SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET` and `SPOTIFY_REFRESH_TOKEN`, then `npm run deploy`.
+
+Only the "currently playing" read permission is requested. The Worker asks Spotify at most once every 10 seconds per instance.

@@ -1,4 +1,5 @@
 import { HttpError, UUID, validateNote, validateDoodle, readLimited, discordText } from './validation.mjs';
+import { nowPlaying } from './spotify.mjs';
 
 const json = (value, status = 200, headers = {}) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...headers } });
 const list = value => (value || '').split(',').map(v => v.trim()).filter(Boolean);
@@ -194,6 +195,7 @@ export default {
       if (request.method === 'OPTIONS') response = new Response(null, { status: 204, headers: { 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '86400' } });
       else if (url.pathname === '/health') response = json({ ok: true });
       else if (url.pathname === '/api/notes' && request.method === 'GET') response = await publicNotes(url, env);
+      else if (url.pathname === '/api/now-playing' && request.method === 'GET') { const result = await nowPlaying(env); response = json(result.body, result.status); }
       else if (url.pathname === '/api/notes' && request.method === 'POST') {
         if (!origin || !list(env.ALLOWED_ORIGINS).includes(origin)) throw new HttpError(403, 'Please use the note page to submit.');
         response = await submit(request, env, ctx);

@@ -173,3 +173,48 @@ test('postmark badges are optional, validated, shown to the moderator, and retur
   const result = await (await worker.fetch(new Request('https://notes.example/api/notes'), f.env, f.ctx)).json();
   assert.equal(result.notes[0].badge, 'ghost');
 });
+
+test('now playing comes straight from Spotify, shaped like the card, cached, and safe when not set up', async t => {
+  const { resetSpotifyCache, shapePlaying } = await import('../src/spotify.mjs');
+  const base = { DB: database(), ALLOWED_ORIGINS: 'https://pixelis.dev' };
+  const get = env => worker.fetch(new Request('https://notes.example/api/now-playing', { headers: { Origin: 'https://pixelis.dev' } }), env, { waitUntil() {} });
+
+  resetSpotifyCache();
+  let res = await get(base);
+  assert.equal(res.status, 200); assert.deepEqual(await res.json(), { configured: false });
+
+  const env = { ...base, SPOTIFY_CLIENT_ID: 'id', SPOTIFY_CLIENT_SECRET: 'secret', SPOTIFY_REFRESH_TOKEN: 'refresh' };
+  let playingCalls = 0, tokenCalls = 0, mode = 'track';
+  t.mock.method(globalThis, 'fetch', async (url, init) => {
+    if (String(url).startsWith('https://accounts.spotify.com/api/token')) {
+      tokenCalls++;
+      assert.match(init.headers.Authorization, /^Basic /);
+      assert.equal(new URLSearchParams(init.body).get('refresh_token'), 'refresh');
+      return Response.json({ access_token: 'token', expires_in: 3600 });
+    }
+    playingCalls++;
+    assert.equal(init.headers.Authorization, 'Bearer token');
+    if (mode === 'none') return new Response(null, { status: 204 });
+    return Response.json({ is_playing: true, progress_ms: 72000, currently_playing_type: 'track', item: {
+      name: 'unhappy', duration_ms: 171000, external_urls: { spotify: 'https://open.spotify.com/track/abc' },
+      artists: [{ name: 's0rrow' }, { name: 'friend' }],
+      album: { images: [{ url: 'https://i.scdn.co/image/big', width: 640 }, { url: 'https://i.scdn.co/image/mid', width: 300 }, { url: 'https://i.scdn.co/image/small', width: 64 }] } } });
+  });
+
+  res = await get(env);
+  assert.equal(res.headers.get('Access-Control-Allow-Origin'), 'https://pixelis.dev');
+  const body = await res.json();
+  assert.equal(body.playing, true); assert.equal(body.title, 'unhappy'); assert.equal(body.artist, 's0rrow, friend');
+  assert.equal(body.albumArt, 'https://i.scdn.co/image/mid'); assert.equal(body.progressMs, 72000); assert.equal(body.durationMs, 171000);
+  assert.equal(body.url, 'https://open.spotify.com/track/abc');
+
+  await get(env); // served from the 10 s cache
+  assert.equal(playingCalls, 1); assert.equal(tokenCalls, 1);
+
+  resetSpotifyCache(); mode = 'none';
+  assert.deepEqual(await (await get(env)).json(), { configured: true, playing: false, ageMs: 0 });
+
+  // Paused, untrusted art hosts and missing items never show as playing.
+  assert.equal(shapePlaying({ is_playing: false, item: { name: 'x' } }).playing, false);
+  assert.equal(shapePlaying({ is_playing: true, item: { name: 'x', album: { images: [{ url: 'https://evil.example/x.png', width: 640 }] } } }).albumArt, null);
+});

@@ -77,11 +77,23 @@
         return { status: status, custom: custom ? text(custom.state) : '', song: song, game: game, avatar: avatarUrl(data && data.discord_user) };
     }
 
-    window.PixelPresence = { summarize: summarize, activityImage: activityImage, imageUrl: imageUrl, clock: clock, duration: duration, partOfDay: partOfDay };
+    // Song straight from Spotify (via the notes Worker). Returns undefined when that source can't be used,
+    // so the card falls back to Discord; null when Spotify says nothing is playing.
+    function directSong(payload, receivedAt) {
+        if (!payload || payload.configured !== true || payload.error) return undefined;
+        if (payload.playing !== true || !text(payload.title)) return null;
+        var progress = Math.max(0, Number(payload.progressMs) || 0) + Math.max(0, Number(payload.ageMs) || 0);
+        var length = Math.max(0, Number(payload.durationMs) || 0);
+        var start = receivedAt - progress;
+        return { title: text(payload.title), artist: text(payload.artist), art: imageUrl(payload.albumArt), start: start, end: length ? start + length : undefined };
+    }
+
+    window.PixelPresence = { directSong: directSong, summarize: summarize, activityImage: activityImage, imageUrl: imageUrl, clock: clock, duration: duration, partOfDay: partOfDay };
 
     var root = document.getElementById('presence');
     if (!root) return;
     var userId = root.dataset.discordId;
+    var apiBase = ((window.PIXEL_NOTES_CONFIG || {}).apiBase || '').replace(/\/$/, '');
     var timeZone = root.dataset.timezone || 'UTC';
     var $ = function (id) { return document.getElementById(id); };
     var els = {
@@ -92,7 +104,7 @@
     };
     var noteIcon = els.art ? els.art.innerHTML : '';
     var controllerIcon = els.gameIcon ? els.gameIcon.innerHTML : '';
-    var current = summarize(null), lastView = '', timer, ticker, controller;
+    var current = summarize(null), lastView = '', timer, ticker, controller, endedRefresh;
     var iconCache = {};
 
     function appIcon(id, signal) {
@@ -131,6 +143,7 @@
             els.bar.setAttribute('aria-valuetext', clock(done) + ' of ' + clock(total));
             els.elapsed.textContent = clock(done); els.length.textContent = clock(total);
         }
+        if (song && Number.isFinite(song.end) && now > song.end + 1500 && song.end !== endedRefresh) { endedRefresh = song.end; refresh(); }
         if (current.game && Number.isFinite(current.game.start)) els.gameDetail.textContent = [current.game.detail, duration(now - current.game.start)].filter(Boolean).join(' · ');
     }
 
@@ -181,10 +194,22 @@
         controller = new AbortController();
         var timeout = setTimeout(function () { controller.abort(); }, 8000);
         try {
-            var response = await fetch('https://api.lanyard.rest/v1/users/' + userId, { signal: controller.signal, credentials: 'omit', cache: 'no-store' });
-            if (!response.ok) throw new Error('unavailable');
-            var payload = await response.json();
+            var nowPlayingUrl = apiBase ? apiBase + '/api/now-playing' : '';
+            var results = await Promise.allSettled([
+                fetch('https://api.lanyard.rest/v1/users/' + userId, { signal: controller.signal, credentials: 'omit', cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('unavailable'); return r.json(); }),
+                nowPlayingUrl ? fetch(nowPlayingUrl, { signal: controller.signal, credentials: 'omit', cache: 'no-store' }).then(function (r) { return r.json(); }) : Promise.reject(new Error('not set up'))
+            ]);
+            var receivedAt = Date.now();
+            var payload = results[0].status === 'fulfilled' ? results[0].value : null;
             var view = summarize(payload && payload.success === true ? payload.data : null);
+            // Spotify itself wins when it answers, so the song shows even with Discord closed.
+            var direct = results[1].status === 'fulfilled' ? directSong(results[1].value, receivedAt) : undefined;
+            if (direct !== undefined) view.song = direct;
+            // Keep the same start time across refreshes so the card doesn't redraw for clock jitter.
+            if (view.song && current.song && view.song.title === current.song.title && Math.abs((view.song.start || 0) - (current.song.start || 0)) < 4000) {
+                view.song.start = current.song.start; view.song.end = current.song.end;
+            }
+            if (results[0].status === 'rejected' && direct === undefined) throw new Error('unavailable');
             if (view.game && !view.game.icon && view.game.applicationId) view.game.icon = await appIcon(view.game.applicationId, controller.signal);
             render(view);
         } catch (error) {
