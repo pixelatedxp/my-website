@@ -65,3 +65,14 @@ test('direct Spotify answers become the same song the card shows, and fall back 
     assert.equal(P.directSong({ configured: true, error: 'x' }, 1), undefined);     // Spotify down: use Discord
     assert.equal(P.directSong({ configured: true, playing: true, title: 'x', albumArt: 'https://evil.example/a.png' }, 1).art, '');
 });
+
+test('paused songs stay on the card with a frozen bar, and only real Spotify links are clickable', () => {
+    const P = load();
+    const paused = P.directSong({ configured: true, playing: false, paused: true, title: 'Lucid Dreams', artist: 'Juice WRLD', progressMs: 5000, durationMs: 239835, url: 'https://open.spotify.com/track/285pBltuF7vW8TeWk8hdRR' }, 1);
+    assert.equal(paused.paused, true); assert.equal(paused.progress, 5000); assert.equal(paused.length, 239835);
+    assert.equal(paused.url, 'https://open.spotify.com/track/285pBltuF7vW8TeWk8hdRR');
+    assert.equal(P.spotifyUrl('javascript:alert(1)'), '');
+    assert.equal(P.spotifyUrl('https://open.spotify.com.evil.example/track/x'), '');
+    const lanyard = P.summarize({ discord_status: 'online', listening_to_spotify: true, spotify: { song: 'x', track_id: '285pBltuF7vW8TeWk8hdRR' }, activities: [] });
+    assert.equal(lanyard.song.url, 'https://open.spotify.com/track/285pBltuF7vW8TeWk8hdRR');
+});

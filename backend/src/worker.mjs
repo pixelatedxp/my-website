@@ -1,5 +1,6 @@
 import { HttpError, UUID, validateNote, validateDoodle, readLimited, discordText } from './validation.mjs';
 import { nowPlaying } from './spotify.mjs';
+import { readVisits, recordVisit, forgetOldVisitors } from './visits.mjs';
 
 const json = (value, status = 200, headers = {}) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...headers } });
 const list = value => (value || '').split(',').map(v => v.trim()).filter(Boolean);
@@ -195,6 +196,11 @@ export default {
       if (request.method === 'OPTIONS') response = new Response(null, { status: 204, headers: { 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '86400' } });
       else if (url.pathname === '/health') response = json({ ok: true });
       else if (url.pathname === '/api/notes' && request.method === 'GET') response = await publicNotes(url, env);
+      else if (url.pathname === '/api/visits' && request.method === 'GET') response = json(await readVisits(env));
+      else if (url.pathname === '/api/visits' && request.method === 'POST') {
+        if (!origin || !list(env.ALLOWED_ORIGINS).includes(origin)) throw new HttpError(403, 'Not allowed.');
+        response = json(await recordVisit(request, env));
+      }
       else if (url.pathname === '/api/now-playing' && request.method === 'GET') { const result = await nowPlaying(env); response = json(result.body, result.status); }
       else if (url.pathname === '/api/notes' && request.method === 'POST') {
         if (!origin || !list(env.ALLOWED_ORIGINS).includes(origin)) throw new HttpError(403, 'Please use the note page to submit.');
@@ -214,6 +220,7 @@ export default {
     return response;
   },
   async scheduled(event, env, ctx) {
+    await forgetOldVisitors(env);
     if (!env.DISCORD_BOT_TOKEN) return;
     const { results: pending } = await env.DB.prepare("SELECT id FROM notes WHERE status='pending' AND discord_message_id IS NULL AND delivery_after<=? LIMIT 3").bind(now()).all();
     const { results: updates } = await env.DB.prepare('SELECT id FROM notes WHERE sync_needed=1 LIMIT 3').all();

@@ -75,3 +75,7 @@ One-time setup:
 3. Save the three values it prints with `npx wrangler secret put SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET` and `SPOTIFY_REFRESH_TOKEN`, then `npm run deploy`.
 
 Only the "currently playing" read permission is requested. The Worker asks Spotify at most once every 10 seconds per instance.
+
+## Visit counter
+
+`POST /api/visits` counts a visit (once per visitor per day) and `GET /api/visits` reads the total, shown in the homepage footer. Visitors are recognised only by a salted hash that changes daily and is deleted after two days; no IP addresses are stored. `VISITS_START` in `wrangler.jsonc` is added to the real count. Needs migration `0005_visits.sql`.

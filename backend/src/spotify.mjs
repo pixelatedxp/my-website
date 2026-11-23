@@ -45,14 +45,15 @@ async function accessToken(env) {
 // Only what the card shows: title, artist, album art, progress. No device or account details.
 export function shapePlaying(data) {
   const item = data?.item;
-  if (!data || !item || data.is_playing !== true) return { configured: true, playing: false };
+  if (!data || !item) return { configured: true, playing: false };
   const episode = data.currently_playing_type === 'episode';
   const artist = episode ? text(item.show?.name) : (Array.isArray(item.artists) ? item.artists.map(a => text(a?.name)).filter(Boolean).join(', ') : '');
   const durationMs = Number(item.duration_ms) || 0;
   const progressMs = Math.min(Math.max(Number(data.progress_ms) || 0, 0), durationMs || Infinity);
   return {
     configured: true,
-    playing: true,
+    playing: data.is_playing === true,
+    paused: data.is_playing !== true,
     title: text(item.name),
     artist,
     albumArt: art(episode ? (item.images || item.show?.images) : item.album?.images),

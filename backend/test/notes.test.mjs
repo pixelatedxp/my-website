@@ -218,3 +218,34 @@ test('now playing comes straight from Spotify, shaped like the card, cached, and
   assert.equal(shapePlaying({ is_playing: false, item: { name: 'x' } }).playing, false);
   assert.equal(shapePlaying({ is_playing: true, item: { name: 'x', album: { images: [{ url: 'https://evil.example/x.png', width: 640 }] } } }).albumArt, null);
 });
+
+test('visits count each visitor once a day, start from VISITS_START, store no IPs, and forget old days', async () => {
+  const { forgetOldVisitors } = await import('../src/visits.mjs');
+  const env = { DB: database(), ALLOWED_ORIGINS: 'https://pixelis.dev', VISITS_START: '500' };
+  const visit = (ip, agent = 'Firefox', origin = 'https://pixelis.dev') => worker.fetch(new Request('https://notes.example/api/visits', { method: 'POST', headers: { Origin: origin, 'CF-Connecting-IP': ip, 'User-Agent': agent } }), env, { waitUntil() {} });
+
+  assert.deepEqual(await (await worker.fetch(new Request('https://notes.example/api/visits'), env, { waitUntil() {} })).json(), { visits: 500 });
+  assert.deepEqual(await (await visit('192.0.2.1')).json(), { visits: 501, counted: true });
+  assert.deepEqual(await (await visit('192.0.2.1')).json(), { visits: 501, counted: false }); // same person, same day
+  assert.deepEqual(await (await visit('192.0.2.2')).json(), { visits: 502, counted: true });
+  assert.equal((await visit('192.0.2.3', 'x', 'https://evil.example')).status, 403);
+
+  const stored = env.DB.sqlite.prepare('SELECT visitor FROM visit_seen').all().map(r => r.visitor).join(' ');
+  assert.doesNotMatch(stored, /192\.0\.2/);
+  assert.match(stored, /^[0-9a-f]{64} [0-9a-f]{64}$/);
+
+  env.DB.sqlite.prepare("UPDATE visit_seen SET day='2000-01-01'").run();
+  env.DB.sqlite.prepare("UPDATE visit_salts SET day='2000-01-01'").run();
+  await forgetOldVisitors(env);
+  assert.equal(env.DB.sqlite.prepare('SELECT COUNT(*) AS n FROM visit_seen').get().n, 0);
+  assert.equal(env.DB.sqlite.prepare('SELECT COUNT(*) AS n FROM visit_salts').get().n, 0);
+  assert.deepEqual(await (await worker.fetch(new Request('https://notes.example/api/visits'), env, { waitUntil() {} })).json(), { visits: 502 });
+});
+
+test('a paused Spotify song keeps its details so the card can show it as paused', async () => {
+  const { shapePlaying } = await import('../src/spotify.mjs');
+  const paused = shapePlaying({ is_playing: false, progress_ms: 5000, currently_playing_type: 'track', item: { name: 'Lucid Dreams', duration_ms: 239835, artists: [{ name: 'Juice WRLD' }], album: { images: [{ url: 'https://i.scdn.co/image/abc', width: 300 }] }, external_urls: { spotify: 'https://open.spotify.com/track/x' } } });
+  assert.equal(paused.playing, false); assert.equal(paused.paused, true);
+  assert.equal(paused.title, 'Lucid Dreams'); assert.equal(paused.progressMs, 5000); assert.equal(paused.url, 'https://open.spotify.com/track/x');
+  assert.equal(shapePlaying({ is_playing: true, item: { name: 'x', external_urls: { spotify: 'javascript:alert(1)' } } }).url, null);
+});

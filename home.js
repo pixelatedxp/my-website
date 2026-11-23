@@ -75,6 +75,26 @@
     }
     loadPostcards();
 
+    // Visit counter in the footer: count this visit once per browser session, otherwise just read the total.
+    var visitEl = document.getElementById('visitCount');
+    async function loadVisits() {
+        if (!visitEl || !base) return;
+        var counted = false;
+        try { counted = sessionStorage.getItem('pixelisVisitCounted') === '1'; } catch (e) {}
+        try {
+            var response = await fetch(base + '/api/visits', { method: counted ? 'GET' : 'POST', credentials: 'omit', cache: 'no-store', signal: AbortSignal.timeout(8000) });
+            if (!response.ok) return;
+            var result = await response.json();
+            if (!counted) { try { sessionStorage.setItem('pixelisVisitCounted', '1'); } catch (e) {} }
+            if (!Number.isFinite(result.visits) || result.visits < 1) return;
+            var heart = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>';
+            visitEl.innerHTML = heart;
+            visitEl.appendChild(document.createTextNode(new Intl.NumberFormat('en').format(result.visits) + ' visits so far'));
+            visitEl.hidden = false;
+        } catch (error) { /* the counter is a nice-to-have; stay quiet */ }
+    }
+    loadVisits();
+
     // Copy email.
     document.querySelectorAll('[data-copy]').forEach(function (button) {
         button.addEventListener('click', async function (event) {

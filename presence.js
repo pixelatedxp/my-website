@@ -10,6 +10,10 @@
     // Local artwork for games whose Discord app has no usable icon.
     var LOCAL_GAME_ART = { 'counter-strike 2': 'assets/games/counter-strike-2.png', 'cs2': 'assets/games/counter-strike-2.png' };
 
+    function spotifyUrl(value) {
+        return typeof value === 'string' && /^https:\/\/open\.spotify\.com\/(track|episode)\/[A-Za-z0-9]+(\?[A-Za-z0-9=&_-]*)?$/.test(value) ? value : '';
+    }
+
     function text(value) { return typeof value === 'string' ? value.trim().slice(0, 200) : ''; }
 
     function imageUrl(value) {
@@ -62,7 +66,7 @@
         var song = null, game = null;
         if (live && data.listening_to_spotify && data.spotify && text(data.spotify.song)) {
             var s = data.spotify;
-            song = { title: text(s.song), artist: text(s.artist), art: imageUrl(s.album_art_url), start: s.timestamps && s.timestamps.start, end: s.timestamps && s.timestamps.end };
+            song = { title: text(s.song), artist: text(s.artist), art: imageUrl(s.album_art_url), url: /^[A-Za-z0-9]{10,40}$/.test(s.track_id || '') ? 'https://open.spotify.com/track/' + s.track_id : '', start: s.timestamps && s.timestamps.start, end: s.timestamps && s.timestamps.end };
         }
         var playing = live ? activities.find(function (a) { return a && a.type === 0 && text(a.name); }) : null;
         if (playing) {
@@ -81,14 +85,21 @@
     // so the card falls back to Discord; null when Spotify says nothing is playing.
     function directSong(payload, receivedAt) {
         if (!payload || payload.configured !== true || payload.error) return undefined;
-        if (payload.playing !== true || !text(payload.title)) return null;
-        var progress = Math.max(0, Number(payload.progressMs) || 0) + Math.max(0, Number(payload.ageMs) || 0);
+        if (!text(payload.title) || (payload.playing !== true && payload.paused !== true)) return null;
         var length = Math.max(0, Number(payload.durationMs) || 0);
-        var start = receivedAt - progress;
-        return { title: text(payload.title), artist: text(payload.artist), art: imageUrl(payload.albumArt), start: start, end: length ? start + length : undefined };
+        var song = { title: text(payload.title), artist: text(payload.artist), art: imageUrl(payload.albumArt), url: spotifyUrl(payload.url) };
+        if (payload.playing !== true) {
+            // Paused: keep the song on the card with the bar frozen where it stopped.
+            song.paused = true; song.progress = Math.min(Math.max(0, Number(payload.progressMs) || 0), length || Infinity); song.length = length;
+            return song;
+        }
+        var progress = Math.max(0, Number(payload.progressMs) || 0) + Math.max(0, Number(payload.ageMs) || 0);
+        song.start = receivedAt - progress;
+        song.end = length ? song.start + length : undefined;
+        return song;
     }
 
-    window.PixelPresence = { directSong: directSong, summarize: summarize, activityImage: activityImage, imageUrl: imageUrl, clock: clock, duration: duration, partOfDay: partOfDay };
+    window.PixelPresence = { spotifyUrl: spotifyUrl, directSong: directSong, summarize: summarize, activityImage: activityImage, imageUrl: imageUrl, clock: clock, duration: duration, partOfDay: partOfDay };
 
     var root = document.getElementById('presence');
     if (!root) return;
@@ -97,7 +108,7 @@
     var timeZone = root.dataset.timezone || 'UTC';
     var $ = function (id) { return document.getElementById(id); };
     var els = {
-        avatar: $('avatar'), spotify: $('spotify'), art: $('spotifyArt'), label: $('spotifyLabelText'), title: $('spotifyTitle'), artist: $('spotifyArtist'),
+        avatar: $('avatar'), spotify: $('spotify'), link: $('spotifyLink'), art: $('spotifyArt'), label: $('spotifyLabelText'), title: $('spotifyTitle'), artist: $('spotifyArtist'),
         progress: $('spotifyProgress'), bar: $('spotifyBar'), elapsed: $('spotifyElapsed'), length: $('spotifyLength'),
         status: $('statusCard'), statusText: $('statusText'), custom: $('customStatus'), game: $('game'), gameIcon: $('gameIcon'), gameName: $('gameName'), gameDetail: $('gameDetail'),
         time: $('localTime')
@@ -136,7 +147,11 @@
             els.time.textContent = "it's " + theirs + ' for Pixel, and ' + partOfDay(new Date(now).getHours()) + ' where you are';
         }
         var song = current.song;
-        if (song && Number.isFinite(song.start) && Number.isFinite(song.end) && song.end > song.start) {
+        if (song && song.paused && song.length) {
+            els.bar.max = song.length / 1000; els.bar.value = song.progress / 1000;
+            els.bar.setAttribute('aria-valuetext', 'paused at ' + clock(song.progress / 1000) + ' of ' + clock(song.length / 1000));
+            els.elapsed.textContent = clock(song.progress / 1000); els.length.textContent = clock(song.length / 1000);
+        } else if (song && Number.isFinite(song.start) && Number.isFinite(song.end) && song.end > song.start) {
             var total = (song.end - song.start) / 1000;
             var done = Math.max(0, Math.min(total, (now - song.start) / 1000));
             els.bar.max = total; els.bar.value = done;
@@ -165,12 +180,12 @@
                 probe.src = view.avatar;
             }
             if (view.song) {
-                els.spotify.dataset.state = 'playing';
-                els.label.textContent = 'listening on spotify';
+                els.spotify.dataset.state = view.song.paused ? 'paused' : 'playing';
+                els.label.textContent = view.song.paused ? 'paused on spotify' : 'listening on spotify';
                 els.title.textContent = view.song.title;
                 els.artist.textContent = view.song.artist;
                 setImage(els.art, view.song.art, 'Album art for ' + view.song.title, noteIcon);
-                els.progress.hidden = !(Number.isFinite(view.song.start) && Number.isFinite(view.song.end));
+                els.progress.hidden = view.song.paused ? !view.song.length : !(Number.isFinite(view.song.start) && Number.isFinite(view.song.end));
             } else {
                 els.spotify.dataset.state = 'idle';
                 els.label.textContent = view.status === 'unavailable' ? 'spotify unavailable' : 'not listening right now';
@@ -178,6 +193,14 @@
                 els.artist.textContent = 'check back later';
                 els.art.innerHTML = noteIcon;
                 els.progress.hidden = true;
+            }
+            if (els.link) {
+                var url = view.song && view.song.url;
+                els.link.hidden = !url;
+                if (url) {
+                    els.link.href = url;
+                    els.link.setAttribute('aria-label', 'Open ' + view.song.title + (view.song.artist ? ' by ' + view.song.artist : '') + ' on Spotify');
+                } else els.link.removeAttribute('href');
             }
             els.game.hidden = !view.game;
             if (view.game) {
@@ -206,7 +229,7 @@
             var direct = results[1].status === 'fulfilled' ? directSong(results[1].value, receivedAt) : undefined;
             if (direct !== undefined) view.song = direct;
             // Keep the same start time across refreshes so the card doesn't redraw for clock jitter.
-            if (view.song && current.song && view.song.title === current.song.title && Math.abs((view.song.start || 0) - (current.song.start || 0)) < 4000) {
+            if (view.song && !view.song.paused && current.song && !current.song.paused && view.song.title === current.song.title && Math.abs((view.song.start || 0) - (current.song.start || 0)) < 4000) {
                 view.song.start = current.song.start; view.song.end = current.song.end;
             }
             if (results[0].status === 'rejected' && direct === undefined) throw new Error('unavailable');

@@ -138,5 +138,23 @@
         return typeof path === 'string' && /^\/api\/notes\/[0-9a-f-]{36}\/doodle$/.test(path) ? base + path : null;
     }
 
-    window.PixelPostcards = { BADGES: BADGES, PAPER: PAPER, icon: icon, render: render, renderContent: renderContent, safeDoodle: safeDoodle };
+    // Masonry: each card spans as many 4px rows as it is tall, so a long
+    // postcard no longer stretches its row and leaves gaps beside it.
+    var ROW = 4;
+    function masonry(grid) {
+        if (!grid || grid.dataset.masonry || !('ResizeObserver' in window)) return;
+        grid.dataset.masonry = 'on';
+        grid.classList.add('is-masonry');
+        var fit = function (card) {
+            var gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+            card.style.gridRowEnd = 'span ' + Math.max(1, Math.ceil((card.offsetHeight + gap) / ROW));
+        };
+        var sizes = new ResizeObserver(function (entries) { entries.forEach(function (e) { fit(e.target); }); });
+        var watch = function () { Array.prototype.forEach.call(grid.children, function (c) { sizes.observe(c); fit(c); }); };
+        new MutationObserver(watch).observe(grid, { childList: true });
+        watch();
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('.postcard-grid'), masonry);
+
+    window.PixelPostcards = { masonry: masonry, BADGES: BADGES, PAPER: PAPER, icon: icon, render: render, renderContent: renderContent, safeDoodle: safeDoodle };
 })();

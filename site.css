@@ -124,7 +124,7 @@ a:hover { color: var(--accent); }
 /* presence */
 .presence { display: flex; flex-direction: column; gap: 18px; }
 .presence-grid { display: flex; flex-wrap: wrap; gap: 28px; align-items: stretch; }
-.spotify { flex: 1 1 460px; min-width: 0; display: flex; gap: 18px; align-items: center; padding: 18px; border-radius: 26px; background: var(--night); border: 3px solid var(--edge); box-shadow: 6px 6px 0 var(--accent); color: var(--night-ink); }
+.spotify { position: relative; flex: 1 1 460px; min-width: 0; display: flex; gap: 18px; align-items: center; padding: 18px; border-radius: 26px; background: var(--night); border: 3px solid var(--edge); box-shadow: 6px 6px 0 var(--accent); color: var(--night-ink); }
 .spotify-art { width: 96px; height: 96px; border-radius: 16px; object-fit: cover; border: 3px solid #0b0c1c; flex: 0 0 auto; background: var(--night-2); display: flex; overflow: hidden; align-items: center; justify-content: center; color: var(--teal); }
 .spotify-art img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .spotify-art svg { width: 40px; height: 40px; }
@@ -173,6 +173,7 @@ a:hover { color: var(--accent); }
 .badge-option:hover span { background: #fff7cf; }
 
 .postcard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 28px; align-items: start; }
+.postcard-grid.is-masonry { grid-auto-rows: 4px; row-gap: 0; }
 .postcard { --stamp: var(--stamp-yellow); position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 84px; gap: 14px; padding: 16px; background: var(--card); border: 6px solid transparent; border-image: repeating-linear-gradient(45deg, #ff6b57 0 10px, var(--card) 10px 20px, #2a6fdb 20px 30px, var(--card) 30px 40px) 6; box-shadow: var(--shadow-paper); color: var(--ink); margin: 0; transform: rotate(var(--tilt, 0deg)); transition: transform .2s ease; }
 .postcard:hover { transform: rotate(0deg) translateY(-2px); }
 .postcard-body { display: flex; flex-direction: column; gap: 10px; border-right: 2px solid var(--grid); padding-right: 14px; min-width: 0; }
@@ -339,3 +340,15 @@ a.cartridge:hover { transform: rotate(0deg) translate(-2px, -2px); box-shadow: 7
 [data-theme="dark"] .game { background: var(--card); }
 [data-theme="dark"] .lost .big { color: var(--card); -webkit-text-stroke-color: #fffdf8; text-shadow: 8px 8px 0 #000; }
 [data-theme="dark"] .site-footer { border-top-color: var(--line); }
+
+/* music card: the whole card opens the song on Spotify */
+.spotify-link { position: absolute; inset: 0; z-index: 1; border-radius: 23px; }
+.spotify-link:focus-visible { outline: 3px solid var(--yellow); outline-offset: 4px; }
+.spotify:has(.spotify-link:not([hidden])) { cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+.spotify:has(.spotify-link:not([hidden])):hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--accent); }
+.spotify[data-state="paused"] .eq span { animation: none; transform: scaleY(.45); }
+.spotify[data-state="paused"] .spotify-art img { filter: grayscale(.6); opacity: .8; }
+
+/* footer visit counter */
+.visit-count { font-size: 14px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+.visit-count svg { width: 14px; height: 14px; color: var(--accent); }
