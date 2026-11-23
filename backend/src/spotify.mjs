@@ -115,3 +115,39 @@ export async function nowPlaying(env) {
     return { status: 503, body: { configured: true, error: 'Spotify is unavailable right now' } };
   }
 }
+
+// "On repeat": the five songs played most over roughly the last four weeks. Needs the
+// user-top-read permission; with an older token Spotify answers 403 and the page says so.
+const TOP_URL = 'https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=5';
+const TOP_MS = 3_600_000; // changes slowly; ask Spotify at most once an hour
+let top = null; // { at, body }
+
+export function shapeTop(data) {
+  const items = Array.isArray(data?.items) ? data.items : [];
+  return items.filter(item => text(item?.name)).slice(0, 5).map(item => ({
+    title: text(item.name),
+    artist: Array.isArray(item.artists) ? item.artists.map(a => text(a?.name)).filter(Boolean).join(', ') : '',
+    albumArt: art(item.album?.images),
+    url: link(item)
+  }));
+}
+
+export function resetTopCache() { top = null; }
+
+export async function topTracks(env) {
+  if (!env.SPOTIFY_CLIENT_ID || !env.SPOTIFY_CLIENT_SECRET || !env.SPOTIFY_REFRESH_TOKEN) return { status: 200, body: { configured: false, tracks: [] } };
+  if (top && Date.now() - top.at < TOP_MS) return { status: 200, body: top.body };
+  try {
+    const response = await fetch(TOP_URL, { headers: { Authorization: `Bearer ${await accessToken(env)}` } });
+    let body;
+    if (response.status === 401 || response.status === 403) body = { configured: true, tracks: [], needsPermission: true };
+    else if (response.ok) body = { configured: true, tracks: shapeTop(await response.json()) };
+    else throw new Error(`Spotify answered ${response.status}`);
+    top = { at: Date.now(), body };
+    return { status: 200, body };
+  } catch (error) {
+    console.error('Top tracks failed:', error.message);
+    if (top) return { status: 200, body: top.body };
+    return { status: 503, body: { configured: true, tracks: [], error: 'Spotify is unavailable right now' } };
+  }
+}

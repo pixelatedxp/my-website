@@ -1,5 +1,6 @@
-import { HttpError, UUID, validateNote, validateDoodle, readLimited, discordText } from './validation.mjs';
-import { nowPlaying } from './spotify.mjs';
+import { HttpError, UUID, validateNote, validateDoodle, readLimited, discordText, lengthOf } from './validation.mjs';
+import { nowPlaying, topTracks } from './spotify.mjs';
+import { validateSong, insertSong, sendSong, syncSong, applySongDecision, publicSongs } from './songs.mjs';
 import { readVisits, recordVisit, forgetOldVisitors } from './visits.mjs';
 
 const json = (value, status = 200, headers = {}) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...headers } });
@@ -20,7 +21,8 @@ export function moderationMessage(note) {
       { name: 'From', value: note.anonymous ? 'Anonymous' : discordText([{ text: note.name }]), inline: true },
       ...(note.badge ? [{ name: 'Postmark', value: note.badge, inline: true }] : []),
       { name: 'Submitted', value: `<t:${Math.floor(note.created_at / 1000)}:f>`, inline: true },
-      { name: 'Rules', value: 'Visitor confirmed the text and doodle follow the rules.' }
+      { name: 'Rules', value: 'Visitor confirmed the text and doodle follow the rules.' },
+      ...(note.reply ? [{ name: 'Your reply', value: discordText([{ text: note.reply }]) }] : [])
     ],
     footer: { text: `Note ${note.id} · ${pending ? 'Waiting for your approval' : 'Reviewed'}` },
     timestamp: new Date(note.created_at).toISOString()
@@ -31,7 +33,23 @@ export function moderationMessage(note) {
     : note.status === 'approved'
       ? [{ type: 2, style: 2, label: 'Unpublish', custom_id: `note:unpublish:${note.id}` }]
       : [{ type: 2, style: 3, label: 'Approve anyway', custom_id: `note:approve:${note.id}` }];
+  if (note.status !== 'rejected') buttons.push({ type: 2, style: 1, label: note.reply ? 'Edit reply' : 'Reply', custom_id: `note:reply:${note.id}` });
   return { embeds: [embed], components: [{ type: 1, components: buttons }], allowed_mentions: { parse: [] } };
+}
+
+// Pixel's reply shows under the postcard on the wall. An empty reply removes it.
+export const REPLY_MAX = 200;
+export async function saveReply(env, id, text) {
+  const reply = (typeof text === 'string' ? text.normalize('NFC').replace(/\r\n?/g, '\n').trim() : '') || null;
+  if (reply && lengthOf(reply) > REPLY_MAX) return;
+  await env.DB.prepare('UPDATE notes SET reply=?, replied_at=?, sync_needed=1 WHERE id=?').bind(reply, reply ? now() : null, id).run();
+  await syncNote(env, id);
+}
+
+function replyModal(note) {
+  return { type: 9, data: { custom_id: `note-reply:${note.id}`, title: 'Reply to this postcard', components: [{ type: 1, components: [{
+    type: 4, custom_id: 'reply', label: 'Your reply (leave empty to remove it)', style: 2, required: false, max_length: REPLY_MAX,
+    placeholder: 'shows under the postcard as "Pixel replied"', ...(note.reply ? { value: note.reply } : {}) }] }] } };
 }
 
 async function sendNote(env, id) {
@@ -104,10 +122,31 @@ async function interactions(request, env, ctx) {
   if (event.application_id !== env.DISCORD_APPLICATION_ID) return json({ error: 'Wrong application' }, 403);
   if (event.type === 1) return json({ type: 1 });
   const deny = content => json({ type: 4, data: { content, flags: 64, allowed_mentions: { parse: [] } } });
-  if (event.type !== 3 || event.guild_id !== env.DISCORD_GUILD_ID || event.channel_id !== env.DISCORD_CHANNEL_ID || event.member?.user?.id !== env.MODERATOR_USER_ID) {
+  if (![3, 5].includes(event.type) || event.guild_id !== env.DISCORD_GUILD_ID || event.channel_id !== env.DISCORD_CHANNEL_ID || event.member?.user?.id !== env.MODERATOR_USER_ID) {
     return deny('Only Pixel can review notes in the configured review channel.');
   }
-  const match = /^note:(approve|reject|unpublish):(.+)$/.exec(event.data?.custom_id || '');
+  const customId = event.data?.custom_id || '';
+  if (event.type === 5) {
+    const submitted = /^note-reply:(.+)$/.exec(customId);
+    if (!submitted || !UUID.test(submitted[1])) return deny('This reply is not valid.');
+    const value = event.data.components?.[0]?.components?.[0]?.value ?? '';
+    if (lengthOf(value.trim()) > REPLY_MAX) return deny(`Keep replies under ${REPLY_MAX} characters.`);
+    ctx.waitUntil(saveReply(env, submitted[1], value).catch(error => console.error('Reply failed:', error.message)));
+    return json({ type: 6 });
+  }
+  const reply = /^note:reply:(.+)$/.exec(customId);
+  if (reply) {
+    if (!UUID.test(reply[1])) return deny('This note action is not valid.');
+    const note = await env.DB.prepare('SELECT id, reply FROM notes WHERE id=?').bind(reply[1]).first();
+    return note ? json(replyModal(note)) : deny('That postcard no longer exists.');
+  }
+  const song = /^song:(approve|reject|unpublish):(.+)$/.exec(customId);
+  if (song) {
+    if (!UUID.test(song[2]) || !/^\d+$/.test(event.message?.id || '')) return deny('This song action is not valid.');
+    ctx.waitUntil(applySongDecision(env, song[2], song[1], event.message.id).catch(error => console.error('Song review failed:', error.message)));
+    return json({ type: 6 });
+  }
+  const match = /^note:(approve|reject|unpublish):(.+)$/.exec(customId);
   if (!match || !UUID.test(match[2]) || !/^\d+$/.test(event.message?.id || '')) return deny('This note action is not valid.');
   // Acknowledge promptly; the durable sync flag lets the scheduled job retry a failed edit.
   ctx.waitUntil(applyDecision(env, match[2], match[1], event.message.id).catch(error => console.error('Review action failed:', error.message)));
@@ -125,8 +164,34 @@ async function rateLimit(request, env) {
   for (const [bucket, limit] of buckets) {
     const row = await env.DB.prepare(`INSERT INTO submission_limits(bucket,count,expires_at) VALUES (?,1,?)
       ON CONFLICT(bucket) DO UPDATE SET count=count+1 RETURNING count`).bind(bucket, time + 172800000).first();
-    if (row.count > limit) throw new HttpError(429, 'Too many notes for now. Please try again later.');
+    if (row.count > limit) throw new HttpError(429, 'Too many sent for now. Please try again later.');
   }
+}
+
+async function checkTurnstile(request, env, token, action) {
+  if (typeof token !== 'string' || !token || token.length > 2048) throw new HttpError(400, 'Please complete the spam check.');
+  const verification = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ secret: env.TURNSTILE_SECRET_KEY, response: token, remoteip: request.headers.get('CF-Connecting-IP') || undefined }),
+    signal: AbortSignal.timeout(8000)
+  });
+  const result = await verification.json();
+  if (!result.success || !list(env.TURNSTILE_HOSTNAMES).includes(result.hostname) || result.action !== action) {
+    throw new HttpError(400, 'The spam check expired or failed. Please try it again.');
+  }
+}
+
+async function submitSong(request, env, ctx) {
+  if (!env.DISCORD_BOT_TOKEN || !env.TURNSTILE_SECRET_KEY) throw new HttpError(503, 'Song picks open soon.');
+  if (!request.headers.get('content-type')?.startsWith('application/json')) throw new HttpError(415, 'Please use the form on the music page.');
+  let input; try { input = JSON.parse(new TextDecoder().decode(await readLimited(request.body, 8000))); } catch (error) { throw error instanceof HttpError ? error : new HttpError(400, 'Invalid submission.'); }
+  const song = validateSong(input);
+  if (await env.DB.prepare('SELECT id FROM songs WHERE id=?').bind(song.id).first()) return json({ accepted: true, id: song.id }, 202);
+  await checkTurnstile(request, env, input.turnstileToken, 'send-song');
+  await rateLimit(request, env);
+  await insertSong(env, song);
+  ctx.waitUntil(sendSong(env, song.id));
+  return json({ accepted: true, id: song.id }, 202);
 }
 
 async function submit(request, env, ctx) {
@@ -142,16 +207,7 @@ async function submit(request, env, ctx) {
     if (existing.request_hash !== requestHash) throw new HttpError(409, 'This draft changed after it was submitted. Please start a new note.');
     return json({ accepted: true, id: note.id }, 202);
   }
-  if (typeof input.turnstileToken !== 'string' || !input.turnstileToken || input.turnstileToken.length > 2048) throw new HttpError(400, 'Please complete the spam check.');
-  const verification = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ secret: env.TURNSTILE_SECRET_KEY, response: input.turnstileToken, remoteip: request.headers.get('CF-Connecting-IP') || undefined }),
-    signal: AbortSignal.timeout(8000)
-  });
-  const result = await verification.json();
-  if (!result.success || !list(env.TURNSTILE_HOSTNAMES).includes(result.hostname) || result.action !== 'leave-note') {
-    throw new HttpError(400, 'The spam check expired or failed. Please try it again.');
-  }
+  await checkTurnstile(request, env, input.turnstileToken, 'leave-note');
   const doodle = await validateDoodle(input.doodle);
   await rateLimit(request, env);
   const createdAt = now();
@@ -171,7 +227,7 @@ async function publicNotes(url, env) {
     const parts = cursor.split('_'); group = Number(parts[0]); rank = Number(parts[1]); timestamp = Number(parts[2]); id = parts[3];
     if (![0, 1].includes(group) || !Number.isInteger(rank) || !Number.isSafeInteger(timestamp) || timestamp < 0 || !UUID.test(id || '')) throw new HttpError(400, 'Invalid page.');
   }
-  const { results } = await env.DB.prepare(`SELECT id,name,anonymous,content,colour,badge,created_at,pinned_rank,doodle IS NOT NULL AS has_doodle,
+  const { results } = await env.DB.prepare(`SELECT id,name,anonymous,content,colour,badge,created_at,pinned_rank,reply,doodle IS NOT NULL AS has_doodle,
     CASE WHEN pinned_rank IS NULL THEN 1 ELSE 0 END AS sort_group
     FROM notes WHERE status='approved' AND (
       CASE WHEN pinned_rank IS NULL THEN 1 ELSE 0 END > ? OR
@@ -182,7 +238,7 @@ async function publicNotes(url, env) {
   const rows = results.slice(0, 24);
   return json({ notes: rows.map(n => ({ id: n.id, name: n.anonymous ? 'Anonymous' : n.name, anonymous: !!n.anonymous,
     content: JSON.parse(n.content), colour: n.colour, badge: n.badge ?? null, createdAt: new Date(n.created_at).toISOString(),
-    pinned: n.pinned_rank !== null, doodleUrl: n.has_doodle ? `/api/notes/${n.id}/doodle` : null })),
+    pinned: n.pinned_rank !== null, reply: n.reply || null, doodleUrl: n.has_doodle ? `/api/notes/${n.id}/doodle` : null })),
     nextCursor: results.length > 24 ? `${rows.at(-1).sort_group}_${rows.at(-1).pinned_rank ?? -1}_${rows.at(-1).created_at}_${rows.at(-1).id}` : null });
 }
 
@@ -202,6 +258,12 @@ export default {
         response = json(await recordVisit(request, env));
       }
       else if (url.pathname === '/api/now-playing' && request.method === 'GET') { const result = await nowPlaying(env); response = json(result.body, result.status); }
+      else if (url.pathname === '/api/top-tracks' && request.method === 'GET') { const result = await topTracks(env); response = json(result.body, result.status); }
+      else if (url.pathname === '/api/songs' && request.method === 'GET') response = json(await publicSongs(env));
+      else if (url.pathname === '/api/songs' && request.method === 'POST') {
+        if (!origin || !list(env.ALLOWED_ORIGINS).includes(origin)) throw new HttpError(403, 'Please use the music page to send a song.');
+        response = await submitSong(request, env, ctx);
+      }
       else if (url.pathname === '/api/notes' && request.method === 'POST') {
         if (!origin || !list(env.ALLOWED_ORIGINS).includes(origin)) throw new HttpError(403, 'Please use the note page to submit.');
         response = await submit(request, env, ctx);
@@ -224,7 +286,10 @@ export default {
     if (!env.DISCORD_BOT_TOKEN) return;
     const { results: pending } = await env.DB.prepare("SELECT id FROM notes WHERE status='pending' AND discord_message_id IS NULL AND delivery_after<=? LIMIT 3").bind(now()).all();
     const { results: updates } = await env.DB.prepare('SELECT id FROM notes WHERE sync_needed=1 LIMIT 3').all();
-    await Promise.allSettled([...pending.map(n => sendNote(env, n.id)), ...updates.map(n => syncNote(env, n.id))]);
+    const { results: songsPending } = await env.DB.prepare("SELECT id FROM songs WHERE status='pending' AND discord_message_id IS NULL AND delivery_after<=? LIMIT 3").bind(now()).all();
+    const { results: songUpdates } = await env.DB.prepare('SELECT id FROM songs WHERE sync_needed=1 LIMIT 3').all();
+    await Promise.allSettled([...pending.map(n => sendNote(env, n.id)), ...updates.map(n => syncNote(env, n.id)),
+      ...songsPending.map(n => sendSong(env, n.id)), ...songUpdates.map(n => syncSong(env, n.id))]);
     await env.DB.prepare('DELETE FROM submission_limits WHERE expires_at < ?').bind(now()).run();
   }
 };

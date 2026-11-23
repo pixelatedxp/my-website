@@ -106,6 +106,19 @@
         }
         body.appendChild(from);
 
+        // Pixel's reply, written from Discord. Plain text only.
+        if (typeof note.reply === 'string' && note.reply.trim()) {
+            var reply = document.createElement('div');
+            reply.className = 'postcard-reply';
+            var label = document.createElement('span');
+            label.className = 'postcard-reply-label';
+            label.textContent = 'pixel replied';
+            var replyText = document.createElement('p');
+            replyText.textContent = note.reply.trim();
+            reply.append(label, replyText);
+            body.appendChild(reply);
+        }
+
         var side = document.createElement('div');
         side.className = 'postcard-side';
         side.setAttribute('aria-hidden', 'true');

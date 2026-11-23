@@ -79,3 +79,14 @@ Only the "currently playing" read permission is requested. The Worker asks Spoti
 ## Visit counter
 
 `POST /api/visits` counts a visit (once per visitor per day) and `GET /api/visits` reads the total, shown in the homepage footer. Visitors are recognised only by a salted hash that changes daily and is deleted after two days; no IP addresses are stored. `VISITS_START` in `wrangler.jsonc` is added to the real count. Needs migration `0005_visits.sql`.
+
+## Postcard replies
+
+Every postcard message in the Discord review channel has a **Reply** button. It opens a box where Pixel can write up to 200 characters; the reply shows under the postcard on the wall as "pixel replied". Open it again to edit, or save it empty to remove the reply.
+
+## Music page
+
+- `GET /api/top-tracks`: the five songs played most over about four weeks (Spotify's `short_term`), cached for an hour. Needs the `user-top-read` permission, so run `scripts/spotify-auth.mjs` again and update `SPOTIFY_REFRESH_TOKEN` once. Until then the page says the tape needs one more permission.
+- `POST /api/songs` / `GET /api/songs`: "songs people sent me". Visitors send a song (Turnstile action `send-song`, same rate limit as postcards); it arrives in the Discord review channel with **Add to the page** / **Reject**. Only added songs are public.
+
+Apply `migrations/0006_replies_and_songs.sql` before deploying.

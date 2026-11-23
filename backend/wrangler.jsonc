@@ -5,7 +5,7 @@
   "compatibility_date": "2026-09-17",
   "workers_dev": true,
   "vars": {
-    "ALLOWED_ORIGINS": "https://pixelis.dev,https://www.pixelis.dev",
+    "ALLOWED_ORIGINS": "https://pixelis.dev,https://www.pixelis.dev,http://localhost:3000",
     "TURNSTILE_HOSTNAMES": "pixelis.dev,www.pixelis.dev",
     "DISCORD_APPLICATION_ID": "1550119515860242432",
     "DISCORD_PUBLIC_KEY": "b38ff7c1eb32e375d1fb7d10cd1871628be532910469d2d4c6813415f09c0668",

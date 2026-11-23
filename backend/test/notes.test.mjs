@@ -273,3 +273,78 @@ test('when nothing is playing, the last played song comes along; an old token wi
   assert.equal(idle.last, undefined); assert.equal(idle.playing, false);
   assert.equal(recentCalls, 2);
 });
+
+async function signer(f) {
+  const pair = await crypto.subtle.generateKey('Ed25519', true, ['sign', 'verify']);
+  f.env.DISCORD_PUBLIC_KEY = Buffer.from(await crypto.subtle.exportKey('raw', pair.publicKey)).toString('hex');
+  return async value => {
+    const timestamp = String(Math.floor(Date.now() / 1000)); const body = JSON.stringify({ application_id: '100', guild_id: '300', channel_id: '200', member: { user: { id: '400' } }, ...value });
+    const signature = Buffer.from(await crypto.subtle.sign('Ed25519', pair.privateKey, new TextEncoder().encode(timestamp + body))).toString('hex');
+    return new Request('https://notes.example/discord/interactions', { method: 'POST', body, headers: { 'x-signature-ed25519': signature, 'x-signature-timestamp': timestamp } });
+  };
+}
+
+test('Pixel can reply to a postcard from Discord; the reply shows on the wall and can be removed', async t => {
+  const f = fixture(t); const signed = await signer(f);
+  const note = valid();
+  await worker.fetch(f.request(note), f.env, f.ctx); await f.drain();
+  await applyDecision(f.env, note.id, 'approve', '999');
+  // The reply button opens a modal, pre-filled with the current reply.
+  const modal = await (await worker.fetch(await signed({ type: 3, data: { custom_id: `note:reply:${note.id}` }, message: { id: '999' } }), f.env, f.ctx)).json();
+  assert.equal(modal.type, 9); assert.equal(modal.data.custom_id, `note-reply:${note.id}`); assert.equal(modal.data.components[0].components[0].value, undefined);
+  const submit = text => signed({ type: 5, data: { custom_id: `note-reply:${note.id}`, components: [{ type: 1, components: [{ type: 4, custom_id: 'reply', value: text }] }] }, message: { id: '999' } });
+  assert.equal((await (await worker.fetch(await submit('  thank you <3  '), f.env, f.ctx)).json()).type, 6); await f.drain();
+  const wall = async () => (await (await worker.fetch(new Request('https://notes.example/api/notes'), f.env, f.ctx)).json()).notes[0];
+  assert.equal((await wall()).reply, 'thank you <3');
+  // The Discord message is updated to show the reply and an "Edit reply" button.
+  const patch = JSON.parse(f.sent.at(-1).body);
+  assert.equal(patch.embeds[0].fields.at(-1).name, 'Your reply'); assert.equal(patch.components[0].components.at(-1).label, 'Edit reply');
+  assert.equal((await (await worker.fetch(await signed({ type: 3, data: { custom_id: `note:reply:${note.id}` }, message: { id: '999' } }), f.env, f.ctx)).json()).data.components[0].components[0].value, 'thank you <3');
+  assert.equal((await (await worker.fetch(await submit('x'.repeat(201)), f.env, f.ctx)).json()).data.flags, 64);
+  await worker.fetch(await submit(''), f.env, f.ctx); await f.drain();
+  assert.equal((await wall()).reply, null);
+  // Only Pixel can reply.
+  assert.equal((await (await worker.fetch(await signed({ type: 5, member: { user: { id: '401' } }, data: { custom_id: `note-reply:${note.id}`, components: [] } }), f.env, f.ctx)).json()).data.flags, 64);
+});
+
+test('visitors can send a song; it shows on the music page only after Pixel adds it', async t => {
+  const f = fixture(t); const signed = await signer(f);
+  f.setVerification({ success: true, hostname: 'pixelis.dev', action: 'send-song' });
+  const post = body => worker.fetch(new Request('https://notes.example/api/songs', { method: 'POST', headers: { Origin: 'https://pixelis.dev', 'Content-Type': 'application/json', 'CF-Connecting-IP': '192.0.2.1' }, body: JSON.stringify(body) }), f.env, f.ctx);
+  const list = async () => (await (await worker.fetch(new Request('https://notes.example/api/songs'), f.env, f.ctx)).json()).songs;
+  const song = { id: crypto.randomUUID(), title: ' Sweater   Weather ', artist: 'The Neighbourhood', name: '', note: 'a classic', turnstileToken: 'ok' };
+  assert.equal((await post({ ...song, title: '' })).status, 400);
+  assert.equal((await post({ ...song, website: 'spam' })).status, 400);
+  assert.equal((await post({ ...song, note: 'x'.repeat(201) })).status, 400);
+  assert.equal((await post(song)).status, 202); await f.drain();
+  const message = JSON.parse(f.sent.at(-1).body);
+  assert.match(message.embeds[0].description, /Sweater Weather/); assert.equal(message.components[0].components[0].custom_id, `song:approve:${song.id}`);
+  assert.deepEqual(await list(), []);
+  assert.equal((await (await worker.fetch(await signed({ type: 3, data: { custom_id: `song:approve:${song.id}` }, message: { id: '999' } }), f.env, f.ctx)).json()).type, 6); await f.drain();
+  assert.deepEqual(await list(), [{ title: 'Sweater Weather', artist: 'The Neighbourhood', name: 'someone', note: 'a classic' }]);
+  await worker.fetch(await signed({ type: 3, data: { custom_id: `song:unpublish:${song.id}` }, message: { id: '999' } }), f.env, f.ctx); await f.drain();
+  assert.deepEqual(await list(), []);
+  // The postcard spam check token cannot be reused for songs.
+  f.setVerification({ success: true, hostname: 'pixelis.dev', action: 'leave-note' });
+  assert.equal((await post({ ...song, id: crypto.randomUUID() })).status, 400);
+});
+
+test('on repeat: top five songs, cached, and a clear flag when the permission is missing', async t => {
+  const { topTracks, resetTopCache, resetSpotifyCache } = await import('../src/spotify.mjs');
+  const env = { SPOTIFY_CLIENT_ID: 'id', SPOTIFY_CLIENT_SECRET: 'secret', SPOTIFY_REFRESH_TOKEN: 'refresh' };
+  let status = 200, calls = 0;
+  t.mock.method(globalThis, 'fetch', async url => {
+    if (String(url).startsWith('https://accounts.spotify.com/')) return Response.json({ access_token: 'token', expires_in: 3600 });
+    calls++;
+    if (status !== 200) return new Response('{}', { status });
+    return Response.json({ items: Array.from({ length: 6 }, (_, i) => ({ name: `song ${i}`, artists: [{ name: 'artist' }], external_urls: { spotify: `https://open.spotify.com/track/t${i}` }, album: { images: [{ url: 'https://i.scdn.co/image/a', width: 300 }] } })) });
+  });
+  resetSpotifyCache(); resetTopCache();
+  let result = await topTracks(env);
+  assert.equal(result.body.tracks.length, 5); assert.deepEqual(result.body.tracks[0], { title: 'song 0', artist: 'artist', albumArt: 'https://i.scdn.co/image/a', url: 'https://open.spotify.com/track/t0' });
+  await topTracks(env); assert.equal(calls, 1);
+  resetTopCache(); status = 403;
+  result = await topTracks(env);
+  assert.equal(result.body.needsPermission, true); assert.deepEqual(result.body.tracks, []);
+  assert.deepEqual((await topTracks({})).body, { configured: false, tracks: [] });
+});

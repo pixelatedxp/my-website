@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>pixelis.dev blog</title>
+    <link>https://pixelis.dev/blog/index.html</link>
+    <description>Things Pixel wrote down.</description>
+    <language>en</language>
+    <item>
+      <title>why i made this site</title>
+      <link>https://pixelis.dev/blog/why-i-made-this-site.html</link>
+      <guid>https://pixelis.dev/blog/why-i-made-this-site.html</guid>
+      <pubDate>Tue, 24 Nov 2026 00:00:00 +0000</pubDate>
+      <description>the old site stopped feeling like me, so i tore it down and built a scrapbook instead.</description>
+    </item>
+  </channel>
+</rss>
