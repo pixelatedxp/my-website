@@ -99,7 +99,26 @@
         return song;
     }
 
-    window.PixelPresence = { spotifyUrl: spotifyUrl, directSong: directSong, summarize: summarize, activityImage: activityImage, imageUrl: imageUrl, clock: clock, duration: duration, partOfDay: partOfDay };
+    // Last song played, shown on the idle card. null when Spotify gave none.
+    function lastSong(payload) {
+        var last = payload && payload.configured === true && payload.last;
+        if (!last || !text(last.title)) return null;
+        var playedAt = Date.parse(last.playedAt);
+        return { title: text(last.title), artist: text(last.artist), art: imageUrl(last.albumArt), url: spotifyUrl(last.url), playedAt: Number.isFinite(playedAt) ? playedAt : null };
+    }
+    function ago(time, now) {
+        if (!Number.isFinite(time)) return '';
+        var minutes = Math.max(0, Math.floor((now - time) / 60000));
+        if (minutes < 1) return 'just now';
+        if (minutes < 60) return minutes + 'm ago';
+        var hours = Math.floor(minutes / 60);
+        if (hours < 24) return hours + 'h ago';
+        var days = Math.floor(hours / 24);
+        return days === 1 ? 'yesterday' : days + 'd ago';
+    }
+    function lastLabel(last, now) { var when = ago(last.playedAt, now); return 'last played' + (when ? ' · ' + when : ''); }
+
+    window.PixelPresence = { lastSong: lastSong, ago: ago, lastLabel: lastLabel, spotifyUrl: spotifyUrl, directSong: directSong, summarize: summarize, activityImage: activityImage, imageUrl: imageUrl, clock: clock, duration: duration, partOfDay: partOfDay };
 
     var root = document.getElementById('presence');
     if (!root) return;
@@ -142,6 +161,7 @@
 
     function tick() {
         var now = Date.now();
+        if (current.last && !current.song) els.label.textContent = lastLabel(current.last, now);
         if (els.time) {
             var theirs = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit', timeZone: timeZone }).format(now);
             els.time.textContent = "it's " + theirs + ' for Pixel, and ' + partOfDay(new Date(now).getHours()) + ' where you are';
@@ -186,6 +206,13 @@
                 els.artist.textContent = view.song.artist;
                 setImage(els.art, view.song.art, 'Album art for ' + view.song.title, noteIcon);
                 els.progress.hidden = view.song.paused ? !view.song.length : !(Number.isFinite(view.song.start) && Number.isFinite(view.song.end));
+            } else if (view.last) {
+                els.spotify.dataset.state = 'last';
+                els.label.textContent = lastLabel(view.last, Date.now());
+                els.title.textContent = view.last.title;
+                els.artist.textContent = view.last.artist;
+                setImage(els.art, view.last.art, 'Album art for ' + view.last.title, noteIcon);
+                els.progress.hidden = true;
             } else {
                 els.spotify.dataset.state = 'idle';
                 els.label.textContent = view.status === 'unavailable' ? 'spotify unavailable' : 'not listening right now';
@@ -195,11 +222,12 @@
                 els.progress.hidden = true;
             }
             if (els.link) {
-                var url = view.song && view.song.url;
+                var shown = view.song || view.last;
+                var url = shown && shown.url;
                 els.link.hidden = !url;
                 if (url) {
                     els.link.href = url;
-                    els.link.setAttribute('aria-label', 'Open ' + view.song.title + (view.song.artist ? ' by ' + view.song.artist : '') + ' on Spotify');
+                    els.link.setAttribute('aria-label', 'Open ' + shown.title + (shown.artist ? ' by ' + shown.artist : '') + ' on Spotify');
                 } else els.link.removeAttribute('href');
             }
             els.game.hidden = !view.game;
@@ -228,6 +256,7 @@
             // Spotify itself wins when it answers, so the song shows even with Discord closed.
             var direct = results[1].status === 'fulfilled' ? directSong(results[1].value, receivedAt) : undefined;
             if (direct !== undefined) view.song = direct;
+            if (!view.song && results[1].status === 'fulfilled') view.last = lastSong(results[1].value);
             // Keep the same start time across refreshes so the card doesn't redraw for clock jitter.
             if (view.song && !view.song.paused && current.song && !current.song.paused && view.song.title === current.song.title && Math.abs((view.song.start || 0) - (current.song.start || 0)) < 4000) {
                 view.song.start = current.song.start; view.song.end = current.song.end;

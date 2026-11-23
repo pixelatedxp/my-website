@@ -348,6 +348,8 @@ a.cartridge:hover { transform: rotate(0deg) translate(-2px, -2px); box-shadow: 7
 .spotify:has(.spotify-link:not([hidden])):hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--accent); }
 .spotify[data-state="paused"] .eq span { animation: none; transform: scaleY(.45); }
 .spotify[data-state="paused"] .spotify-art img { filter: grayscale(.6); opacity: .8; }
+.spotify[data-state="last"] .eq { display: none; }
+.spotify[data-state="last"] .spotify-art img { filter: saturate(.75); }
 
 /* footer visit counter */
 .visit-count { font-size: 14px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }

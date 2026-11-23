@@ -249,3 +249,27 @@ test('a paused Spotify song keeps its details so the card can show it as paused'
   assert.equal(paused.title, 'Lucid Dreams'); assert.equal(paused.progressMs, 5000); assert.equal(paused.url, 'https://open.spotify.com/track/x');
   assert.equal(shapePlaying({ is_playing: true, item: { name: 'x', external_urls: { spotify: 'javascript:alert(1)' } } }).url, null);
 });
+
+test('when nothing is playing, the last played song comes along; an old token without the permission stays idle', async t => {
+  const { resetSpotifyCache } = await import('../src/spotify.mjs');
+  const env = { DB: database(), ALLOWED_ORIGINS: 'https://pixelis.dev', SPOTIFY_CLIENT_ID: 'id', SPOTIFY_CLIENT_SECRET: 'secret', SPOTIFY_REFRESH_TOKEN: 'refresh' };
+  const get = () => worker.fetch(new Request('https://notes.example/api/now-playing'), env, { waitUntil() {} });
+  let recentStatus = 200, recentCalls = 0;
+  t.mock.method(globalThis, 'fetch', async url => {
+    url = String(url);
+    if (url.startsWith('https://accounts.spotify.com/')) return Response.json({ access_token: 'token', expires_in: 3600 });
+    if (url.includes('/currently-playing')) return new Response(null, { status: 204 });
+    recentCalls++;
+    if (recentStatus !== 200) return new Response('{}', { status: recentStatus });
+    return Response.json({ items: [{ played_at: '2026-11-23T17:00:00.000Z', track: { name: 'Lucid Dreams', artists: [{ name: 'Juice WRLD' }],
+      external_urls: { spotify: 'https://open.spotify.com/track/xyz' }, album: { images: [{ url: 'https://i.scdn.co/image/art', width: 300 }] } } }] });
+  });
+  resetSpotifyCache();
+  const body = await (await get()).json();
+  assert.equal(body.playing, false);
+  assert.deepEqual(body.last, { title: 'Lucid Dreams', artist: 'Juice WRLD', albumArt: 'https://i.scdn.co/image/art', url: 'https://open.spotify.com/track/xyz', playedAt: '2026-11-23T17:00:00.000Z' });
+  resetSpotifyCache(); recentStatus = 403;
+  const idle = await (await get()).json();
+  assert.equal(idle.last, undefined); assert.equal(idle.playing, false);
+  assert.equal(recentCalls, 2);
+});

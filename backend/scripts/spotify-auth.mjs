@@ -5,7 +5,7 @@
 //   2. node scripts/spotify-auth.mjs <client id> <client secret>
 //   3. Open the link it prints, approve, then save the three values it prints with `npx wrangler secret put`.
 //
-// Nothing is stored on disk. The only permissions asked for are reading what is playing right now.
+// Nothing is stored on disk. The only permissions asked for are reading what is playing now and the last song played.
 import { createServer } from 'node:http';
 import { randomBytes } from 'node:crypto';
 
@@ -21,7 +21,7 @@ const authUrl = 'https://accounts.spotify.com/authorize?' + new URLSearchParams(
   client_id: clientId,
   response_type: 'code',
   redirect_uri: redirectUri,
-  scope: 'user-read-currently-playing user-read-playback-state',
+  scope: 'user-read-currently-playing user-read-playback-state user-read-recently-played',
   state
 });
 

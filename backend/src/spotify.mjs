@@ -5,12 +5,15 @@
 
 const TOKEN_URL = 'https://accounts.spotify.com/api/token';
 const PLAYING_URL = 'https://api.spotify.com/v1/me/player/currently-playing?additional_types=track,episode';
+const RECENT_URL = 'https://api.spotify.com/v1/me/player/recently-played?limit=1';
+const RECENT_MS = 60_000; // the last song changes rarely; ask at most once a minute
 const CACHE_MS = 10_000; // every visitor polls; Spotify is asked at most once per 10 s per Worker instance
 
 let token = null; // { value, expiresAt }
 let cached = null; // { at, body }
+let recent = null; // { at, last }
 
-export function resetSpotifyCache() { token = null; cached = null; }
+export function resetSpotifyCache() { token = null; cached = null; recent = null; }
 
 const text = value => (typeof value === 'string' ? value.trim().slice(0, 200) : '');
 
@@ -63,6 +66,35 @@ export function shapePlaying(data) {
   };
 }
 
+// Last finished song, for when nothing is playing. Needs the user-read-recently-played permission;
+// with an older token Spotify answers 401/403 and the card simply stays idle.
+export function shapeRecent(data) {
+  const entry = data?.items?.[0];
+  const item = entry?.track;
+  if (!item || !text(item.name)) return null;
+  const playedAt = Date.parse(entry.played_at);
+  return {
+    title: text(item.name),
+    artist: Array.isArray(item.artists) ? item.artists.map(a => text(a?.name)).filter(Boolean).join(', ') : '',
+    albumArt: art(item.album?.images),
+    url: link(item),
+    playedAt: Number.isFinite(playedAt) ? new Date(playedAt).toISOString() : null
+  };
+}
+
+async function lastPlayed(env) {
+  if (recent && Date.now() - recent.at < RECENT_MS) return recent.last;
+  try {
+    const response = await fetch(RECENT_URL, { headers: { Authorization: `Bearer ${await accessToken(env)}` } });
+    const last = response.ok ? shapeRecent(await response.json()) : null;
+    recent = { at: Date.now(), last };
+    return last;
+  } catch (error) {
+    console.error('Recently played failed:', error.message);
+    return recent ? recent.last : null;
+  }
+}
+
 export async function nowPlaying(env) {
   if (!env.SPOTIFY_CLIENT_ID || !env.SPOTIFY_CLIENT_SECRET || !env.SPOTIFY_REFRESH_TOKEN) return { status: 200, body: { configured: false } };
   if (cached && Date.now() - cached.at < CACHE_MS) return { status: 200, body: { ...cached.body, ageMs: Date.now() - cached.at } };
@@ -73,6 +105,7 @@ export async function nowPlaying(env) {
     if (response.status === 204) body = { configured: true, playing: false };
     else if (response.ok) body = shapePlaying(await response.json());
     else throw new Error(`Spotify answered ${response.status}`);
+    if (!body.title) { const last = await lastPlayed(env); if (last) body.last = last; }
     cached = { at: Date.now(), body };
     return { status: 200, body: { ...body, ageMs: 0 } };
   } catch (error) {

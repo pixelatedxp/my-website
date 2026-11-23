@@ -76,3 +76,15 @@ test('paused songs stay on the card with a frozen bar, and only real Spotify lin
     const lanyard = P.summarize({ discord_status: 'online', listening_to_spotify: true, spotify: { song: 'x', track_id: '285pBltuF7vW8TeWk8hdRR' }, activities: [] });
     assert.equal(lanyard.song.url, 'https://open.spotify.com/track/285pBltuF7vW8TeWk8hdRR');
 });
+
+test('last played song and how long ago', () => {
+  const P = load();
+  assert.equal(P.lastSong({ configured: true, playing: false }), null);
+  const last = P.lastSong({ configured: true, playing: false, last: { title: 'Lucid Dreams', artist: 'Juice WRLD', albumArt: 'https://i.scdn.co/image/a', url: 'https://open.spotify.com/track/xyz', playedAt: '2026-11-23T17:00:00.000Z' } });
+  assert.equal(last.title, 'Lucid Dreams'); assert.equal(last.url, 'https://open.spotify.com/track/xyz');
+  const t = Date.parse('2026-11-23T17:00:00.000Z');
+  assert.equal(P.ago(t, t + 20e3), 'just now'); assert.equal(P.ago(t, t + 5 * 60e3), '5m ago');
+  assert.equal(P.ago(t, t + 3 * 3600e3), '3h ago'); assert.equal(P.ago(t, t + 30 * 3600e3), 'yesterday'); assert.equal(P.ago(t, t + 80 * 3600e3), '3d ago');
+  assert.equal(P.lastLabel(last, t + 2 * 3600e3), 'last played · 2h ago');
+  assert.equal(P.lastSong({ configured: true, last: { title: 'x', url: 'https://evil.example/' } }).url, '');
+});
