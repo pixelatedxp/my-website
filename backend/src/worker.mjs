@@ -289,11 +289,15 @@ export default {
     await recordPlays(env).catch(error => console.error('Recording plays failed:', error.message));
     if (!env.DISCORD_BOT_TOKEN) return;
     const { results: pending } = await env.DB.prepare("SELECT id FROM notes WHERE status='pending' AND discord_message_id IS NULL AND delivery_after<=? LIMIT 3").bind(now()).all();
-    const { results: updates } = await env.DB.prepare('SELECT id FROM notes WHERE sync_needed=1 LIMIT 3').all();
+    const { results: updates } = await env.DB.prepare('SELECT id FROM notes WHERE sync_needed=1 ORDER BY created_at DESC LIMIT 25').all();
     const { results: songsPending } = await env.DB.prepare("SELECT id FROM songs WHERE status='pending' AND discord_message_id IS NULL AND delivery_after<=? LIMIT 3").bind(now()).all();
     const { results: songUpdates } = await env.DB.prepare('SELECT id FROM songs WHERE sync_needed=1 LIMIT 3').all();
-    await Promise.allSettled([...pending.map(n => sendNote(env, n.id)), ...updates.map(n => syncNote(env, n.id)),
-      ...songsPending.map(n => sendSong(env, n.id)), ...songUpdates.map(n => syncSong(env, n.id))]);
+    await Promise.allSettled([...pending.map(n => sendNote(env, n.id)), ...songsPending.map(n => sendSong(env, n.id)), ...songUpdates.map(n => syncSong(env, n.id))]);
+    // Message edits go one at a time with a short gap, so a big batch stays inside Discord's rate limit.
+    for (const n of updates) {
+      await syncNote(env, n.id).catch(error => console.error('Note sync will retry:', error.message));
+      await new Promise(resolve => setTimeout(resolve, 1200));
+    }
     await env.DB.prepare('DELETE FROM submission_limits WHERE expires_at < ?').bind(now()).run();
   }
 };
