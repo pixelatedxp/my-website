@@ -167,6 +167,7 @@
         } catch (e) { $('timeToday').textContent = $('timeWeek').textContent = $('timeYear').textContent = '?'; }
     }
     loadTime();
+    setInterval(function () { if (!document.hidden) { loadRecent(); loadTime(); } }, 60000);
 
     // ---- songs people sent me
     async function loadSent() {

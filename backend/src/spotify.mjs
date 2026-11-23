@@ -89,7 +89,9 @@ async function recentList(env) {
   if (recent && Date.now() - recent.at < RECENT_MS) return recent.list;
   try {
     const response = await fetch(RECENT_URL, { headers: { Authorization: `Bearer ${await accessToken(env)}` } });
-    const list = response.ok ? shapeRecentList(await response.json()) : [];
+    // A failed answer (rate limit, hiccup) must not replace the last good list with an empty one.
+    if (!response.ok) throw new Error(`Spotify answered ${response.status}`);
+    const list = shapeRecentList(await response.json());
     recent = { at: Date.now(), list };
     return list;
   } catch (error) {

@@ -389,3 +389,19 @@ test('always list is matched to Spotify for art and links, and the recent list h
   assert.deepEqual(result.tracks[0], { title: 'Buttercup', artist: 'Jack Stauber', albumArt: 'https://i.scdn.co/image/a', url: 'https://open.spotify.com/track/x' });
   assert.equal((await recentlyPlayed(env)).tracks.length, 5);
 });
+
+test('a failed Spotify answer keeps the last good recently-played list instead of an empty one', async t => {
+  const { recentlyPlayed, resetSpotifyCache } = await import('../src/spotify.mjs');
+  const env = { SPOTIFY_CLIENT_ID: 'id', SPOTIFY_CLIENT_SECRET: 'secret', SPOTIFY_REFRESH_TOKEN: 'refresh' };
+  let fail = false; const realNow = Date.now; let clock = realNow();
+  t.mock.method(Date, 'now', () => clock);
+  t.mock.method(globalThis, 'fetch', async url => {
+    if (String(url).startsWith('https://accounts.spotify.com/')) return Response.json({ access_token: 'token', expires_in: 3600 });
+    if (fail) return new Response('{}', { status: 429 });
+    return Response.json({ items: [{ played_at: '2026-11-23T10:00:00Z', track: { name: 'Mist', artists: [{ name: 'EsDeeKid' }] } }] });
+  });
+  resetSpotifyCache();
+  assert.equal((await recentlyPlayed(env)).tracks.length, 1);
+  fail = true; clock += 120000; // cache expired, and Spotify now says "slow down"
+  assert.equal((await recentlyPlayed(env)).tracks[0].title, 'Mist');
+});
