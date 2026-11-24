@@ -5,7 +5,7 @@
 
 const TOKEN_URL = 'https://accounts.spotify.com/api/token';
 const PLAYING_URL = 'https://api.spotify.com/v1/me/player/currently-playing?additional_types=track,episode';
-const RECENT_URL = 'https://api.spotify.com/v1/me/player/recently-played?limit=5';
+const RECENT_URL = 'https://api.spotify.com/v1/me/player/recently-played?limit=20';
 const RECENT_MS = 60_000; // the last song changes rarely; ask at most once a minute
 const CACHE_MS = 10_000; // every visitor polls; Spotify is asked at most once per 10 s per Worker instance
 
@@ -69,7 +69,7 @@ export function shapePlaying(data) {
 // Last finished song, for when nothing is playing. Needs the user-read-recently-played permission;
 // with an older token Spotify answers 401/403 and the card simply stays idle.
 export function shapeRecentList(data) {
-  return (Array.isArray(data?.items) ? data.items : []).map(shapeEntry).filter(Boolean).slice(0, 5);
+  return (Array.isArray(data?.items) ? data.items : []).map(shapeEntry).filter(Boolean).slice(0, 20);
 }
 export function shapeRecent(data) { return shapeRecentList(data)[0] || null; }
 function shapeEntry(entry) {
@@ -101,7 +101,7 @@ async function recentList(env) {
 }
 async function lastPlayed(env) { return (await recentList(env))[0] || null; }
 
-// The five most recent plays, for the "recently played" list on the music page.
+// The last 20 plays; the music page groups back-to-back repeats and shows five songs.
 export async function recentlyPlayed(env) {
   if (!env.SPOTIFY_CLIENT_ID || !env.SPOTIFY_CLIENT_SECRET || !env.SPOTIFY_REFRESH_TOKEN) return { configured: false, tracks: [] };
   return { configured: true, tracks: await recentList(env) };

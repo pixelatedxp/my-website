@@ -387,7 +387,7 @@ test('always list is matched to Spotify for art and links, and the recent list h
   const result = await alwaysTracks(env);
   assert.equal(result.tracks.length, ALWAYS.length);
   assert.deepEqual(result.tracks[0], { title: 'Buttercup', artist: 'Jack Stauber', albumArt: 'https://i.scdn.co/image/a', url: 'https://open.spotify.com/track/x' });
-  assert.equal((await recentlyPlayed(env)).tracks.length, 5);
+  assert.equal((await recentlyPlayed(env)).tracks.length, 8);
 });
 
 test('a failed Spotify answer keeps the last good recently-played list instead of an empty one', async t => {

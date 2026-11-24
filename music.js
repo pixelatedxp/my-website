@@ -131,8 +131,15 @@
         try {
             var data = await fetch(base + '/api/recent', { credentials: 'omit', cache: 'no-store' }).then(function (r) { return r.json(); });
             list.replaceChildren();
-            (data && Array.isArray(data.tracks) ? data.tracks : []).slice(0, 5).forEach(function (t) {
+            // Back-to-back plays of the same song become one line: "Buttercup ×3".
+            var groups = [];
+            (data && Array.isArray(data.tracks) ? data.tracks : []).forEach(function (t) {
                 if (!text(t.title)) return;
+                var prev = groups[groups.length - 1];
+                if (prev && prev.title === t.title && prev.artist === t.artist) prev.count++;
+                else groups.push({ title: t.title, artist: t.artist, url: t.url, playedAt: t.playedAt, count: 1 });
+            });
+            groups.slice(0, 5).forEach(function (t) {
                 var li = document.createElement('li');
                 var link = document.createElement(spotifyUrl(t.url) ? 'a' : 'span');
                 if (link.tagName === 'A') { link.href = spotifyUrl(t.url); link.target = '_blank'; link.rel = 'noopener noreferrer'; }
@@ -140,7 +147,9 @@
                 var b = document.createElement('b'); b.textContent = text(t.title);
                 var a = document.createElement('span'); a.textContent = text(t.artist);
                 copy.append(b, a);
-                var when = document.createElement('span'); when.className = 'receipt-when mono'; when.textContent = ago(Date.parse(t.playedAt));
+                var when = document.createElement('span'); when.className = 'receipt-when mono';
+                if (t.count > 1) { var times = document.createElement('span'); times.className = 'receipt-times'; times.textContent = '×' + t.count; when.append(times, ' '); }
+                when.append(ago(Date.parse(t.playedAt)));
                 link.append(copy, when); li.appendChild(link); list.appendChild(li);
             });
             status.hidden = list.children.length > 0;
