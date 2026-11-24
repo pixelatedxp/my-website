@@ -151,20 +151,20 @@
     loadRecent();
 
     // ---- time listened
-    function hours(minutes) {
-        minutes = Math.max(0, Math.round(Number(minutes) || 0));
-        if (minutes < 60) return minutes + ' min';
-        var h = minutes / 60;
-        return (h < 10 ? h.toFixed(1).replace(/\.0$/, '') : Math.round(h).toLocaleString('en')) + ' h';
+    // Minutes, like Spotify Wrapped: big number, small "min" after it.
+    function setMinutes(el, minutes) {
+        var unit = document.createElement('span'); unit.className = 'unit'; unit.textContent = ' min';
+        el.replaceChildren(Math.max(0, Math.round(Number(minutes) || 0)).toLocaleString('en'), unit);
     }
     async function loadTime() {
         if (!base) return;
         try {
             var data = await fetch(base + '/api/listening-time', { credentials: 'omit', cache: 'no-store' }).then(function (r) { return r.json(); });
-            $('timeToday').textContent = hours(data.today); $('timeWeek').textContent = hours(data.week); $('timeYear').textContent = hours(data.year);
+            setMinutes($('timeToday'), data.today); setMinutes($('timeWeek'), data.week);
+            setMinutes($('timeYear'), data.year); setMinutes($('timeAll'), data.allTime);
             var since = Date.parse(data.since);
-            if (Number.isFinite(since)) $('timeNote').textContent = 'counted from spotify every few minutes, since ' + new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short', year: 'numeric' }).format(since).toLowerCase() + '.';
-        } catch (e) { $('timeToday').textContent = $('timeWeek').textContent = $('timeYear').textContent = '?'; }
+            if (Number.isFinite(since)) $('timeNote').textContent = 'all time counts every song since ' + new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short', year: 'numeric' }).format(since).toLowerCase() + '. updated from spotify every few minutes.';
+        } catch (e) { $('timeToday').textContent = $('timeWeek').textContent = $('timeYear').textContent = $('timeAll').textContent = '?'; }
     }
     loadTime();
     setInterval(function () { if (!document.hidden) { loadRecent(); loadTime(); } }, 60000);

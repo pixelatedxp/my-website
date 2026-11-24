@@ -531,11 +531,13 @@ a.cartridge:hover { transform: rotate(0deg) translate(-2px, -2px); box-shadow: 7
 .listen-title { margin: 0 0 10px; font-size: 32px; line-height: 1.05; }
 .listen-stats { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .listen-stats div { padding: 14px 16px; border: 2px solid var(--edge); border-radius: 14px; background: var(--white); }
-.listen-stats .is-big { grid-column: 1 / -1; background: var(--yellow); color: #1f2a44; }
+.listen-stats .is-big { background: var(--yellow); color: #1f2a44; }
+.listen-stats .is-all { background: var(--pink); }
 .listen-stats dt { font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
 .listen-stats .is-big dt { color: #1f2a44; opacity: .75; }
 .listen-stats dd { margin: 2px 0 0; font-family: var(--font-round); font-weight: 700; font-size: 30px; line-height: 1.1; }
-.listen-stats .is-big dd { font-size: 44px; }
+.listen-stats .is-big dd { font-size: 34px; }
+.listen-stats dd .unit { font-size: .5em; font-weight: 600; opacity: .7; }
 .listen-note { margin: 10px 0 0; font-size: 14px; }
 
 /* Discord custom status as a thought bubble on the polaroids (looks like Discord's) */

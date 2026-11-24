@@ -371,7 +371,7 @@ test('listening time: plays are recorded once each and totalled for today, this 
   assert.equal(await recordPlays(env), 0); // same plays again are ignored
   assert.equal(afterSeen[0], null); assert.equal(afterSeen[1], String(Date.parse('2026-11-25T11:00:00Z')));
   assert.deepEqual(periodStarts(now), { day: Date.parse('2026-11-25T00:00:00Z'), week: Date.parse('2026-11-23T00:00:00Z'), year: Date.parse('2026-01-01T00:00:00Z') });
-  assert.deepEqual(await listeningTime(env, now), { today: 7, week: 12, year: 22, playsThisYear: 4, since: '2025-12-31T23:00:00.000Z' });
+  assert.deepEqual(await listeningTime(env, now), { today: 7, week: 12, year: 22, allTime: 32, playsThisYear: 4, since: '2025-12-31T23:00:00.000Z' });
 });
 
 test('always list is matched to Spotify for art and links, and the recent list holds five songs', async t => {

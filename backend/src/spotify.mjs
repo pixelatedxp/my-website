@@ -141,10 +141,11 @@ export async function listeningTime(env, now = Date.now()) {
       COALESCE(SUM(CASE WHEN played_at >= ? THEN duration_ms END), 0) AS today,
       COALESCE(SUM(CASE WHEN played_at >= ? THEN duration_ms END), 0) AS week,
       COALESCE(SUM(CASE WHEN played_at >= ? THEN duration_ms END), 0) AS year,
+      COALESCE(SUM(duration_ms), 0) AS all_time,
       COUNT(CASE WHEN played_at >= ? THEN 1 END) AS plays_year,
       MIN(played_at) AS since FROM plays`).bind(day, week, year, year).first();
   const minutes = ms => Math.round((Number(ms) || 0) / 60000);
-  return { today: minutes(row?.today), week: minutes(row?.week), year: minutes(row?.year), playsThisYear: Number(row?.plays_year) || 0,
+  return { today: minutes(row?.today), week: minutes(row?.week), year: minutes(row?.year), allTime: minutes(row?.all_time), playsThisYear: Number(row?.plays_year) || 0,
     since: row?.since ? new Date(row.since).toISOString() : null };
 }
 
