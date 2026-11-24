@@ -31,17 +31,41 @@ function link(item) {
   return typeof url === 'string' && url.startsWith('https://open.spotify.com/') ? url : null;
 }
 
+// Spotify can hand back a new refresh token when we refresh; the old one then stops working.
+// The newest token is kept in D1, tied to the secret it came from, so running the setup again
+// (a new SPOTIFY_REFRESH_TOKEN secret) always wins over an older saved one.
+async function sha256(text) {
+  const bytes = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)));
+  return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+}
+async function currentRefreshToken(env) {
+  if (!env.DB) return { token: env.SPOTIFY_REFRESH_TOKEN, base: null };
+  const base = await sha256(env.SPOTIFY_REFRESH_TOKEN);
+  try {
+    const row = await env.DB.prepare("SELECT value FROM settings WHERE key='spotify_refresh'").first();
+    const saved = row ? JSON.parse(row.value) : null;
+    if (saved?.base === base && typeof saved.token === 'string' && saved.token) return { token: saved.token, base };
+  } catch (error) { console.error('Reading saved Spotify token failed:', error.message); }
+  return { token: env.SPOTIFY_REFRESH_TOKEN, base };
+}
+
 async function accessToken(env) {
   if (token && token.expiresAt > Date.now() + 30_000) return token.value;
+  const current = await currentRefreshToken(env);
   const response = await fetch(TOKEN_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: 'Basic ' + btoa(`${env.SPOTIFY_CLIENT_ID}:${env.SPOTIFY_CLIENT_SECRET}`) },
-    body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: env.SPOTIFY_REFRESH_TOKEN })
+    body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: current.token })
   });
   if (!response.ok) throw new Error(`Spotify token refresh failed (${response.status})`);
   const result = await response.json();
   if (typeof result.access_token !== 'string') throw new Error('Spotify token refresh returned no token');
   token = { value: result.access_token, expiresAt: Date.now() + (Number(result.expires_in) || 3600) * 1000 };
+  if (env.DB && current.base && typeof result.refresh_token === 'string' && result.refresh_token && result.refresh_token !== current.token) {
+    await env.DB.prepare("INSERT INTO settings(key, value) VALUES ('spotify_refresh', ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value")
+      .bind(JSON.stringify({ base: current.base, token: result.refresh_token })).run()
+      .catch(error => console.error('Saving new Spotify token failed:', error.message));
+  }
   return token.value;
 }
 

@@ -405,3 +405,24 @@ test('a failed Spotify answer keeps the last good recently-played list instead o
   fail = true; clock += 120000; // cache expired, and Spotify now says "slow down"
   assert.equal((await recentlyPlayed(env)).tracks[0].title, 'Mist');
 });
+
+test('a new refresh token from Spotify is saved and used next time; a fresh secret overrides it', async t => {
+  const { recentlyPlayed, resetSpotifyCache } = await import('../src/spotify.mjs');
+  const env = { DB: database(), SPOTIFY_CLIENT_ID: 'id', SPOTIFY_CLIENT_SECRET: 'secret', SPOTIFY_REFRESH_TOKEN: 'original' };
+  const used = []; let rotate = 'rotated-1';
+  t.mock.method(globalThis, 'fetch', async (url, init) => {
+    if (String(url).startsWith('https://accounts.spotify.com/')) {
+      const sent = new URLSearchParams(init.body).get('refresh_token'); used.push(sent);
+      if (sent === 'original' && used.length > 1) return new Response('{"error":"invalid_grant"}', { status: 400 }); // old token is dead after rotation
+      const answer = { access_token: 'token', expires_in: 3600 }; if (rotate) answer.refresh_token = rotate;
+      return Response.json(answer);
+    }
+    return Response.json({ items: [] });
+  });
+  resetSpotifyCache(); await recentlyPlayed(env);
+  rotate = null; resetSpotifyCache(); await recentlyPlayed(env);
+  assert.deepEqual(used, ['original', 'rotated-1']);
+  // Running the setup again gives a new secret, which wins over the saved token.
+  env.SPOTIFY_REFRESH_TOKEN = 'fresh'; resetSpotifyCache(); await recentlyPlayed(env);
+  assert.equal(used.at(-1), 'fresh');
+});
